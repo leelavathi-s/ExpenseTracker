@@ -403,7 +403,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 			 { 
 				 parentDialog.dispose();
 			 }
-			System.out.println("::;" + n);
+			System.out.println(":::;" + n);
 		}
 		
 		
