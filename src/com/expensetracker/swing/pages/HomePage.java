@@ -71,7 +71,7 @@ public class HomePage
 		jFrame.setVisible(true);
 		
 		recordPurchasePane.setDefaultFocusAndDefaultButton();
-
+        // Just a comment
 	}
 
 }
