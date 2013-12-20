@@ -7,35 +7,74 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import com.expensetracker.utility.ExpenseTrackerUtility;
+
 public class Order
 {
 
 	String purchaseDate;
 	
-	String category;
+	int categoryId;
 	
-	String productName;
+	int productId;
 
 	int quantity;
 	
 	double price;
 	
-	String shopName;
+	int shopId;
 	
-	String brandName;
+	int brandId;
 	
 	public Order(String purchaseDate, String category,String productName, int quantity,
 			double price, String shopName, String brandName)
 	{
 		this.purchaseDate = purchaseDate;
-		this.productName = productName;
-		this.category = category;
+		//this.productName = productName;
+	//	this.category = category;
 		this.quantity = quantity;
 		this.price = price;
-		this.shopName = shopName;
-		this.brandName = brandName;
+		//this.shopName = shopName;
+		//this.brandName = brandName;
 	}
 	
+	public Order() {
+		// TODO Auto-generated constructor stub
+	}
+
+	
+	public int getCategoryId() {
+		return categoryId;
+	}
+
+	public int getShopId() {
+		return shopId;
+	}
+
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+	
+	public void setShopId(int shopId) {
+		this.shopId = shopId;
+	}
+
+	public int getProductId() {
+		return productId;
+	}
+
+	public int getBrandId() {
+		return brandId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
+	}
+
+	public void setBrandId(int brandId) {
+		this.brandId = brandId;
+	}
+
 	public String getPurchaseDate() {
 		return purchaseDate;
 	}
@@ -48,28 +87,10 @@ public class Order
 
 
 
-	public String getCategory() {
-		return category;
-	}
+	
 
 
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-
-
-	public String getProductName() {
-		return productName;
-	}
-
-
-
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
-
+	
 
 
 	public int getQuantity() {
@@ -96,94 +117,63 @@ public class Order
 
 
 
-	public String getShopName() {
-		return shopName;
-	}
+	
 
 
-
-	public void setShopName(String shopName) {
-		this.shopName = shopName;
-	}
+	
 
 
-
-	public String getBrandName() {
-		return brandName;
-	}
-
-
-
-	public void setBrandName(String brandName) {
-		this.brandName = brandName;
-	}
-
-
-
-	public void saveOrderDetails(Order orderDetails)
+	public void saveOrderDetails(Order orderDetails)throws SQLException
 	{
 		System.out.println("Method invoked");
 		
-		Connection connection = null;
-		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/expensetracker", "root", "123");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 1");
-			e.printStackTrace();
-		}
-		Statement stmt = null;
-		ResultSet resultSet = null;
-		try {
-			stmt = connection.createStatement();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 2");
-			e.printStackTrace();
-		}
-		try {
-			 stmt.executeUpdate("Insert into order values()");
-			
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
 				
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 3");
-			e.printStackTrace();
-		}
-		try {
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 4");
-			e.printStackTrace();
-		}
-		try {
-			connection.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 5");
-			e.printStackTrace();
-		}
+				stmt.executeUpdate("Insert into purchaseorder (quantity,productID,price,shopId,brandId,categoryId,orderDate) values("
+						+ orderDetails.getQuantity()
+						+ ","
+						+ orderDetails.getProductId()
+						+ ","
+						+ orderDetails.getPrice()
+						+ ","
+						+ orderDetails.getShopId()
+						+ ","
+						+ orderDetails.getBrandId()
+						+ ","
+						+ orderDetails.getCategoryId()
+						+ ","
+						+ orderDetails.getPurchaseDate() + ")");
 
+			} catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+				
+			}
+		}	
 	}
 	
 	@Override
 	public String toString() {
 		StringBuffer stringBuffer = new StringBuffer();
 		stringBuffer.append("Date of Purchase::").append(getPurchaseDate())
-		.append("Cateogry::")
-		.append(getCategory())
-		.append("  ProductName::")
-		.append(getProductName())
+		.append("Cateogry Id::")
+		.append(getCategoryId())
+		.append("  Product ID::")
+		.append(getProductId())
 		.append("  Quantity::")
 		.append(getQuantity())
 		.append("  Price::")
 		.append(getPrice())
-		.append("  ShopName::")
-		.append(getShopName())
-		.append("  BrandName::")
-		.append(getBrandName());			
+		.append("  Shop Id::")
+		.append(getShopId())
+		.append("  Brand Id::")
+		.append(getBrandId());			
 		return super.toString();
 	}
 

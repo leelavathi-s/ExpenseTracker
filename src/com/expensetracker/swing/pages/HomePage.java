@@ -37,7 +37,7 @@ public class HomePage
 		JFrame jFrame = new JFrame("Expense Tracker");
 		jFrame.setLocation(300, 300);
 
-		RecordPurchasePanel recordPurchasePane = new RecordPurchasePanel();
+		RecordPurchasePanel recordPurchasePane = new RecordPurchasePanel(jFrame);
 		ComparePricePanel comparePricePanel = new ComparePricePanel();
 		GenerateReportsPanel generateReportsPanel = new GenerateReportsPanel();
 

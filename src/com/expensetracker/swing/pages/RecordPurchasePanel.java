@@ -8,20 +8,17 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -30,13 +27,17 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 import com.expensetracker.classes.Brand;
 import com.expensetracker.classes.Category;
+import com.expensetracker.classes.Order;
 import com.expensetracker.classes.Product;
 import com.expensetracker.classes.Shop;
 import com.expensetracker.utility.ExpenseTrackerUtility;
@@ -49,33 +50,50 @@ import com.expensetracker.utility.ExpenseTrackerUtility;
  * @author leela
  * 
  */
-public class RecordPurchasePanel extends JPanel implements ItemListener
+public class RecordPurchasePanel extends JPanel implements ItemListener,ActionListener
 {
 
-	private int quantity;
-	private double price;
-	private Date date;
 	
 	JFormattedTextField dtPurchaseField;
 	JComboBox<Category> categoryField;
 	JComboBox<Product> productNameField;
 	JFormattedTextField qtyField;
 	JFormattedTextField priceField;
-	JComboBox<String> purchasedFromField;
+	JComboBox<Shop> purchasedFromField;
 	JComboBox<Brand> brandNameField;
+	JPanel jPanel;
+	JFrame jFrame;
 
+	public RecordPurchasePanel(JFrame jFrame)
+	{
+		this.jFrame = jFrame;
+	}
 	public JPanel buildStoreDataGUI() 
 	{
-		JPanel jPanel = new JPanel();
+		 jPanel = new JPanel();
 		jPanel.setLayout(new GridBagLayout());
 
 		JLabel dtPurchaseJLabel = new JLabel("Date of Purchase");
 		addToPanel(jPanel, dtPurchaseJLabel, 0, 0, 0.1);
 
-	    dtPurchaseField = new JFormattedTextField(
-				DateFormat.getDateInstance());
-		dtPurchaseField.setValue(date);
-		dtPurchaseField.setColumns(5);
+	    DateFormat format = new SimpleDateFormat("yyyy/MMM/dd");
+	    dtPurchaseField = new JFormattedTextField(format);
+	//	dtPurchaseField.setValue(date);
+		//dtPurchaseField.setColumns(5);
+		
+	    //dtPurchaseField.requestFocusInWindow();
+		/*try
+		
+		{
+			MaskFormatter dateMask = new MaskFormatter("####/##/##");
+			dateMask.install(dtPurchaseField);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+        
+
+		
 		addToPanel(jPanel, dtPurchaseField, 1, 0, 0.8);
 
 		JLabel categoryJLabel = new JLabel("Category");
@@ -96,7 +114,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 
 		if(categoryField.getSelectedItem()!=null)
 		{
-		productNameField = new JComboBox(Product.getAvailableProducts(categoryField.getSelectedItem()));
+			productNameField = new JComboBox(Product.getAvailableProducts(categoryField.getSelectedItem()));
 		}
 		else
 		{
@@ -145,8 +163,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 
 		qtyField = new JFormattedTextField(
 				NumberFormat.getNumberInstance());
-		qtyField.setValue(new Integer(quantity));
-		qtyField.setColumns(5);
+	//	qtyField.setValue(new Integer(quantity));
+	//	qtyField.setColumns(5);
 		// qtyField.addPropertyChangeListener("value", this);
 		addToPanel(jPanel, qtyField, 1, 5, 0.8);
 
@@ -162,8 +180,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 						amountDisplayFormat), new NumberFormatter(
 						amountDisplayFormat), new NumberFormatter(
 						amountEditFormat)));
-		priceField.setValue(price);
-		priceField.setColumns(5);
+		//priceField.setValue(price);
+	//	priceField.setColumns(5);
 		// priceField.addPropertyChangeListener("value", this);
 		addToPanel(jPanel, priceField, 1, 6, 0.8);
 
@@ -172,15 +190,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 		JPanel buttonJPanel = new JPanel();
 		
 		JButton saveJButton = new JButton("Save");
-		saveJButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("God..please save me");
-				
-			}
-		});
+		saveJButton.addActionListener(this);
 		
 		JButton clearJButton = new JButton("Clear");
 		
@@ -195,9 +205,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 
 		wrapper.add(BorderLayout.CENTER, jPanel);
 		wrapper.add(BorderLayout.PAGE_END, buttonJPanel);
-
 		
-
 		return wrapper;
 	}
 
@@ -213,101 +221,101 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 		container.add(item, temp);
 	}
 
-	class LabelClickHandler implements MouseListener 
+	@Override
+	public void actionPerformed(ActionEvent e) 
 	{
-		String selectedLink;
-
-		public LabelClickHandler(String selectedLinkStr)
+		boolean successFlag = false;
+		try
 		{
-			selectedLink = selectedLinkStr;
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent arg0)
+			boolean chkStatsus = checkMandatoryFields();
+			if(chkStatsus)
+			{	
+				saveDetails();
+				successFlag = true;
+			}
+			else
+			{
+				successFlag = false;
+				
+			}
+		} 
+		catch (SQLException sqlException)
 		{
-			System.out.println("Entered here in mouseclicked");
-			System.out.println("" + arg0.getID());
-			String lastItem = showAddNewItemUI(selectedLink);
-			
-			System.out.println("selected link:::" + selectedLink);
-			if("Category Name".equals(selectedLink))
-			{
-				categoryField.removeAllItems();
-
-				for (Category category : Category.getAvailableCategories())
-					categoryField.addItem(category);
-				
-				if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
-				{
-					categoryField.setSelectedItem(lastItem);
-				}
-			}
-			else if("Product Name".equals(selectedLink))
-			{
-				productNameField.removeAllItems();
-
-					for(Product product:Product.getAvailableProducts(null))
-						productNameField.addItem(product);
-					
-					if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
-					{
-						productNameField.setSelectedItem(lastItem);
-					}
-			
-			}
-			else if("Brand Name".equals(selectedLink))
-			{
-				brandNameField.removeAllItems();
-
-					for (Brand brand : Brand.getAvailableBrands(null))
-						brandNameField.addItem(brand);
-					if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
-					{
-						brandNameField.setSelectedItem(lastItem);
-					}
-				
-			}
-			else if("Shop Name".equals(selectedLink))
-			{
-				purchasedFromField.removeAllItems();
-
-				for (String item : Shop.getAvailableShops())
-					purchasedFromField.addItem(item);
-				
-				if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
-				{
-					purchasedFromField.setSelectedItem(lastItem);
-				}
-			
-			}
-			
+			// TODO Auto-generated catch block
+			successFlag = false;
+			sqlException.printStackTrace();
+			JOptionPane.showMessageDialog(jPanel,
+					"Insertion failed because of an error. \nError Message  "
+							+ sqlException.getMessage() + ".\nFix the error and try again", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
-
-	
-		@Override
-		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
+		if(successFlag)
+		{
+			int n = JOptionPane.showConfirmDialog(jPanel,
+					"Record successfully added!Want to add more?", "Confirm",
+					JOptionPane.YES_NO_OPTION);
+			 if(1 == n) 
+			 { 
+				 jFrame.dispose();
+			 }
+		}	
 	}
+	public boolean checkMandatoryFields()
+	{
+		Brand brand = (Brand)(brandNameField.getSelectedItem());
+		if(brand==null)
+		{
+			JOptionPane.showMessageDialog(jPanel, "Select or add a Brand", "Brand missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+	
+		Category category = (Category)(categoryField.getSelectedItem());
+		if(category==null)
+		{
+			JOptionPane.showMessageDialog(jPanel, "Select or add a Category", "Category missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+	
+		Product product = (Product)(productNameField.getSelectedItem());
+		if (product == null)
+		{
+			JOptionPane.showMessageDialog(jPanel, "Select or add a Product to proceed", "Product missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		Shop shop = (Shop)(purchasedFromField.getSelectedItem());
+		if (shop == null)
+		{
+			JOptionPane.showMessageDialog(jPanel, "Select or add a Shop to proceed", "Shop missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	
+		if(qtyField.getValue()==null)
+		{
+			Number number = (Number)qtyField.getValue();
+			if(number==null)
+			{
 
+				JOptionPane.showMessageDialog(jPanel, "Enter quantity", "Quantity missing", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+		
+		if(priceField.getValue()==null)
+		{
+			Number numberPrice = (Number)priceField.getValue();
+			if(numberPrice==null)
+			{
+				JOptionPane.showMessageDialog(jPanel, "Enter Price", "Price missing", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+	
+		return true;
+	}
+	
+	
 	protected String showAddNewItemUI(String selectedLink)
 	{
 		AddNewDialog dialog = new AddNewDialog();
@@ -317,66 +325,37 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 	}
 
 	
-	public void saveDetails()
- {
-		System.out.println("Method invoked");
+	public void saveDetails()throws SQLException
+	{
+			Order order = new Order();
 
-		Connection connection = null;
-		try {
-			connection = DriverManager
-					.getConnection(
-							"jdbc:mysql://localhost:3306/expensetracker",
-							"root", "123");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 1");
-			e.printStackTrace();
-		}
-		Statement stmt = null;
-		ResultSet resultSet = null;
-		try {
-			stmt = connection.createStatement();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 2");
-			e.printStackTrace();
-		}
-		try {
-			resultSet = stmt.executeQuery("Select * from Shop");
-			while (resultSet.next()) {
-				System.out.println("Entered loop");
-				System.out.println(resultSet.getString(1));
-				System.out.println(resultSet.getString(2));
-
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 3");
-			e.printStackTrace();
-		}
-		try {
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 4");
-			e.printStackTrace();
-		}
-		try {
-			connection.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Catch 5");
-			e.printStackTrace();
-		}
-
+			Brand brand = (Brand)(brandNameField.getSelectedItem());
+			order.setBrandId(brand.getBrandId());
+			
+		
+			Category category = (Category)(categoryField.getSelectedItem());
+			order.setCategoryId(category.getCategoryId());
+			
+			
+		
+			Product product = (Product)(productNameField.getSelectedItem());
+			order.setProductId(product.getProductId());
+			
+			Shop shop = (Shop)(purchasedFromField.getSelectedItem());
+			order.setShopId(shop.getShopId());
+			
+			Number number = (Number)qtyField.getValue();
+			order.setQuantity(number.intValue());
+			Number priceNumber = (Number)priceField.getValue();
+			double price = priceNumber.doubleValue();
+			order.setPrice(price);
+			
+			order.saveOrderDetails(order);
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent itemEvent)
 	{
-		ItemSelectable itemSelectable = itemEvent.getItemSelectable();
-		System.out.println("getSource::::"+itemEvent.getSource());
-		System.out.println("statechg:::" + itemEvent.getStateChange());
 		JComboBox comboBox = (JComboBox)itemEvent.getSource();
 		if("Product Name".equals(comboBox.getName()))
 		{
@@ -414,12 +393,9 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 
 			
 				}
-				//productNameField.revalidate();
-				//productNameField.repaint();
 					
 			}
 		}
-		System.out.println("State chg agreed");
 	}
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -454,4 +430,120 @@ public class RecordPurchasePanel extends JPanel implements ItemListener
 
 	}
 */
+
+    class LabelClickHandler implements MouseListener 
+    {
+    	String selectedLink;
+
+    	public LabelClickHandler(String selectedLinkStr)
+    	{
+    		selectedLink = selectedLinkStr;
+    	}
+
+    	@Override
+    	public void mouseClicked(MouseEvent arg0)
+    	{
+    		System.out.println("Entered here in mouseclicked");
+    		System.out.println("" + arg0.getID());
+    		String lastItem = showAddNewItemUI(selectedLink);
+
+    		System.out.println("selected link:::" + selectedLink);
+    		if("Category Name".equals(selectedLink))
+    		{
+    			categoryField.removeAllItems();
+
+    			for (Category category : Category.getAvailableCategories())
+    				categoryField.addItem(category);
+
+    			if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
+    			{
+    				categoryField.setSelectedItem(lastItem);
+    			}
+    		}
+    		else if("Product Name".equals(selectedLink))
+    		{
+    			productNameField.removeAllItems();
+
+    			if(categoryField.getSelectedItem()!=null)
+    			{
+    				for(Product product:Product.getAvailableProducts(categoryField.getSelectedItem()))
+    					productNameField.addItem(product);
+
+    			}
+    			else
+    			{
+    				for(Product product:Product.getAvailableProducts(null))
+    					productNameField.addItem(product);
+
+    			}
+
+    			if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
+    			{
+    				productNameField.setSelectedItem(lastItem);
+    			}
+
+    		}
+    		else if("Brand Name".equals(selectedLink))
+    		{
+    			brandNameField.removeAllItems();
+
+    			if(productNameField.getSelectedItem()!=null)
+    			{
+    				for (Brand brand : Brand.getAvailableBrands(productNameField
+    						.getSelectedItem()))
+    					brandNameField.addItem(brand);
+    			}	
+    			else
+    			{
+    				for (Brand brand : Brand.getAvailableBrands(null))
+    					brandNameField.addItem(brand);
+    			}
+    			if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
+    			{
+    				brandNameField.setSelectedItem(lastItem);
+    			}
+
+    		}
+    		else if("Shop Name".equals(selectedLink))
+    		{
+    			purchasedFromField.removeAllItems();
+
+    			for (Shop shop : Shop.getAvailableShops())
+    				purchasedFromField.addItem(shop);
+
+    			if(!ExpenseTrackerUtility.isNullOrEmpty(lastItem))
+    			{
+    				purchasedFromField.setSelectedItem(lastItem);
+    			}
+
+    		}
+
+    	}
+
+
+    	@Override
+    	public void mouseEntered(MouseEvent arg0) {
+    		// TODO Auto-generated method stub
+
+    	}
+
+    	@Override
+    	public void mouseExited(MouseEvent arg0) {
+    		// TODO Auto-generated method stub
+
+    	}
+
+    	@Override
+    	public void mousePressed(MouseEvent arg0) {
+
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent arg0) {
+    		// TODO Auto-generated method stub
+
+    	}
+    }
+
+
 }

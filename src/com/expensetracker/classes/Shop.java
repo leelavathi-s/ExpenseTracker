@@ -10,12 +10,18 @@ import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class Shop
 {
- public String shopName;
+ private String shopName;
+ 
+ private int shopId;
  
  public Shop(String shopName)
  {
 	 this.shopName = shopName;
  }
+
+public Shop() {
+	// TODO Auto-generated constructor stub
+}
 
 public String getShopName() {
 	return shopName;
@@ -25,9 +31,17 @@ public void setShopName(String shopName) {
 	this.shopName = shopName;
 }
  
-public static Vector<String> getAvailableShops()
+public int getShopId() {
+	return shopId;
+}
+
+public void setShopId(int shopId) {
+	this.shopId = shopId;
+}
+
+public static Vector<Shop> getAvailableShops()
 {
-	Vector<String> shopsList = new Vector<String>();
+	Vector<Shop> shopsList = new Vector<Shop>();
 	Connection connection = ExpenseTrackerUtility.getConnection();
 	if(connection!=null)
 	{
@@ -39,7 +53,11 @@ public static Vector<String> getAvailableShops()
 			{
 				System.out.println("Entered loop");
 				System.out.println(resultSet.getString(2));
-				shopsList.add(resultSet.getString(2));
+				Shop shop = new Shop();
+				shop.setShopId(resultSet.getInt(1));
+				shop.setShopName(resultSet.getString(2));
+				
+				shopsList.add(shop);
 			
 			}
 		} catch (SQLException e)
@@ -74,5 +92,12 @@ public void addNewShop()throws SQLException
 	}
 
 }
+
+@Override
+public String toString() {
+	// TODO Auto-generated method stub
+	return shopName;
+}
+
 }
 
