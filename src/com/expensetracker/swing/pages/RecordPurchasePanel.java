@@ -1,6 +1,7 @@
 package com.expensetracker.swing.pages;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -63,11 +64,14 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 	JComboBox<Brand> brandNameField;
 	JPanel jPanel;
 	JFrame jFrame;
+	
+	JButton saveJButton = new JButton("Save");
 
 	public RecordPurchasePanel(JFrame jFrame)
 	{
 		this.jFrame = jFrame;
 	}
+	
 	public JPanel buildStoreDataGUI() 
 	{
 		 jPanel = new JPanel();
@@ -76,9 +80,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		JLabel dtPurchaseJLabel = new JLabel("Date of Purchase");
 		addToPanel(jPanel, dtPurchaseJLabel, 0, 0, 0.1);
 
-	    DateFormat format = new SimpleDateFormat("yyyy/MMM/dd");
+	    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	    dtPurchaseField = new JFormattedTextField(format);
-	//	dtPurchaseField.setValue(date);
+	   // dtPurchaseField.setValue("yyyy-MM-dd");
+	    dtPurchaseField.setForeground(Color.gray);
 		//dtPurchaseField.setColumns(5);
 		
 	    //dtPurchaseField.requestFocusInWindow();
@@ -102,6 +107,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		categoryField = new JComboBox(Category.getAvailableCategories());
 		addToPanel(jPanel, categoryField, 1, 1, 0.8);
 		categoryField.setName("Category");
+		categoryField.setEditable(true);
 		categoryField.addItemListener(this);
 
 		JLabel label1 = new JLabel(
@@ -187,9 +193,9 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 
 		
 		
-		JPanel buttonJPanel = new JPanel();
 		
-		JButton saveJButton = new JButton("Save");
+		
+		saveJButton.setDefaultCapable(true);
 		saveJButton.addActionListener(this);
 		
 		JButton clearJButton = new JButton("Clear");
@@ -198,6 +204,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		buttonJPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonJPanel.add(clearJButton);
 		buttonJPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		
 
 		//clearJButton.addActionListener(this);		
 		JPanel wrapper = new JPanel();
@@ -207,6 +214,16 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		wrapper.add(BorderLayout.PAGE_END, buttonJPanel);
 		
 		return wrapper;
+	}
+	
+	JPanel buttonJPanel = new JPanel();
+	
+	
+	public void setDefaultFocusAndDefaultButton()
+	{
+		dtPurchaseField.requestFocus();
+		buttonJPanel.getRootPane().setDefaultButton(saveJButton);
+		
 	}
 
 	private static void addToPanel(JPanel container, Component item, int x,
@@ -257,11 +274,20 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 			 if(1 == n) 
 			 { 
 				 jFrame.dispose();
+			 }else
+			 {
+				 clearFields();
 			 }
 		}	
 	}
 	public boolean checkMandatoryFields()
 	{
+		if(dtPurchaseField.getValue()==null)
+		{
+			JOptionPane.showMessageDialog(jPanel, "Enter purchase date", "Date missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+	
+		}
 		Brand brand = (Brand)(brandNameField.getSelectedItem());
 		if(brand==null)
 		{
@@ -328,6 +354,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 	public void saveDetails()throws SQLException
 	{
 			Order order = new Order();
+			order.setPurchaseDate((Date)dtPurchaseField.getValue());
 
 			Brand brand = (Brand)(brandNameField.getSelectedItem());
 			order.setBrandId(brand.getBrandId());
@@ -545,5 +572,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
     	}
     }
 
-
-}
+    public void clearFields()
+    {
+    	priceField.setText("");
+    	qtyField.setText("");
+    	dtPurchaseField.setText("");
+    }
+	}

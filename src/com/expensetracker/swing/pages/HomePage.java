@@ -69,6 +69,8 @@ public class HomePage
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jFrame.pack();
 		jFrame.setVisible(true);
+		
+		recordPurchasePane.setDefaultFocusAndDefaultButton();
 
 	}
 

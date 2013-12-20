@@ -5,14 +5,18 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.swing.text.DateFormatter;
 
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class Order
 {
 
-	String purchaseDate;
+	Date purchaseDate;
 	
 	int categoryId;
 	
@@ -29,7 +33,7 @@ public class Order
 	public Order(String purchaseDate, String category,String productName, int quantity,
 			double price, String shopName, String brandName)
 	{
-		this.purchaseDate = purchaseDate;
+		//this.purchaseDate = purchaseDate;
 		//this.productName = productName;
 	//	this.category = category;
 		this.quantity = quantity;
@@ -75,23 +79,15 @@ public class Order
 		this.brandId = brandId;
 	}
 
-	public String getPurchaseDate() {
+	public Date getPurchaseDate() {
 		return purchaseDate;
 	}
 
 
 
-	public void setPurchaseDate(String purchaseDate) {
+	public void setPurchaseDate(Date purchaseDate) {
 		this.purchaseDate = purchaseDate;
 	}
-
-
-
-	
-
-
-	
-
 
 	public int getQuantity() {
 		return quantity;
@@ -115,14 +111,6 @@ public class Order
 		this.price = price;
 	}
 
-
-
-	
-
-
-	
-
-
 	public void saveOrderDetails(Order orderDetails)throws SQLException
 	{
 		System.out.println("Method invoked");
@@ -133,6 +121,7 @@ public class Order
 			try 
 			{
 				Statement	stmt = connection.createStatement();
+				DateFormat mysqlFormat = new SimpleDateFormat("YYYY-MM-dd");
 				
 				stmt.executeUpdate("Insert into purchaseorder (quantity,productID,price,shopId,brandId,categoryId,orderDate) values("
 						+ orderDetails.getQuantity()
@@ -146,8 +135,8 @@ public class Order
 						+ orderDetails.getBrandId()
 						+ ","
 						+ orderDetails.getCategoryId()
-						+ ","
-						+ orderDetails.getPurchaseDate() + ")");
+						+ ",'"
+						+ mysqlFormat.format(orderDetails.getPurchaseDate()) + "')");
 
 			} catch (SQLException e)
 			{

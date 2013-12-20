@@ -39,9 +39,9 @@ public class AddNewPanel extends JPanel implements ActionListener {
 	JButton addJButton;
 	JLabel categoryJLabel;
 	JLabel productNameJLabel;
-	JList<Product> productNameField;
+	JComboBox<Product> productNameField;
 
-	JComboBox<String> categoryField;
+	JComboBox<Category> categoryField;
 
 	String lastAddedItem;
 	JRadioButton categoryRadioButton;
@@ -253,10 +253,8 @@ public class AddNewPanel extends JPanel implements ActionListener {
 			defaultListModel.addElement(product);
 
 		System.out.println("DefauktListmodel::" + defaultListModel.toString());
-		productNameField = new JList<>(defaultListModel);
-		productNameField.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		productNameField.setVisibleRowCount(-1);
-
+		productNameField = new JComboBox<>();
+		
 		showComponents(true, "Product Name");
 
 		groupLayout.setHorizontalGroup(groupLayout
@@ -361,7 +359,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 				Brand brand = new Brand(newllyAddedItem);
 				try 
 				{
-					brand.addNewBrand(productNameField.getSelectedValue());
+					brand.addNewBrand(productNameField.getSelectedItem());
 				}
 				catch (SQLException sqlException)
 				{

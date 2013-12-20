@@ -79,7 +79,7 @@ public class Brand
 		return brandList;
 	}
 
-	public void addNewBrand(Product product)throws SQLException
+	public void addNewBrand(Object object)throws SQLException
 	{
 		System.out.println("Entered here in addnew brand");
 		Connection connection = ExpenseTrackerUtility.getConnection();
@@ -90,7 +90,7 @@ public class Brand
 			try 
 			{
 				Statement	stmt = connection.createStatement();
-				
+				Product product= object!=null?(Product) object:null;
 				if(product!=null)
 				{
 					productId = product.getProductId();

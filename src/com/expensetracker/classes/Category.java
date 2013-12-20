@@ -72,7 +72,6 @@ public class Category
 	}
 	public void addNewCategory()throws SQLException
 	{
-		System.out.println("Entered here in addnew category");
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		if(connection!=null)
