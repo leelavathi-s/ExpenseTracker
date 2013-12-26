@@ -58,7 +58,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 		return lastAddedItem;
 	}
 
-	public JPanel buildGUI(String selectedLink) {
+	public JPanel buildGUI(String selectedLink,Category selectedCategory,Product selectedProduct) {
 		wrapperPanel = new JPanel(new BorderLayout());
 
 		JPanel addNewLeftPane = new JPanel();
@@ -140,10 +140,13 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 		showForAllSelections();
 
-		if (productNameRadioButton.isSelected()) {
-			showCategoryComboxBox();
-		} else if (brandRadioButton.isSelected()) {
-			showProduct();
+		if (productNameRadioButton.isSelected())
+		{
+			showCategoryComboxBox(selectedCategory);
+		} 
+		else if (brandRadioButton.isSelected()) 
+		{
+			showProduct(selectedProduct);
 		}
 		groupLayout.setAutoCreateGaps(true);
 		groupLayout.setAutoCreateContainerGaps(true);
@@ -214,11 +217,15 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void showCategoryComboxBox() {
+	public void showCategoryComboxBox(Category selecCategory) {
 		System.out.println("Entere in showcombobox");
 
 		categoryJLabel = new JLabel("Category to be associated with");
 		categoryField = new JComboBox(Category.getAvailableCategories());
+		if(selecCategory!=null)
+		{
+			categoryField.setSelectedItem(selecCategory);
+		}
 		showComponents(true, "Category");
 		groupLayout.setHorizontalGroup(groupLayout
 				.createSequentialGroup()
@@ -245,16 +252,14 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void showProduct() {
+	public void showProduct(Product selectedProduct) {
 		productNameJLabel = new JLabel("Product to be associated with");
-
-		DefaultListModel<Product> defaultListModel = new DefaultListModel<>();
-		for (Product product : Product.getAvailableProducts(null))
-			defaultListModel.addElement(product);
-
-		System.out.println("DefauktListmodel::" + defaultListModel.toString());
-		productNameField = new JComboBox<>();
+		productNameField = new JComboBox(Product.getAvailableProducts(null));
 		
+		if(selectedProduct!=null)
+		{
+			productNameField.setSelectedItem(selectedProduct);
+		}
 		showComponents(true, "Product Name");
 
 		groupLayout.setHorizontalGroup(groupLayout
@@ -351,7 +356,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 		{
 			if (productNameField == null || !productNameField.isVisible())
 			{
-				showProduct();
+				showProduct(null);
 			}
 
 			if (!(newllyAddedItem == null || newllyAddedItem.equals("")))
@@ -374,7 +379,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 		{
 			if (categoryField == null || !categoryField.isVisible()) 
 			{
-				showCategoryComboxBox();
+				showCategoryComboxBox(null);
 			}
 			if (!(newllyAddedItem == null || newllyAddedItem.equals("")))
 			{

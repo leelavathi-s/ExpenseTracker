@@ -16,6 +16,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class HomePage
 {
@@ -39,7 +41,7 @@ public class HomePage
 
 		RecordPurchasePanel recordPurchasePane = new RecordPurchasePanel(jFrame);
 		ComparePricePanel comparePricePanel = new ComparePricePanel();
-		GenerateReportsPanel generateReportsPanel = new GenerateReportsPanel();
+		final GenerateReportsPanel generateReportsPanel = new GenerateReportsPanel();
 
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		comparePricePanel.setBorder(BorderFactory.createTitledBorder(blackline,
@@ -47,11 +49,7 @@ public class HomePage
 		JButton comPriceButton = new JButton("Compare Price");
 		comparePricePanel.add(comPriceButton);
 
-		generateReportsPanel.setBorder(BorderFactory.createTitledBorder(
-				blackline, "Reports"));
-		JButton genReportButton = new JButton("Generate Report");
-		generateReportsPanel.add(genReportButton);
-
+	
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Record Purchase", null,
 				recordPurchasePane.buildStoreDataGUI(), "Record Data");
@@ -60,10 +58,21 @@ public class HomePage
 		tabbedPane.addTab("Compare Price", null, comparePricePanel, null);
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		tabbedPane.addTab("Generate Reports", null, generateReportsPanel, null);
+		tabbedPane.addTab("Generate Reports", null, generateReportsPanel.buildGUI(), null);
 		tabbedPane.setMnemonicAt(2,KeyEvent.VK_3);
 
 		tabbedPane.setSelectedIndex(0);
+	    ChangeListener changeListener = new ChangeListener() {
+	        public void stateChanged(ChangeEvent changeEvent) {
+	          JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+	          int index = sourceTabbedPane.getSelectedIndex();
+	          if("Generate Reports".equals(sourceTabbedPane.getTitleAt(index)))
+	          {
+	        	  generateReportsPanel.buildGUI();
+	          }
+	        }
+	      };
+	      tabbedPane.addChangeListener(changeListener);
 
 		jFrame.getContentPane().add(BorderLayout.CENTER, tabbedPane);
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

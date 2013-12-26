@@ -186,9 +186,6 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 						amountDisplayFormat), new NumberFormatter(
 						amountDisplayFormat), new NumberFormatter(
 						amountEditFormat)));
-		//priceField.setValue(price);
-	//	priceField.setColumns(5);
-		// priceField.addPropertyChangeListener("value", this);
 		addToPanel(jPanel, priceField, 1, 6, 0.8);
 
 		
@@ -196,6 +193,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		
 		
 		saveJButton.setDefaultCapable(true);
+		saveJButton.setActionCommand("Save");
 		saveJButton.addActionListener(this);
 		
 		JButton clearJButton = new JButton("Clear");
@@ -206,7 +204,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		buttonJPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		
 
-		//clearJButton.addActionListener(this);		
+		clearJButton.addActionListener(this);
+		clearJButton.setActionCommand("Clear");
 		JPanel wrapper = new JPanel();
 		wrapper.setLayout(new BorderLayout());
 
@@ -241,6 +240,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
+		if("Save".equals(e.getActionCommand()))
+		{
 		boolean successFlag = false;
 		try
 		{
@@ -278,7 +279,12 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 			 {
 				 clearFields();
 			 }
-		}	
+		}
+		
+		}	else if("Clear".equals(e.getActionCommand()))
+		{
+			clearFields();
+		}
 	}
 	public boolean checkMandatoryFields()
 	{
@@ -342,10 +348,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 	}
 	
 	
-	protected String showAddNewItemUI(String selectedLink)
+	protected String showAddNewItemUI(String selectedLink,Category selectedCategory,Product selectedProduct)
 	{
 		AddNewDialog dialog = new AddNewDialog();
-		dialog.show(selectedLink);
+		dialog.show(selectedLink,selectedCategory,selectedProduct);
 		
 		return dialog.getLastAddedItem();
 	}
@@ -357,19 +363,19 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 			order.setPurchaseDate((Date)dtPurchaseField.getValue());
 
 			Brand brand = (Brand)(brandNameField.getSelectedItem());
-			order.setBrandId(brand.getBrandId());
+			order.setBrand(brand);
 			
 		
 			Category category = (Category)(categoryField.getSelectedItem());
-			order.setCategoryId(category.getCategoryId());
+			order.setCategory(category);
 			
 			
 		
 			Product product = (Product)(productNameField.getSelectedItem());
-			order.setProductId(product.getProductId());
+			order.setProduct(product);
 			
 			Shop shop = (Shop)(purchasedFromField.getSelectedItem());
-			order.setShopId(shop.getShopId());
+			order.setShop(shop);
 			
 			Number number = (Number)qtyField.getValue();
 			order.setQuantity(number.intValue());
@@ -430,37 +436,12 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
         g2d.dispose();
     }
 
-	/*@Override
-	 public void actionPerformed(ActionEvent e) 
-	{
-		System.out.println("Entering actionPerformed method");
-		String dtPurchase = StringFunctions.isNullOrEmpty(dtPurchaseField
-				.getValue()) ? null : (String) dtPurchaseField.getValue();
-		String category = StringFunctions.isNullOrEmpty(categoryField
-				.getSelectedItem()) ? null : (String) categoryField
-				.getSelectedItem();
-		String productName = StringFunctions.isNullOrEmpty(productNameField
-				.getSelectedItem()) ? null : (String) productNameField
-				.getSelectedItem();
-		int qty = (Integer) qtyField.getValue();
-		double price = (Double) priceField.getValue();
-		String shopName = StringFunctions.isNullOrEmpty(purchasedFromField
-				.getSelectedItem()) ? null : (String) purchasedFromField
-				.getSelectedItem();
-		String brandName = StringFunctions.isNullOrEmpty(brandNameField
-				.getSelectedItem()) ? null : (String) brandNameField
-				.getSelectedItem();
-		Order order = new Order(dtPurchase, category, productName, qty, price,
-				shopName, brandName);
-		System.out.println("Created order object:::" + order.toString());
-		order.saveOrderDetails(order);
-
-	}
-*/
 
     class LabelClickHandler implements MouseListener 
     {
     	String selectedLink;
+    	Product product=null;
+    	Category category=null;
 
     	public LabelClickHandler(String selectedLinkStr)
     	{
@@ -470,11 +451,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
     	@Override
     	public void mouseClicked(MouseEvent arg0)
     	{
-    		System.out.println("Entered here in mouseclicked");
-    		System.out.println("" + arg0.getID());
-    		String lastItem = showAddNewItemUI(selectedLink);
+    		product=(Product)productNameField.getSelectedItem();
+    		category=(Category)categoryField.getSelectedItem();
+    		String lastItem = showAddNewItemUI(selectedLink,category,product);
 
-    		System.out.println("selected link:::" + selectedLink);
     		if("Category Name".equals(selectedLink))
     		{
     			categoryField.removeAllItems();
