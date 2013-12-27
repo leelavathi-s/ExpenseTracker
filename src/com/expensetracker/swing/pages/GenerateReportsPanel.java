@@ -19,7 +19,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,11 +29,14 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import com.expensetracker.classes.Order;
+import com.expensetracker.classes.Report;
+import com.expensetracker.classes.ReportType;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 
@@ -44,14 +46,11 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 	List<Order> orderList = null;
 	List<Double> priceListForWeeklyReport = null;
 
-	GenerateReportsPanel generateReportsPanel = null;
-	public GenerateReportsPanel buildGUI()
+	public void buildGUI()
 	{
- 		 generateReportsPanel = new GenerateReportsPanel();
-		generateReportsPanel.setLayout(new BoxLayout(generateReportsPanel, BoxLayout.PAGE_AXIS));
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
-		Border titleBorder = BorderFactory.createLineBorder(Color.gray);
-		generateReportsPanel.setBorder(BorderFactory.createCompoundBorder(
+		this.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory
 				.createTitledBorder("Select an option for report generation"),
 		BorderFactory.createEmptyBorder(20, 20, 20, 20)));
@@ -93,48 +92,37 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		buttonGroup.add(yearlyReport);
 		
 		
-		generateReportsPanel.add(weeklyReport);
+		this.add(weeklyReport);
 		if(weeklyReport.isSelected())
 		{
 			
-			retrieveAndBuildTableDataForWeeklyReport("Weekly");
+			retrieveAndBuildTableDataForWeeklyReport(ReportType.WEEKLY.toString());
 			
 		}
-		generateReportsPanel.add(monthlyReport);
-		generateReportsPanel.add(yearlyReport);
+		this.add(monthlyReport);
+		this.add(yearlyReport);
 		
-		
-		
-		return generateReportsPanel;
 	}
 	
     public class WeekColumnRender extends JLabel implements TableCellRenderer
     {
     	
-    	@Override
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2717301993761887887L;
+
+		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) 
 		{
-        	ArrayList<String> arrayList = null;
-
-			if(value!=null)
-			{
-				StringTokenizer stringTokenizer = new StringTokenizer(
-						(String) value, "(");
-				arrayList = new ArrayList<String>();
-				while (stringTokenizer.hasMoreElements())
-				{
-					arrayList.add((String) stringTokenizer.nextElement());
-
-				}
-				setText("<html><a href=\" #\">" + arrayList.get(0)
-						+ "</a>&nbsp;&nbsp (" + arrayList.get(1) + "</html> ");
-				
-				
-
-			}
-			
+			 MyTableModelForWeeklyReport model = (MyTableModelForWeeklyReport)table.getModel();
+			 final String format = "dd-MMM-YYYY";
+			 String start = ExpenseTrackerUtility.formatDate(model.getWeekStartDate(row), format);
+			 String end = ExpenseTrackerUtility.formatDate(model.getWeekEndDate(row), format);
+				setText("<html><a href=\" #\"> Week "  + (row + 1)
+						+ "</a>&nbsp;&nbsp (" + start + " - " + end  + ") </html> ");
 			
 			return this;
 		}
@@ -155,21 +143,20 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 			
 	
 	}
-	
-	class WeekRange { Date start; Date end; }
 	public void retrieveAndBuildTableDataForWeeklyReport(String userSelectedReportChoice)
 	{
-		if("Weekly".equals(userSelectedReportChoice))
+		if(ReportType.WEEKLY.toString().equals(userSelectedReportChoice))
 		{
-
+			double totalAmountSpentPerWeek=0;
+			Report report = new Report();
 			int maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInCurrentMonth(); 
 	 		try 
 			{
-	 			priceListForWeeklyReport = Order.retrievePriceAmountForWeeklyReport();
+	 			priceListForWeeklyReport = Report.retrievePriceAmountForWeeklyReport();
 			} 
 			catch (SQLException sqlException)
 			{
-				JOptionPane.showMessageDialog(generateReportsPanel,
+				JOptionPane.showMessageDialog(this,
 						"Retrieval failed because of an error. \nError Message  "
 								+ sqlException.getMessage()
 								+ ".\nFix the error and try again", "Error",
@@ -180,13 +167,14 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 			Object[][] rowData = new Object[maxWeeknumber][2];
 			Calendar cal=ExpenseTrackerUtility.getCurrentDate();
 			Date currentDt=cal.getTime();
-		
 			for(int i=0;i<maxWeeknumber;i++)
 			{
+				
 				for(int j=0;j<2;j++)
 				{
 					if(j!=1)
 					{	
+						report = new Report();
 						Date startDt=currentDt;
 						Calendar tempCal =(Calendar) cal.clone();
 			        	cal.add(Calendar.DAY_OF_MONTH, 6);
@@ -197,9 +185,11 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 			        		cal.set(Calendar.YEAR,tempCal.get(Calendar.YEAR));
 			        	}
 			        	Date endDate=cal.getTime();
-			        	
-						rowData[i][j] = "Week " + (i+1) + " (" + ExpenseTrackerUtility.formatDate(startDt,"dd-MMM-yyyy") + " - " + ExpenseTrackerUtility.formatDate(endDate,"dd-MMM-yyyy") + ")";
-						rowData[i][j] = new WeekRange(startDt, endDate);
+			        	report.setWeeklyReportStartDt(startDt);
+			        	report.setWeeklyReportEndDt(endDate);
+						
+			        	rowData[i][j] = report;
+							
 		        		cal.add(Calendar.DATE,1);
 		        		
 		        		endDate=cal.getTime();
@@ -211,17 +201,19 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 					else
 					{	
 						rowData[i][j]=priceListForWeeklyReport.get(i);
+						totalAmountSpentPerWeek+=(Double)rowData[i][j];
 					}	
 				}
 			}
 		
 			
 			JTable jTable = new JTable(new MyTableModelForWeeklyReport(rowData));
-			jTable.setPreferredScrollableViewportSize(new Dimension(350, 70));
-			//jTable.setFillsViewportHeight(true);
+			jTable.setPreferredScrollableViewportSize(new Dimension(350, 10));
+			jTable.setFillsViewportHeight(true);
 			jTable.setAutoCreateRowSorter(true);
 			
 			jTable.addMouseListener(this);
+			
 
 			ExpenseTrackerUtility.initColumnSizes(jTable);
 
@@ -235,22 +227,59 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 			}
 			JScrollPane jScrollPane = new JScrollPane(jTable);
 
-			generateReportsPanel.add(jScrollPane);
+			
+			this.add(jScrollPane);
+			
+		    JTable footer = new JTable(1,jTable.getColumnCount());
+		    footer.setValueAt("Total", 0, 0);
+		    footer.setValueAt(totalAmountSpentPerWeek, 0, 1);
+		    
+		    for(int columnIndex=0;columnIndex<jTable.getColumnCount();columnIndex++)
+		    {	
+		    	setChildTableColumnWidth(footer, columnIndex, getParentTableColumnWidth(jTable, columnIndex));
+		    }	
+		    this.add(footer);
+
 			
 		}
 		
 
 	}
-
+	public int getParentTableColumnWidth(JTable jTable,int columnIndex)
+	{
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
+					.getColumnModel();
+			TableColumn col = colModel.getColumn(columnIndex);
+			return col.getWidth();
+		
+	}	
+	public void setChildTableColumnWidth(JTable jTable,int columnIndex,int columnWidth)
+	{
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
+					.getColumnModel();
+			TableColumn col = colModel.getColumn(columnIndex);
+			 col.setWidth(columnWidth);
+		
+	}
 	public class MyTableModelForWeeklyReport implements TableModel
 	{
 		Object[][] rowData;	
-		public MyTableModelForWeeklyReport(Object[][] rowData)
+		public    MyTableModelForWeeklyReport(Object[][] rowData)
 		{
 			this.rowData=rowData;
 		}
-		private String[] columnNames={"Week Number","Total Price"};
+				
+		private String[] columnNames={"Week","Amount spent(per week)"};
 		
+		public Date getWeekStartDate (int row)
+		{	
+			return ((Report)rowData[row][0]).getWeeklyReportStartDt();
+		}
+		
+		public Date getWeekEndDate (int row)
+		{	
+			return ((Report)rowData[row][0]).getWeeklyReportEndDt();
+		}
 		
 		@Override
 		public void addTableModelListener(TableModelListener l) {
@@ -283,15 +312,26 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		}
 
 		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			if (columnIndex == 0) // if it is the week number column
+		public Object getValueAt(int rowIndex, int columnIndex) 
+		{
+			if(columnIndex!=1)
 			{
-			    WeekRange range = rowData[rowIndex][columnIndex];
-			    return "Week " + range.WeekNumber;
-			
+				Report report = (Report) rowData[rowIndex][columnIndex];
+				String veiwString = "Week "
+						+ (rowIndex + 1)
+						+ " (" +ExpenseTrackerUtility.formatDate(
+								report.getWeeklyReportStartDt(), "dd-MMM-yyyy")
+						+ " - "
+						+ ExpenseTrackerUtility.formatDate(
+								report.getWeeklyReportEndDt(), "dd-MMM-yyyy")
+						+ ")";
+
+				return veiwString;
 			}
-			// TODO Auto-generated method stub
-			return rowData[rowIndex][columnIndex];
+			else
+			{
+				return rowData[rowIndex][columnIndex];
+			}
 		}
 
 		@Override
@@ -308,15 +348,13 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			// TODO Auto-generated method stub
-			
+		
 		}
 		
 	}
 		@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		System.out.println(((JRadioButton)e.getSource()).getName());
 		if("Weekly Report".equals(e.getSource()))
 		{
 			

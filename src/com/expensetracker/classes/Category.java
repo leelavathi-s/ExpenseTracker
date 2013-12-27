@@ -80,7 +80,6 @@ public class Category
 			{
 				Statement	stmt = connection.createStatement();
 				stmt.executeUpdate("Insert into category (CategoryName) values(" + "'" + categoryName + "')");
-				System.out.println("Query:::" + stmt.toString());
 			} catch (SQLException e)
 			{
 				// TODO Auto-generated catch block

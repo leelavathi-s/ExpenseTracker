@@ -12,9 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import com.expensetracker.classes.Order;
+import com.expensetracker.classes.Report;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class WeeklyReportPanel  extends JPanel
@@ -41,12 +44,12 @@ public class WeeklyReportPanel  extends JPanel
 			
 		weeklyReportPanel.setBorder(BorderFactory.createCompoundBorder(
 					BorderFactory
-					.createTitledBorder("Week Report"),
+					.createTitledBorder("Report of " + selectedRowString),
 			BorderFactory.createEmptyBorder(20, 20, 20, 20)));
 			
 		try 
 		{
-			orderList = Order.retrieveDataForWeeklyReport(selectedRowString);
+			orderList = Report.retrieveDataForWeeklyReport(selectedRowString);
 		} 
 		catch (SQLException sqlException)
 		{
@@ -61,7 +64,7 @@ public class WeeklyReportPanel  extends JPanel
 		if(!orderList.isEmpty() && orderList.size()>0)
 		{
 			JTable jTable = new JTable(new MyTableModel());
-			jTable.setPreferredScrollableViewportSize(new Dimension(350, 70));
+			jTable.setPreferredScrollableViewportSize(new Dimension(450, 70));
 			jTable.setFillsViewportHeight(true);
 			jTable.setAutoCreateRowSorter(true);
 			
@@ -70,6 +73,21 @@ public class WeeklyReportPanel  extends JPanel
 			JScrollPane jScrollPane = new JScrollPane(jTable);
 			
 			weeklyReportPanel.add(jScrollPane);
+			double totalAmountSpent =0.0;
+			for(Order order:orderList)
+			{	
+				totalAmountSpent+= order.getPrice();
+			}
+			 JTable footer = new JTable(1,jTable.getColumnCount());
+			    footer.setValueAt("Total", 0, 5);
+			    footer.setValueAt(totalAmountSpent, 0, 6);
+			    
+			    for(int columnIndex=0;columnIndex<jTable.getColumnCount();columnIndex++)
+			    {	
+			    	setChildTableColumnWidth(footer, columnIndex, getParentTableColumnWidth(jTable, columnIndex));
+			    }	
+			    weeklyReportPanel.add(footer);
+
 		}
 		else
 		{
@@ -78,6 +96,22 @@ public class WeeklyReportPanel  extends JPanel
 		}
 		return weeklyReportPanel;
 
+	}
+	public int getParentTableColumnWidth(JTable jTable,int columnIndex)
+	{
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
+					.getColumnModel();
+			TableColumn col = colModel.getColumn(columnIndex);
+			return col.getWidth();
+		
+	}	
+	public void setChildTableColumnWidth(JTable jTable,int columnIndex,int columnWidth)
+	{
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
+					.getColumnModel();
+			TableColumn col = colModel.getColumn(columnIndex);
+			 col.setWidth(columnWidth);
+		
 	}
 	
 	public class MyTableModel implements TableModel

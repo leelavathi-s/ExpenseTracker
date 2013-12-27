@@ -60,7 +60,6 @@ public class Brand
 				}
 				while (resultSet.next()) 
 				{
-					System.out.println(resultSet.getString(2));
 					Brand brand = new Brand();
 					brand.setBrandId(resultSet.getInt(1));
 					brand.setBrandName(resultSet.getString(2));
@@ -81,7 +80,6 @@ public class Brand
 
 	public void addNewBrand(Object object)throws SQLException
 	{
-		System.out.println("Entered here in addnew brand");
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer productId = null;
 		
@@ -96,7 +94,6 @@ public class Brand
 					productId = product.getProductId();
 				}
 				stmt.executeUpdate("Insert into brand (brandName,productId) values(" + "'" + brandName + "'," + productId+")");
-				System.out.println("Query:::" + stmt.toString());
 			} catch (SQLException e)
 			{
 				e.printStackTrace();

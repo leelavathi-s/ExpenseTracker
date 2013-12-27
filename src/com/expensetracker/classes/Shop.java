@@ -51,8 +51,6 @@ public static Vector<Shop> getAvailableShops()
 			ResultSet resultSet = stmt.executeQuery("Select * from Shop");
 			while (resultSet.next()) 
 			{
-				System.out.println("Entered loop");
-				System.out.println(resultSet.getString(2));
 				Shop shop = new Shop();
 				shop.setShopId(resultSet.getInt(1));
 				shop.setShopName(resultSet.getString(2));
@@ -73,7 +71,6 @@ public static Vector<Shop> getAvailableShops()
 
 public void addNewShop()throws SQLException
 {
-	System.out.println("Entered here in addnew shop");
 	Connection connection = ExpenseTrackerUtility.getConnection();
 	
 	if(connection!=null)
@@ -82,7 +79,6 @@ public void addNewShop()throws SQLException
 		{
 			Statement	stmt = connection.createStatement();
 			stmt.executeUpdate("Insert into shop (ShopName) values(" + "'" + shopName + "')");
-			System.out.println("Query:::" + stmt.toString());
 		} catch (SQLException e)
 		{
 			// TODO Auto-generated catch block

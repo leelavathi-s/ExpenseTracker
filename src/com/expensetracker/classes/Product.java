@@ -72,7 +72,6 @@ public class Product {
 			} catch (SQLException e)
 			{
 				
-				System.out.println("Exception caught");// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -83,14 +82,12 @@ public class Product {
 
 	public void addNewProduct(Object obj)throws SQLException
 	{
-		System.out.println("Entered here in addnew product");
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer categoryId=null;
 		if(connection!=null)
 		{
 			try 
 			{
-				System.out.println("!!!!");
 				Statement	stmt = connection.createStatement();
 
 							Category category= obj!=null?(Category) obj:null;
@@ -98,16 +95,13 @@ public class Product {
 							{
 								categoryId = category.getCategoryId();
 							}
-							System.out.println("CategoryID:::" + categoryId);
 							stmt.executeUpdate("Insert into product (productName,categoryId) values(" + "'" + productName + "'," + categoryId  + ")");
 							connection.commit();
 				
 				
 				
-				//System.out.println("Query:::" + stmt.toString());
 			} catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
 			}

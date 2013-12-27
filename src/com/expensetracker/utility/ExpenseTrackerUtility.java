@@ -72,7 +72,6 @@ public class ExpenseTrackerUtility
 	}
 	public static void initColumnSizes(JTable table) 
     {
-
     	
 		for (int i = 0; i < table.getColumnCount(); i++)
 		{
@@ -100,7 +99,6 @@ public class ExpenseTrackerUtility
 			}
 
 			width += 2 * 2;
-
 			col.setPreferredWidth(width);
 			col.setWidth(width);
 		}

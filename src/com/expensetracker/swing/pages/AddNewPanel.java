@@ -218,7 +218,6 @@ public class AddNewPanel extends JPanel implements ActionListener {
 	}
 
 	public void showCategoryComboxBox(Category selecCategory) {
-		System.out.println("Entere in showcombobox");
 
 		categoryJLabel = new JLabel("Category to be associated with");
 		categoryField = new JComboBox(Category.getAvailableCategories());
@@ -406,7 +405,6 @@ public class AddNewPanel extends JPanel implements ActionListener {
 			 { 
 				 parentDialog.dispose();
 			 }
-			System.out.println(";" + n);
 		}
 		
 		
