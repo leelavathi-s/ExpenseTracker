@@ -20,48 +20,21 @@ public class Report
 	
 	private ReportType reportType;
 
-	public static String mySqlFormat= "YYYY-MM-dd";
+	public static String mySqlFormat= "yyyy-MM-dd";
+	
+	private String monthForMonthlyReport;
+	
+	private double totalPricePerMonthForMonthlyReport;
 
 	public Date getWeeklyReportStartDt()
-	{/*
-		if(this.weeklyReportEndDt==null)
-		{
-			this.weeklyReportStartDt = ExpenseTrackerUtility.getCurrentDate().getTime();
-			return weeklyReportStartDt;
-		}
-		else
-		{
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(weeklyReportEndDt);
-			cal.add(Calendar.DATE,1);
-    		
-			this.weeklyReportStartDt =cal.getTime();
-
-			return weeklyReportStartDt;
-		}		
-	*/
+	{
 		return this.weeklyReportStartDt;
 	}
 
 	public Date getWeeklyReportEndDt() 
-	{/*
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(weeklyReportStartDt);
-
-		weeklyReportEndDt = cal.getTime();
-		Calendar tempCal = (Calendar) cal.clone();
-		cal.add(Calendar.DAY_OF_MONTH, 6);
-		if (cal.get(Calendar.MONTH) != tempCal.get(Calendar.MONTH)) 
-		{
-			cal.set(Calendar.DATE, tempCal.getActualMaximum(Calendar.DATE));
-			cal.set(Calendar.MONTH, tempCal.get(Calendar.MONTH));
-			cal.set(Calendar.YEAR, tempCal.get(Calendar.YEAR));
-		}
-		weeklyReportEndDt = cal.getTime();
-		return weeklyReportEndDt;
-	*/
+	{		
 		return this.weeklyReportEndDt;
-		}
+	}
 
 	public ReportType getReportType() {
 		return reportType;
@@ -219,5 +192,67 @@ public class Report
 
 	}
 	
+	public String getMonthForMonthlyReport() {
+		return monthForMonthlyReport;
+	}
 
+	public void setMonthForMonthlyReport(String monthForMonthlyReport) {
+		this.monthForMonthlyReport = monthForMonthlyReport;
+	}
+
+	public double getTotalPricePerMonthForMonthlyReport() {
+		return totalPricePerMonthForMonthlyReport;
+	}
+
+	public void setTotalPricePerMonthForMonthlyReport(
+			double totalPricePerMonthForMonthlyReport) {
+		this.totalPricePerMonthForMonthlyReport = totalPricePerMonthForMonthlyReport;
+	}
+
+	public static List<Report> retrieveDataForMonthlyReport()throws SQLException
+	{
+
+
+		Report report = null;
+		ResultSet resultSet = null;
+		List<Report> reportList = null;
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement stmt = connection.createStatement();
+				reportList = new ArrayList<Report>();
+
+				resultSet = stmt
+						.executeQuery(" SELECT sum(price) AS price, m.name FROM MONTHS m" 
+          +" LEFT JOIN purchaseorder po ON MONTH(STR_TO_DATE(CONCAT(m.name, ' 2013'),'%M %Y')) = MONTH(po.orderDate) AND YEAR(po.orderDate) = '2013' "
+          + " GROUP BY m.name"
+          + " ORDER BY m.id"
+          );
+								
+				while (resultSet.next()) 
+				{
+					report = new Report();
+					report.setMonthForMonthlyReport(resultSet.getString(2));
+					report.setTotalPricePerMonthForMonthlyReport(resultSet.getDouble(1));
+					reportList.add(report);
+					
+				}
+
+				
+				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+		}
+		return reportList;
+
+	
+	}
 }

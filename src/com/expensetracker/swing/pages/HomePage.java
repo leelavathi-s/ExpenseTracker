@@ -61,7 +61,7 @@ public class HomePage
 		tabbedPane.addTab("Compare Price", null, comparePricePanel, null);
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		tabbedPane.addTab("Generate Reports", null, generateReportsPanel, null);
+		tabbedPane.addTab("Generate Reports", null, generateReportsPanel.buildGUI(), null);
 		tabbedPane.setMnemonicAt(2,KeyEvent.VK_3);
 
 		tabbedPane.setSelectedIndex(0);
@@ -86,7 +86,7 @@ public class HomePage
 	          int index = sourceTabbedPane.getSelectedIndex();
 	          if("Generate Reports".equals(sourceTabbedPane.getTitleAt(index)))
 	          {
-	        	  generateReportsPanel.buildGUI();
+	        	//  generateReportsPanel.buildGUI();
 	        	  
 	        	  
 	          }
