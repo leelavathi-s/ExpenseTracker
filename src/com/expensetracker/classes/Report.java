@@ -4,11 +4,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
@@ -53,10 +55,21 @@ public class Report
 	}
 	
 	
-	public  static List<Double> retrievePriceAmountForWeeklyReport()throws SQLException
+	public  static List<Double> retrievePriceAmountForWeeklyReport(String monthSelected,String yrSelected)throws SQLException
 	{
-		int maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInCurrentMonth(); 
+		int maxWeeknumber = 0;
+		Calendar cal=null;
 
+		if(monthSelected==null && yrSelected==null)
+		{	
+			maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInCurrentMonth(); 
+			cal = ExpenseTrackerUtility.getCurrentDate();
+		}
+		else
+		{
+			maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInMonth(monthSelected, yrSelected);
+			cal= ExpenseTrackerUtility.getDateForSelectedMonthAndYr(monthSelected, yrSelected);
+		}
 		ResultSet resultSet = null;
 		List<Double> priceList = null;
 
@@ -67,7 +80,6 @@ public class Report
 			{
 				Statement stmt = connection.createStatement();
 				priceList = new ArrayList<Double>();
-				Calendar cal=ExpenseTrackerUtility.getCurrentDate();
 				Date currentDt=cal.getTime();
 				
 				for (int i = 0; i < maxWeeknumber; i++) 
@@ -109,7 +121,7 @@ public class Report
 					while (resultSet.next()) 
 					{
 					
-						priceList.add(resultSet.getDouble(1));
+						priceList.add(new Double(new DecimalFormat("#0.00").format(resultSet.getDouble(1))));
 					}	
 
 				}
@@ -191,7 +203,61 @@ public class Report
 		return orderArrayList;
 
 	}
-	
+	public static List<Order> retrieveDataForMonthlyReport(String month,String year)throws SQLException
+	{
+
+		ResultSet resultSet = null;
+		List<Order> orderArrayList = null;
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement stmt = connection.createStatement();
+				orderArrayList = new ArrayList<Order>();
+				if(month!=null)
+				{
+				
+					resultSet = stmt
+							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName "
+									+ "from purchaseorder po,category cat,shop,product pro,brand "
+									+ "where po.CategoryId = cat.CategoryId "
+									+ "and po.ShopId =  shop.ShopId "
+									+ "and pro.ProductId=po.ProductId "
+									+ "and brand.brandid=po.brandid "
+									+"and monthname(orderdate)='" 
+									+ month + "'"
+									+ " and year(orderdate) = "
+									+ year);
+					while(resultSet.next())
+					{
+						Order order = new Order();
+						order.setPurchaseDate(resultSet.getDate(1));
+						order.setPrice(resultSet.getDouble(2));
+						order.setQuantity(resultSet.getInt(3));
+						order.setCategoryName(resultSet.getString(4));
+						order.setShopName(resultSet.getString(5));
+						order.setBrandName(resultSet.getString(6));
+						order.setProductName(resultSet.getString(7));
+						orderArrayList.add(order);
+						
+					}		
+
+				}
+			
+			} 
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+		}
+		return orderArrayList;
+
+	}
+
 	public String getMonthForMonthlyReport() {
 		return monthForMonthlyReport;
 	}
@@ -209,7 +275,45 @@ public class Report
 		this.totalPricePerMonthForMonthlyReport = totalPricePerMonthForMonthlyReport;
 	}
 
-	public static List<Report> retrieveDataForMonthlyReport()throws SQLException
+	public static Vector<String> retrieveAvailableYears() throws SQLException
+	{
+
+		ResultSet resultSet = null;
+		Vector<String> yearList = null;
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement stmt = connection.createStatement();
+				yearList = new Vector<String>();
+
+				resultSet = stmt
+						.executeQuery("select distinct year(orderdate) from purchaseorder");
+								
+				while (resultSet.next()) 
+				{
+					yearList.add(resultSet.getString(1));
+					
+				}
+
+				
+				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+		}
+		return yearList;
+
+	
+	
+	}
+	public static List<Report> retrievePriceForMonthlyReport(Object selectedYear)throws SQLException
 	{
 
 
@@ -224,10 +328,12 @@ public class Report
 			{
 				Statement stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
-
+				if(selectedYear!=null)
+				{
+					String selectedYrStr = (String)selectedYear;
 				resultSet = stmt
 						.executeQuery(" SELECT sum(price) AS price, m.name FROM MONTHS m" 
-          +" LEFT JOIN purchaseorder po ON MONTH(STR_TO_DATE(CONCAT(m.name, ' 2013'),'%M %Y')) = MONTH(po.orderDate) AND YEAR(po.orderDate) = '2013' "
+          +" LEFT JOIN purchaseorder po ON MONTH(STR_TO_DATE(CONCAT(m.name,'" + selectedYrStr + "'),'%M %Y')) = MONTH(po.orderDate) AND YEAR(po.orderDate) = '" + selectedYrStr +"'"
           + " GROUP BY m.name"
           + " ORDER BY m.id"
           );
@@ -236,12 +342,12 @@ public class Report
 				{
 					report = new Report();
 					report.setMonthForMonthlyReport(resultSet.getString(2));
-					report.setTotalPricePerMonthForMonthlyReport(resultSet.getDouble(1));
+					report.setTotalPricePerMonthForMonthlyReport(new Double(ExpenseTrackerUtility.formatAmountWithTwoDecimalPlaces(resultSet.getDouble(1))));
 					reportList.add(report);
 					
 				}
 
-				
+				}
 				
 			}
 			catch (SQLException e)

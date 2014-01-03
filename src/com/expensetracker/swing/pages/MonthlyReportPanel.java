@@ -1,16 +1,24 @@
 package com.expensetracker.swing.pages;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.jws.Oneway;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
@@ -20,40 +28,42 @@ import com.expensetracker.classes.Order;
 import com.expensetracker.classes.Report;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
-public class WeeklyReportPanel  extends JPanel
+public class MonthlyReportPanel extends JPanel implements ItemListener
 {
-
-	String selectedRowString = null;
+	String selectedMonth = null;
 	List<Order> orderList = null;
-
-	WeeklyReportPanel  weeklyReportPanel=null;
-	public WeeklyReportPanel(String selectedRowString)
+	String selectedYear = null;
+GenerateReportsPanel generateReportsPanel = null;
+	public MonthlyReportPanel(String selectedRowString,String selectedYear,GenerateReportsPanel generateReportsPanel)
 	{
-		this.selectedRowString = selectedRowString;
+		this.selectedMonth = selectedRowString;
+		this.selectedYear = selectedYear;
+		this.generateReportsPanel = generateReportsPanel;
+
+		buildGUI();
+	}
+	public MonthlyReportPanel()
+	{
+		buildGUI();	
+		
 	}
 	
-	public WeeklyReportPanel() 
+	public void buildGUI()
 	{
-		// TODO Auto-generated constructor stub
-	}
-
-	public WeeklyReportPanel buildGUI()
-	{
-		  weeklyReportPanel= new WeeklyReportPanel();
-		weeklyReportPanel.setLayout(new BoxLayout(weeklyReportPanel, BoxLayout.PAGE_AXIS));
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 			
-		weeklyReportPanel.setBorder(BorderFactory.createCompoundBorder(
+		this.setBorder(BorderFactory.createCompoundBorder(
 					BorderFactory
-					.createTitledBorder("Report of " + selectedRowString),
+					.createTitledBorder("Report of " + selectedMonth + "-" + selectedYear),
 			BorderFactory.createEmptyBorder(20, 20, 20, 20)));
 			
 		try 
 		{
-			orderList = Report.retrieveDataForWeeklyReport(selectedRowString);
+			orderList = Report.retrieveDataForMonthlyReport(selectedMonth,selectedYear);
 		} 
 		catch (SQLException sqlException)
 		{
-			JOptionPane.showMessageDialog(weeklyReportPanel,
+			JOptionPane.showMessageDialog(this,
 					"Retrieval failed because of an error. \nError Message  "
 							+ sqlException.getMessage()
 							+ ".\nFix the error and try again", "Error",
@@ -72,7 +82,7 @@ public class WeeklyReportPanel  extends JPanel
 
 			JScrollPane jScrollPane = new JScrollPane(jTable);
 			
-			weeklyReportPanel.add(jScrollPane);
+			this.add(jScrollPane);
 			double totalAmountSpent =0.0;
 			for(Order order:orderList)
 			{	
@@ -80,21 +90,26 @@ public class WeeklyReportPanel  extends JPanel
 			}
 			 JTable footer = new JTable(1,jTable.getColumnCount());
 			    footer.setValueAt("Total", 0, 5);
-			    footer.setValueAt(totalAmountSpent, 0, 6);
+			    footer.setValueAt(ExpenseTrackerUtility.formatAmountWithTwoDecimalPlaces(totalAmountSpent), 0, 6);
 			    
 			    for(int columnIndex=0;columnIndex<jTable.getColumnCount();columnIndex++)
 			    {	
 			    	ExpenseTrackerUtility.setChildTableColumnWidth(footer, columnIndex, ExpenseTrackerUtility.getParentTableColumnWidth(jTable, columnIndex));
 			    }	
-			    weeklyReportPanel.add(footer);
+			    this.add(footer);
+			    
+			    JCheckBox jCheckBox = new JCheckBox("Weekly Split-up");
+			    jCheckBox.setSelected(false);
+			    jCheckBox.addItemListener(this);
+			    jCheckBox.setName("Weekly");
+			    this.add(jCheckBox);
 
 		}
 		else
 		{
 			JLabel jLabel = new JLabel("No records found for the selected week.");
-			weeklyReportPanel.add(jLabel);
+			this.add(jLabel);
 		}
-		return weeklyReportPanel;
 
 	}
 	
@@ -176,6 +191,34 @@ public class WeeklyReportPanel  extends JPanel
 		}
 		
 		
+	}
+
+	
+	@Override
+	public void itemStateChanged(ItemEvent e) 
+	{
+	    if(e.getStateChange() == ItemEvent.SELECTED)
+		{
+			//GenerateReportsPanel generateReportsPanel = new GenerateReportsPanel();
+			generateReportsPanel.retrieveAndBuildTableDataForWeeklyReport(selectedMonth, selectedYear,this);
+		}
+	    if(e.getStateChange() == ItemEvent.DESELECTED)
+	  	{
+	    	JFrame jFrame = generateReportsPanel.jFrame;
+	    	//JTable jTable = generateReportsPanel.footerForWeeklyReport;
+	    	//Component[]  components = this.getComponents();
+	    	for(Component components:this.getComponents())
+	    	{
+	    		if("jScrollPaneForWeeklyReport".equals(components.getName()) || "footerForWeeklyReport".equals(components.getName()))
+	    		{
+	    			components.setVisible(false);
+
+	    		}	
+	    	}
+	    	jFrame.pack();
+ 	  	}
+	    
+			
 	}
 
 }

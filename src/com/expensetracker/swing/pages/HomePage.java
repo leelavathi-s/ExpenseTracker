@@ -30,6 +30,8 @@ public class HomePage
 	GenerateReportsPanel generateReportsPanel = null;
 	
 	JTabbedPane tabbedPane = null;
+	
+	JFrame jFrame = null;
 	public static void main(String args[])
 	{
 		HomePage homePage = new HomePage();
@@ -39,7 +41,7 @@ public class HomePage
 	public void buildGUI() 
 	{
 
-		JFrame jFrame = new JFrame("Expense Tracker");
+		 jFrame = new JFrame("Expense Tracker");
 		jFrame.setLocation(300, 300);
 
 		RecordPurchasePanel recordPurchasePane = new RecordPurchasePanel(jFrame);
@@ -61,7 +63,7 @@ public class HomePage
 		tabbedPane.addTab("Compare Price", null, comparePricePanel, null);
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		tabbedPane.addTab("Generate Reports", null, generateReportsPanel.buildGUI(), null);
+		tabbedPane.addTab("Generate Reports", null, generateReportsPanel, null);
 		tabbedPane.setMnemonicAt(2,KeyEvent.VK_3);
 
 		tabbedPane.setSelectedIndex(0);
@@ -86,8 +88,8 @@ public class HomePage
 	          int index = sourceTabbedPane.getSelectedIndex();
 	          if("Generate Reports".equals(sourceTabbedPane.getTitleAt(index)))
 	          {
-	        	//  generateReportsPanel.buildGUI();
-	        	  
+	        	  generateReportsPanel.buildGUI();
+	        	  jFrame.pack();
 	        	  
 	          }
 	        			

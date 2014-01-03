@@ -3,12 +3,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +21,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
@@ -54,10 +58,16 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 	JTable jTableForMonthlyreport;
 	JTable footerForMonthlyReport;
 	JScrollPane jScrollPaneForMonthlyReport;
+	JLabel jLabelForYearInput;
+	JComboBox<String> jComboBoxForYearInput;
+	JPanel jPanelForYearInput;
+	JFrame jFrame;
 
 
-	public GenerateReportsPanel buildGUI()
+	GenerateReportsPanel generateReportsPanel = null;
+	public void buildGUI()
 	{
+		generateReportsPanel = new GenerateReportsPanel();
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
 		this.setBorder(BorderFactory.createCompoundBorder(
@@ -71,7 +81,6 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		weeklyReport.setMnemonic(KeyEvent.VK_W);
 		weeklyReport.setBorder(lineBorder);
 		weeklyReport.setSelected(true);
-		//weeklyReport.setPreferredSize(new Dimension(200,30));
 		weeklyReport.add(Box.createRigidArea(new Dimension(100,30)));
 		
 		
@@ -87,7 +96,6 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		yearlyReport.add(Box.createRigidArea(new Dimension(100,30)));
 
 		weeklyReport.setActionCommand("Weekly Report");
-		weeklyReport.setName("name");
 		weeklyReport.addActionListener(this);
 		
 		monthlyReport.setActionCommand("Monthly Report");
@@ -101,28 +109,17 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		buttonGroup.add(monthlyReport);
 		buttonGroup.add(yearlyReport);
 		
-		
+		weeklyReport.setAlignmentX(Component.LEFT_ALIGNMENT);
+		monthlyReport.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//jLabelForYearInput.setAlignmentX(Component.LEFT_ALIGNMENT);
+
 		this.add(weeklyReport);
 		this.add(monthlyReport);
 		this.add(yearlyReport);
 		
-		if(weeklyReport.isSelected())
-		{
-			
-			retrieveAndBuildTableDataForWeeklyReport(ReportType.WEEKLY.toString());
-			
-		}
+		retrieveAndBuildTableDataForWeeklyReport(null,null,this);
 		
-		//jScrollPaneForMonthlyReport.setVisible(false);
-		
-		if(monthlyReport.isSelected())
-		{
-			
-			retrieveAndBuildTableForMonthlyReport();
-			
-		}
-		
-		return this;
+				
 	}
 	
     public class WeekColumnRender extends JLabel implements TableCellRenderer
@@ -172,30 +169,52 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 		   	
     }
 
-	public void createFrame(String selectedRowString)
+	public void createFrame(String selectedRowString,String name,Object yrSelected)
 	{
-		JFrame jFrame = new JFrame();
-		jFrame.setTitle("Weekly Report");
+		jFrame = new JFrame();
+		if(ReportType.WEEKLY.toString().equals(name))
+		{	
+			jFrame.setTitle("Weekly Report");
 		
-		WeeklyReportPanel panel = new WeeklyReportPanel(selectedRowString);
-		jFrame.getContentPane().add(BorderLayout.CENTER,
+			WeeklyReportPanel panel = new WeeklyReportPanel(selectedRowString);
+			jFrame.getContentPane().add(BorderLayout.CENTER,
 				panel.buildGUI());
+		}
+		else if(ReportType.MONTHLY.toString().equals(name))
+		{
+			jFrame.setTitle("Monthly Report");
+			
+			MonthlyReportPanel panel = new MonthlyReportPanel(selectedRowString,(String)yrSelected,this);
+			jFrame.getContentPane().add(BorderLayout.CENTER,panel);
+		
+		}	
 		jFrame.pack();
 		//jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jFrame.setVisible(true);
 			
 	
 	}
-	public void retrieveAndBuildTableDataForWeeklyReport(String userSelectedReportChoice)
+	public void retrieveAndBuildTableDataForWeeklyReport(String monthSelected,String yrSelected,JPanel panel)
 	{
-		if(ReportType.WEEKLY.toString().equals(userSelectedReportChoice))
-		{
 			double totalAmountSpentPerWeek=0;
 			Report report = new Report();
-			int maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInCurrentMonth(); 
+			int maxWeeknumber = 0;
+			Calendar cal = null;
+			if(monthSelected==null && yrSelected==null)
+			{
+				maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInCurrentMonth(); 
+				cal = ExpenseTrackerUtility.getCurrentDate();
+
+			} 
+			else
+			{
+				maxWeeknumber = ExpenseTrackerUtility.getNumberOfWeeksInMonth(monthSelected, yrSelected); 
+				cal= ExpenseTrackerUtility.getDateForSelectedMonthAndYr(monthSelected, yrSelected);
+
+			}
 	 		try 
 			{
-	 			priceListForWeeklyReport = Report.retrievePriceAmountForWeeklyReport();
+	 			priceListForWeeklyReport = Report.retrievePriceAmountForWeeklyReport(monthSelected,yrSelected);
 			} 
 			catch (SQLException sqlException)
 			{
@@ -208,7 +227,6 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 				sqlException.printStackTrace();
 			}
 			Object[][] rowData = new Object[maxWeeknumber][2];
-			Calendar cal=ExpenseTrackerUtility.getCurrentDate();
 			Date currentDt=cal.getTime();
 			for(int i=0;i<maxWeeknumber;i++)
 			{
@@ -248,61 +266,52 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 					}	
 				}
 			}
-		
-			
-			jTableForWeeklyreport = new JTable(new MyTableModelForWeeklyReport(rowData));
-			jTableForWeeklyreport.setPreferredScrollableViewportSize(new Dimension(450, 70));
-			jTableForWeeklyreport.setFillsViewportHeight(true);
-			jTableForWeeklyreport.setAutoCreateRowSorter(true);
-			
-			jTableForWeeklyreport.addMouseListener(this);
-			
-
-			ExpenseTrackerUtility.initColumnSizes(jTableForWeeklyreport);
-
-			for (int c = 0; c < jTableForWeeklyreport.getColumnCount()-1; c++)
-			{
-				DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForWeeklyreport
-						.getColumnModel();
-				TableColumn col = colModel.getColumn(c);
-				col.setCellRenderer(new WeekColumnRender());
-				
-			}
-			 jScrollPaneForWeeklyReport = new JScrollPane(jTableForWeeklyreport);
-
-			
-			this.add(jScrollPaneForWeeklyReport);
-			
-		    footerForWeeklyReport = new JTable(1,jTableForWeeklyreport.getColumnCount());
-		    footerForWeeklyReport.setValueAt("Total", 0, 0);
-		    footerForWeeklyReport.setValueAt(totalAmountSpentPerWeek, 0, 1);
-		    
-		    for(int columnIndex=0;columnIndex<jTableForWeeklyreport.getColumnCount();columnIndex++)
-		    {	
-		    	setChildTableColumnWidth(footerForWeeklyReport, columnIndex, getParentTableColumnWidth(jTableForWeeklyreport, columnIndex));
-		    }	
-		    this.add(footerForWeeklyReport);
-
-			
-		}
-		
+			buildTableForWeeklyreport(rowData,totalAmountSpentPerWeek,panel);
 
 	}
-	public int getParentTableColumnWidth(JTable jTable,int columnIndex)
+	public void buildTableForWeeklyreport(Object[][] rowData,double totalAmountSpentPerWeek,JPanel panel)
 	{
-			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
-					.getColumnModel();
-			TableColumn col = colModel.getColumn(columnIndex);
-			return col.getWidth();
+		jTableForWeeklyreport = new JTable(new MyTableModelForWeeklyReport(rowData));
+		jTableForWeeklyreport.setPreferredScrollableViewportSize(new Dimension(450, 40));
+		jTableForWeeklyreport.setFillsViewportHeight(true);
+		jTableForWeeklyreport.setAutoCreateRowSorter(true);
+		jTableForWeeklyreport.setName(ReportType.WEEKLY.toString());
 		
-	}	
-	public void setChildTableColumnWidth(JTable jTable,int columnIndex,int columnWidth)
-	{
-			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTable
+		jTableForWeeklyreport.addMouseListener(this);
+		//jTableForWeeklyreport.setName("jTableForWeeklyreport");
+
+		ExpenseTrackerUtility.initColumnSizes(jTableForWeeklyreport);
+
+		for (int c = 0; c < jTableForWeeklyreport.getColumnCount()-1; c++)
+		{
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForWeeklyreport
 					.getColumnModel();
-			TableColumn col = colModel.getColumn(columnIndex);
-			 col.setWidth(columnWidth);
+			TableColumn col = colModel.getColumn(c);
+			col.setCellRenderer(new WeekColumnRender());
+			
+		}
+		 jScrollPaneForWeeklyReport = new JScrollPane(jTableForWeeklyreport);
+		 jScrollPaneForWeeklyReport.setName("jScrollPaneForWeeklyReport");
+		 jScrollPaneForWeeklyReport.setVisible(true);
 		
+	    panel.add(jScrollPaneForWeeklyReport);
+
+	    footerForWeeklyReport = new JTable(1,jTableForWeeklyreport.getColumnCount());
+	    footerForWeeklyReport.setValueAt("Total", 0, 0);
+	    footerForWeeklyReport.setValueAt(ExpenseTrackerUtility.formatAmountWithTwoDecimalPlaces(totalAmountSpentPerWeek), 0, 1);
+	    footerForWeeklyReport.setName("footerForWeeklyReport");
+	    footerForWeeklyReport.setVisible(true);
+	    for(int columnIndex=0;columnIndex<jTableForWeeklyreport.getColumnCount();columnIndex++)
+	    {	
+	    	ExpenseTrackerUtility.setChildTableColumnWidth(footerForWeeklyReport, columnIndex, ExpenseTrackerUtility.getParentTableColumnWidth(jTableForWeeklyreport, columnIndex));
+	    }	
+	    panel.add(footerForWeeklyReport);
+	    if(panel instanceof MonthlyReportPanel)
+	    {
+	    	jFrame.pack();
+	    }
+	  //  jFrame.pack();
+	   
 	}
 	public class MyTableModelForWeeklyReport implements TableModel
 	{
@@ -400,41 +409,88 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 	{
 		if("Weekly Report".equals(e.getActionCommand()))
 		{
-			jTableForWeeklyreport.setVisible(true);
-			footerForWeeklyReport.setVisible(true);
-			jScrollPaneForWeeklyReport.setVisible(true);
-			if(jTableForMonthlyreport!=null)
-			{
-				jTableForMonthlyreport.setVisible(false);
-			}
-			if(footerForMonthlyReport!=null)
-			{
-				footerForMonthlyReport.setVisible(false);
-			}	
-			if(jScrollPaneForMonthlyReport!=null)
-			{
-				jScrollPaneForMonthlyReport.setVisible(false);
-			}
+			retrieveAndBuildTableDataForWeeklyReport(null, null, this);
+			
+			ExpenseTrackerUtility.showComponenets(false, footerForMonthlyReport);
+			ExpenseTrackerUtility.showComponenets(false, jScrollPaneForMonthlyReport);
+			ExpenseTrackerUtility.showComponenets(false, jPanelForYearInput);
+
 		}	
 		else if("Monthly Report".equals(e.getActionCommand()))
 		{
-			retrieveAndBuildTableForMonthlyReport();
-			jTableForWeeklyreport.setVisible(false);
-			footerForWeeklyReport.setVisible(false);
-			jScrollPaneForWeeklyReport.setVisible(false);
+			
+			 jPanelForYearInput = new JPanel();
+			 jPanelForYearInput.setLayout(new BoxLayout(jPanelForYearInput, BoxLayout.LINE_AXIS));
+			
+			 jLabelForYearInput = new JLabel("Select an year");
+			 try 
+			 {
+				jComboBoxForYearInput = new JComboBox<String>(Report.retrieveAvailableYears());
+				jComboBoxForYearInput.addActionListener(new YearInputHandler());
+				jComboBoxForYearInput.setPreferredSize(new Dimension(50, 20));
+				jComboBoxForYearInput.setMaximumSize(new Dimension(150, 20));
+				
+
+			} 
+			 catch (SQLException e1) 
+			 {
+				e1.printStackTrace();
+			 }
+			jPanelForYearInput.add(jLabelForYearInput);
+			jPanelForYearInput.add(Box.createRigidArea(new Dimension(10, 50)));
+			
+			jPanelForYearInput.add(jComboBoxForYearInput);
+			jPanelForYearInput.add(Box.createRigidArea(new Dimension(0, 50)));
+			jPanelForYearInput.setVisible(true);
+
+			jLabelForYearInput.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+			this.add(jPanelForYearInput);
+			
+			retrieveAndBuildTableForMonthlyReport(false);
+			
+			ExpenseTrackerUtility.showComponenets(false, footerForWeeklyReport);
+			ExpenseTrackerUtility.showComponenets(false, jScrollPaneForWeeklyReport);
+
 		}
 		else if("Yearly Report".equals(e.getActionCommand()))
 		{
+			ExpenseTrackerUtility.showComponenets(false, footerForWeeklyReport);
+			ExpenseTrackerUtility.showComponenets(false, jScrollPaneForWeeklyReport);
+
+			ExpenseTrackerUtility.showComponenets(false, footerForMonthlyReport);
+			ExpenseTrackerUtility.showComponenets(false, jScrollPaneForMonthlyReport);
+			ExpenseTrackerUtility.showComponenets(false, jPanelForYearInput);
+
 			
+
 		}	
 	
 	}
-	
-		public void retrieveAndBuildTableForMonthlyReport()
+		public class YearInputHandler implements ActionListener
 		{
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				retrieveAndBuildTableForMonthlyReport(true);
+
+			}
+			
+		}
+	
+		public void retrieveAndBuildTableForMonthlyReport(boolean yrOnChg)
+		{
+			if(yrOnChg)
+			{	
+				this.remove(jScrollPaneForMonthlyReport);
+				this.remove(footerForMonthlyReport);
+			}	
+
+
 				try 
 				{
-		 			dataListForMonthlyReport = Report.retrieveDataForMonthlyReport();
+		 			dataListForMonthlyReport = Report.retrievePriceForMonthlyReport(jComboBoxForYearInput.getSelectedItem());
 				} 
 				catch (SQLException sqlException)
 				{
@@ -450,6 +506,8 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 				jTableForMonthlyreport.setPreferredScrollableViewportSize(new Dimension(450, 70));
 				jTableForMonthlyreport.setFillsViewportHeight(true);
 				jTableForMonthlyreport.setAutoCreateRowSorter(true);
+				jTableForMonthlyreport.setName(ReportType.MONTHLY.toString());
+				
 				
 				jTableForMonthlyreport.addMouseListener(this);
 				
@@ -465,18 +523,31 @@ public class GenerateReportsPanel extends JPanel implements ActionListener, Mous
 					
 				}
 				jScrollPaneForMonthlyReport = new JScrollPane(jTableForMonthlyreport);
-
-				
+				jScrollPaneForMonthlyReport.setVisible(true);
 				this.add(jScrollPaneForMonthlyReport);
+				
+				double totalAmountSpentPerMonth=0.0;
+				
+				for(Report report:dataListForMonthlyReport)
+				{
+					totalAmountSpentPerMonth+=report.getTotalPricePerMonthForMonthlyReport();
+				}
 				
 			    footerForMonthlyReport = new JTable(1,jTableForMonthlyreport.getColumnCount());
 			    footerForMonthlyReport.setValueAt("Total", 0, 0);
+			    footerForMonthlyReport.setValueAt(new DecimalFormat("#0.00").format(totalAmountSpentPerMonth), 0, 1);
+			    footerForMonthlyReport.setVisible(true);
 			    
 			    for(int columnIndex=0;columnIndex<jTableForMonthlyreport.getColumnCount();columnIndex++)
 			    {	
-			    	setChildTableColumnWidth(footerForWeeklyReport, columnIndex, getParentTableColumnWidth(jTableForMonthlyreport, columnIndex));
+			    	ExpenseTrackerUtility.setChildTableColumnWidth(
+					footerForMonthlyReport, columnIndex, ExpenseTrackerUtility
+							.getParentTableColumnWidth(jTableForMonthlyreport,
+									columnIndex));
 			    }	
-			    this.add(footerForMonthlyReport);
+					
+					this.add(footerForMonthlyReport);
+					
 
 				
 			}
@@ -510,8 +581,12 @@ public class MyTableModelForMonthlyReport implements TableModel
 	}
 
 	@Override
-	public int getRowCount() {
-		return dataListForMonthlyReport.size();
+	public int getRowCount() 
+	{
+		if(dataListForMonthlyReport!=null && !dataListForMonthlyReport.isEmpty())
+			return dataListForMonthlyReport.size();
+		else
+			return 0;
 	}
 
 	@Override
@@ -553,7 +628,7 @@ public class MyTableModelForMonthlyReport implements TableModel
 		{
 			JTable jTable = (JTable)e.getSource();
 			String selectedRowString = (String)jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
-			createFrame(selectedRowString);			
+			createFrame(selectedRowString,jTable.getName(),jComboBoxForYearInput.getSelectedItem());			
 		}
 
 		@Override
