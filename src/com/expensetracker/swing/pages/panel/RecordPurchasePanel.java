@@ -1,4 +1,4 @@
-package com.expensetracker.swing.pages;
+package com.expensetracker.swing.pages.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -18,12 +18,12 @@ import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,8 +32,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 import com.expensetracker.classes.Brand;
@@ -41,6 +41,7 @@ import com.expensetracker.classes.Category;
 import com.expensetracker.classes.Order;
 import com.expensetracker.classes.Product;
 import com.expensetracker.classes.Shop;
+import com.expensetracker.swing.pages.AddNewDialog;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 /**
@@ -55,6 +56,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 {
 
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6144956813978134963L;
 	JFormattedTextField dtPurchaseField;
 	JComboBox<Category> categoryField;
 	JComboBox<Product> productNameField;
@@ -72,9 +77,10 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		this.jFrame = jFrame;
 	}
 	
-	public JPanel buildStoreDataGUI() 
+	public void buildStoreDataGUI() 
 	{
-		 jPanel = new JPanel();
+		this.removeAll();
+		jPanel = new JPanel();
 		jPanel.setLayout(new GridBagLayout());
 
 		JLabel dtPurchaseJLabel = new JLabel("Date of Purchase");
@@ -104,7 +110,15 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		JLabel categoryJLabel = new JLabel("Category");
 		addToPanel(jPanel, categoryJLabel, 0, 1, 0.1);
 
-		categoryField = new JComboBox(Category.getAvailableCategories());
+		categoryField = new JComboBox<Category>();
+		DefaultComboBoxModel<Category> defaultComboBoxModel = new DefaultComboBoxModel<>();
+		for(Category category:Category.getAvailableCategories())
+		{
+			defaultComboBoxModel.addElement(category);
+		}
+		categoryField.setModel(defaultComboBoxModel);
+		
+		
 		addToPanel(jPanel, categoryField, 1, 1, 0.8);
 		categoryField.setName("Category");
 		categoryField.setEditable(true);
@@ -120,7 +134,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 
 		if(categoryField.getSelectedItem()!=null)
 		{
-			productNameField = new JComboBox(Product.getAvailableProducts(categoryField.getSelectedItem()));
+			productNameField = new JComboBox<Product>(Product.getAvailableProducts(categoryField.getSelectedItem()));
 		}
 		else
 		{
@@ -140,7 +154,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 
 		if(productNameField.getSelectedItem()!=null)
 		{	
-			brandNameField = new JComboBox(Brand.getAvailableBrands(productNameField.getSelectedItem()));
+			brandNameField = new JComboBox<Brand>(Brand.getAvailableBrands(productNameField.getSelectedItem()));
 		}
 		else
 		{
@@ -156,7 +170,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 		JLabel shopNameJLabel = new JLabel("Shop Name");
 		addToPanel(jPanel, shopNameJLabel, 0, 4, 0.1);
 
-		purchasedFromField = new JComboBox(Shop.getAvailableShops());
+		purchasedFromField = new JComboBox<Shop>(Shop.getAvailableShops());
 		addToPanel(jPanel, purchasedFromField, 1, 4, 0.8);
 
 		JLabel label3 = new JLabel(
@@ -206,13 +220,12 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 
 		clearJButton.addActionListener(this);
 		clearJButton.setActionCommand("Clear");
-		JPanel wrapper = new JPanel();
-		wrapper.setLayout(new BorderLayout());
+		//JPanel wrapper = new JPanel();
+		this.setLayout(new BorderLayout());
 
-		wrapper.add(BorderLayout.CENTER, jPanel);
-		wrapper.add(BorderLayout.PAGE_END, buttonJPanel);
+		this.add(BorderLayout.CENTER, jPanel);
+		this.add(BorderLayout.PAGE_END, buttonJPanel);
 		
-		return wrapper;
 	}
 	
 	JPanel buttonJPanel = new JPanel();
@@ -220,13 +233,31 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,ActionLi
 	
 	public void setDefaultFocusAndDefaultButton()
 	{
-		dtPurchaseField.requestFocus();
-		buttonJPanel.getRootPane().setDefaultButton(saveJButton);
-		
+		if(dtPurchaseField!=null)
+		{	
+			dtPurchaseField.requestFocus();
+		}
+		if(buttonJPanel!=null)
+		{
+			if(saveJButton!=null)
+			{
+				if(buttonJPanel.getRootPane()!=null)
+				{
+					JRootPane jRootPane = buttonJPanel.getRootPane();
+					if(jRootPane!=null)
+					{
+						jRootPane.setDefaultButton(saveJButton);
+
+					}
+				}	
+				
+			}	
+		}
 	}
 
 	private static void addToPanel(JPanel container, Component item, int x,
-			int y, double weightx) {
+			int y, double weightx)
+	{
 		GridBagConstraints temp = new GridBagConstraints();
 		temp.gridx = x;
 		temp.gridy = y;

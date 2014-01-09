@@ -19,6 +19,11 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.expensetracker.swing.pages.panel.ComparePricePanel;
+import com.expensetracker.swing.pages.panel.GenerateReportsPanel;
+import com.expensetracker.swing.pages.panel.InformationPanel;
+import com.expensetracker.swing.pages.panel.RecordPurchasePanel;
+
 public class HomePage
 {
 
@@ -30,6 +35,7 @@ public class HomePage
 	GenerateReportsPanel generateReportsPanel = null;
 	
 	JTabbedPane tabbedPane = null;
+	RecordPurchasePanel recordPurchasePane = null;
 	
 	JFrame jFrame = null;
 	public static void main(String args[])
@@ -41,12 +47,13 @@ public class HomePage
 	public void buildGUI() 
 	{
 
-		 jFrame = new JFrame("Expense Tracker");
+		jFrame = new JFrame("Expense Tracker");
 		jFrame.setLocation(300, 300);
 
-		RecordPurchasePanel recordPurchasePane = new RecordPurchasePanel(jFrame);
+		recordPurchasePane = new RecordPurchasePanel(jFrame);
 		ComparePricePanel comparePricePanel = new ComparePricePanel();
 		generateReportsPanel = new GenerateReportsPanel();
+		InformationPanel informationPanel =  new InformationPanel();
 
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		comparePricePanel.setBorder(BorderFactory.createTitledBorder(blackline,
@@ -56,8 +63,7 @@ public class HomePage
 
 	
 		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Record Purchase", null,
-				recordPurchasePane.buildStoreDataGUI(), "Record Data");
+		tabbedPane.addTab("Record Purchase", null,recordPurchasePane, "Record Data");
 		tabbedPane.setMnemonicAt(0,KeyEvent.VK_1);
 		
 		tabbedPane.addTab("Compare Price", null, comparePricePanel, null);
@@ -65,8 +71,12 @@ public class HomePage
 
 		tabbedPane.addTab("Generate Reports", null, generateReportsPanel, null);
 		tabbedPane.setMnemonicAt(2,KeyEvent.VK_3);
+		
+		tabbedPane.addTab("Information", null, informationPanel, null);
+		tabbedPane.setMnemonicAt(1,KeyEvent.VK_4);
 
-		tabbedPane.setSelectedIndex(0);
+
+		tabbedPane.setSelectedIndex(3);
 		tabbedPane.addChangeListener(new TabbedPaneChangeListener());
 	    
 		jFrame.getContentPane().add(BorderLayout.CENTER, tabbedPane);
@@ -89,6 +99,12 @@ public class HomePage
 	          if("Generate Reports".equals(sourceTabbedPane.getTitleAt(index)))
 	          {
 	        	  generateReportsPanel.buildGUI();
+	        	  jFrame.pack();
+	        	  
+	          }
+	          if("Record Purchase".equals(sourceTabbedPane.getTitleAt(index)))
+	          {
+	        	  recordPurchasePane.buildStoreDataGUI();
 	        	  jFrame.pack();
 	        	  
 	          }

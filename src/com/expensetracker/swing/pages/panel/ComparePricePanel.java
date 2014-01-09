@@ -1,4 +1,4 @@
-package com.expensetracker.swing.pages;
+package com.expensetracker.swing.pages.panel;
 import javax.swing.JPanel;
 
 

@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
@@ -26,7 +27,21 @@ public class ExpenseTrackerUtility
 			component.setVisible(showFlag);
 		}
 	}
-	
+	public static void showFailureMessage(Component component,String message,SQLException exception)
+	{
+		if(exception!=null)
+		{	
+			JOptionPane.showMessageDialog(component,message	+ exception.getMessage() + ".\nFix the error and try again", "Error",
+				JOptionPane.ERROR_MESSAGE);
+		}	
+		else
+		{
+			JOptionPane.showMessageDialog(component,message, "Error",
+					JOptionPane.ERROR_MESSAGE);
+
+		}
+
+	}
 	public static boolean isNullOrEmpty(String str)
 	{
 		if(str==null || str.equals(""))

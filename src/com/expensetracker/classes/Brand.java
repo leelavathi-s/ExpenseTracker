@@ -78,11 +78,11 @@ public class Brand
 		return brandList;
 	}
 
-	public void addNewBrand(Object object)throws SQLException
+	public  Brand addNewBrand(Object object)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer productId = null;
-		
+		Brand brand =null;
 		if(connection!=null)
 		{
 			try 
@@ -94,13 +94,62 @@ public class Brand
 					productId = product.getProductId();
 				}
 				stmt.executeUpdate("Insert into brand (brandName,productId) values(" + "'" + brandName + "'," + productId+")");
+				
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement.executeQuery("SELECT LAST_INSERT_ID()");
+				brand = new Brand(brandName);
+				 while(resultSet.next())
+				 { 
+					 brand.setBrandId(resultSet.getInt(1)); 
+				 } 
+	
 			} catch (SQLException e)
 			{
 				e.printStackTrace();
 				throw e;				
 			}
 		}
+		return brand;
+	}
+	public void removeBrand(Brand brand)throws SQLException
+	{
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("delete from brand where brandId = " + brand.getBrandId());
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
 
+	}
+	public void updateBrand(Brand brand)throws SQLException
+	{
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("update brand set brandName =" +"'" + brandName + "' where brandId = " + brand.getBrandId());
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
+	
 	}
 
 	@Override

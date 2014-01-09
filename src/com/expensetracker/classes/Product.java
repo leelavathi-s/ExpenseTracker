@@ -80,33 +80,82 @@ public class Product {
 		return brandList;
 	}
 
-	public void addNewProduct(Object obj)throws SQLException
+	public Product addNewProduct(Object obj)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer categoryId=null;
+		Product product = null;
 		if(connection!=null)
 		{
 			try 
-			{
-				Statement	stmt = connection.createStatement();
+ {
+				Statement stmt = connection.createStatement();
 
-							Category category= obj!=null?(Category) obj:null;
-							if(category!=null)
-							{
-								categoryId = category.getCategoryId();
-							}
-							stmt.executeUpdate("Insert into product (productName,categoryId) values(" + "'" + productName + "'," + categoryId  + ")");
-							connection.commit();
-				
-				
-				
+				Category category = obj != null ? (Category) obj : null;
+				if (category != null) 
+				{
+					categoryId = category.getCategoryId();
+				}
+				stmt.executeUpdate("Insert into product (productName,categoryId) values("
+						+ "'" + productName + "'," + categoryId + ")");
+				connection.commit();
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement
+						.executeQuery("SELECT LAST_INSERT_ID()");
+				product = new Product(productName);
+				while (resultSet.next())
+				{	
+					product.setProductId(resultSet.getInt(1));
+				}			
 			} catch (SQLException e)
 			{
 				e.printStackTrace();
 				throw e;
 			}
 		}
+		return product;
 
+	}
+	public void removeProduct(Product product)throws SQLException
+	{
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("delete from product where productId = " + product.getProductId());
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
+	}
+
+	public void updateProduct(Product product)throws SQLException
+	{
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("update product set productName =" +"'" + productName + "' where productId = " + product.getProductId());
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
+	
 	}
 
 	@Override

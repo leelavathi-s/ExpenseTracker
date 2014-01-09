@@ -1,13 +1,11 @@
-package com.expensetracker.swing.pages;
+package com.expensetracker.swing.pages.panel;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.jws.Oneway;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -17,29 +15,33 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import com.expensetracker.classes.Order;
 import com.expensetracker.classes.Report;
+import com.expensetracker.classes.ReportRequest;
+import com.expensetracker.swing.pages.frame.WeeklyFrame;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class MonthlyReportPanel extends JPanel implements ItemListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4216369308456844262L;
 	String selectedMonth = null;
 	List<Order> orderList = null;
 	String selectedYear = null;
-GenerateReportsPanel generateReportsPanel = null;
-	public MonthlyReportPanel(String selectedRowString,String selectedYear,GenerateReportsPanel generateReportsPanel)
-	{
-		this.selectedMonth = selectedRowString;
-		this.selectedYear = selectedYear;
-		this.generateReportsPanel = generateReportsPanel;
+	JFrame jFrame;
+	String cateString;
+	ReportRequest reportRequest;
+	WeeklyFrame weeklyFrame;
 
+	public MonthlyReportPanel(ReportRequest reportRequest,JFrame jFrame)
+	{
+		this.jFrame = jFrame;
+		this.reportRequest = reportRequest;
 		buildGUI();
 	}
 	public MonthlyReportPanel()
@@ -54,12 +56,12 @@ GenerateReportsPanel generateReportsPanel = null;
 			
 		this.setBorder(BorderFactory.createCompoundBorder(
 					BorderFactory
-					.createTitledBorder("Report of " + selectedMonth + "-" + selectedYear),
+					.createTitledBorder("Report of " + reportRequest.getMonth() + "-" + reportRequest.getYear()),
 			BorderFactory.createEmptyBorder(20, 20, 20, 20)));
 			
 		try 
 		{
-			orderList = Report.retrieveDataForMonthlyReport(selectedMonth,selectedYear);
+			orderList = Report.retrieveDataForMonthlyReport(reportRequest);
 		} 
 		catch (SQLException sqlException)
 		{
@@ -107,7 +109,7 @@ GenerateReportsPanel generateReportsPanel = null;
 		}
 		else
 		{
-			JLabel jLabel = new JLabel("No records found for the selected week.");
+			JLabel jLabel = new JLabel("No records found for the selected month.");
 			this.add(jLabel);
 		}
 
@@ -199,26 +201,17 @@ GenerateReportsPanel generateReportsPanel = null;
 	{
 	    if(e.getStateChange() == ItemEvent.SELECTED)
 		{
-			//GenerateReportsPanel generateReportsPanel = new GenerateReportsPanel();
-			generateReportsPanel.retrieveAndBuildTableDataForWeeklyReport(selectedMonth, selectedYear,this);
+			 weeklyFrame = new WeeklyFrame(reportRequest,this);
+		     weeklyFrame.setVisible(true);		     
+
 		}
 	    if(e.getStateChange() == ItemEvent.DESELECTED)
-	  	{
-	    	JFrame jFrame = generateReportsPanel.jFrame;
-	    	//JTable jTable = generateReportsPanel.footerForWeeklyReport;
-	    	//Component[]  components = this.getComponents();
-	    	for(Component components:this.getComponents())
-	    	{
-	    		if("jScrollPaneForWeeklyReport".equals(components.getName()) || "footerForWeeklyReport".equals(components.getName()))
-	    		{
-	    			components.setVisible(false);
-
-	    		}	
-	    	}
-	    	jFrame.pack();
+	  	{	 
+	    	weeklyFrame.setVisible(false);
  	  	}
 	    
-			
+	     jFrame.pack();
+	
 	}
 
 }

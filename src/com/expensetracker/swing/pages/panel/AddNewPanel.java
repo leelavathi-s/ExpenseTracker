@@ -1,4 +1,4 @@
-package com.expensetracker.swing.pages;
+package com.expensetracker.swing.pages.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -6,31 +6,32 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 
 import com.expensetracker.classes.Brand;
 import com.expensetracker.classes.Category;
 import com.expensetracker.classes.Product;
 import com.expensetracker.classes.Shop;
+import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class AddNewPanel extends JPanel implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -581874303641622790L;
 	JLabel jLabel;
 	JTextField inputItemjTextField;
 	JPanel addNewRightPane;
@@ -177,42 +178,35 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void showComponents(boolean showFlag, String itemToShowOrHide) {
+	public void showComponents(boolean showFlag, String itemToShowOrHide) 
+	{
 
-		if ("Product Name".equals(itemToShowOrHide) && showFlag) {
-			productNameField.setVisible(true);
-			productNameJLabel.setVisible(true);
-			if (categoryField != null) {
-				categoryField.setVisible(false);
-			}
-			if (categoryJLabel != null) {
-				categoryJLabel.setVisible(false);
-			}
+		if ("Product Name".equals(itemToShowOrHide) && showFlag) 
+		{
+			ExpenseTrackerUtility.showComponenets(true, productNameField);
+			ExpenseTrackerUtility.showComponenets(true, productNameJLabel);
 
-		} else if ("Category".equals(itemToShowOrHide) && showFlag) {
-			categoryField.setVisible(true);
+			ExpenseTrackerUtility.showComponenets(false, categoryField);
+			ExpenseTrackerUtility.showComponenets(false, categoryJLabel);
 
-			categoryJLabel.setVisible(true);
+		}
+		else if ("Category".equals(itemToShowOrHide) && showFlag)
+		{
+			ExpenseTrackerUtility.showComponenets(false, productNameField);
+			ExpenseTrackerUtility.showComponenets(false, productNameField);
+			
+			ExpenseTrackerUtility.showComponenets(true, categoryField);
+			ExpenseTrackerUtility.showComponenets(true, categoryJLabel);
 
-			if (productNameJLabel != null) {
-				productNameJLabel.setVisible(false);
-			}
-			if (productNameField != null) {
-				productNameField.setVisible(false);
-			}
-		} else if ("Hide All".equals(itemToShowOrHide) && !showFlag) {
-			if (productNameJLabel != null) {
-				productNameJLabel.setVisible(false);
-			}
-			if (productNameField != null) {
-				productNameField.setVisible(false);
-			}
-			if (categoryField != null) {
-				categoryField.setVisible(false);
-			}
-			if (categoryJLabel != null) {
-				categoryJLabel.setVisible(false);
-			}
+		} 
+		else if ("Hide All".equals(itemToShowOrHide) && !showFlag) 
+		{
+			ExpenseTrackerUtility.showComponenets(false, productNameField);
+			ExpenseTrackerUtility.showComponenets(false, productNameField);
+			
+			ExpenseTrackerUtility.showComponenets(false, categoryField);
+			ExpenseTrackerUtility.showComponenets(false, categoryJLabel);
+
 		}
 
 	}

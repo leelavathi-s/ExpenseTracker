@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 
 import com.expensetracker.classes.Category;
 import com.expensetracker.classes.Product;
+import com.expensetracker.swing.pages.panel.AddNewPanel;
 
 public class AddNewDialog {
 

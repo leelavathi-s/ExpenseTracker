@@ -70,7 +70,36 @@ public class Category
 	public void setCategoryId(int categoryId) {
 		this.categoryId = categoryId;
 	}
-	public void addNewCategory()throws SQLException
+	public Category addNewCategory()throws SQLException
+	{
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		Category category=null;
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("Insert into category (CategoryName) values(" + "'" + categoryName + "')");
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement
+						.executeQuery("SELECT LAST_INSERT_ID()");
+				category = new Category(categoryName);
+				while (resultSet.next())
+				{	
+					category.setCategoryId(resultSet.getInt(1));
+				}			
+
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
+		return category;
+
+	}
+	public void removeCategory(Category category)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
@@ -79,7 +108,7 @@ public class Category
 			try 
 			{
 				Statement	stmt = connection.createStatement();
-				stmt.executeUpdate("Insert into category (CategoryName) values(" + "'" + categoryName + "')");
+				stmt.executeUpdate("delete from category where categoryId = " + category.getCategoryId());
 			} catch (SQLException e)
 			{
 				// TODO Auto-generated catch block
@@ -89,4 +118,26 @@ public class Category
 		}
 
 	}
+	public void updateCategory(Category category)throws SQLException
+	{
+
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		if(connection!=null)
+		{
+			try 
+			{
+				Statement	stmt = connection.createStatement();
+				stmt.executeUpdate("update category set categoryName =" +"'" + categoryName + "' where categoryId = " + category.getCategoryId());
+			} catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
+	
+	}
+
 }
