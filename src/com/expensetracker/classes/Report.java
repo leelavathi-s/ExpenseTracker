@@ -134,11 +134,12 @@ public class Report
 		List<Double> priceList = null;
 
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				priceList = new ArrayList<Double>();
 				Date currentDt=cal.getTime();
 				
@@ -194,6 +195,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return priceList;
 
@@ -204,11 +209,12 @@ public class Report
 		List<Report> priceList = null;
 
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				priceList = new ArrayList<Report>();
 				resultSet = stmt
 							.executeQuery("select sum(price),YEAR(orderdate) from purchaseorder group by Year(orderdate)");
@@ -227,6 +233,11 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+
+			}
 		}
 		return priceList;
 
@@ -235,17 +246,17 @@ public class Report
 	public static List<Order> retrieveDataForWeeklyReport(String selectedRowString,ReportRequest reportRequest)throws SQLException
 	{
 
-		Calendar cal=ExpenseTrackerUtility.getCurrentDate();
 		ResultSet resultSet = null;
 		List<Order> orderArrayList = null;
 		StringBuffer queryStr=null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
 				queryStr = new StringBuffer();
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				orderArrayList = new ArrayList<Order>();
 				if(selectedRowString!=null)
 				{
@@ -311,6 +322,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return orderArrayList;
 
@@ -322,11 +337,12 @@ public class Report
 		List<Order> orderArrayList = null;
 
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				orderArrayList = new ArrayList<Order>();
 				if(reportRequest.getMonth()!=null)
 				{
@@ -367,6 +383,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return orderArrayList;
 
@@ -379,11 +399,12 @@ public class Report
 		StringBuffer queryStr=null;
 
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				orderArrayList = new ArrayList<Order>();
 				if(year!=null)
 				{
@@ -428,6 +449,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return orderArrayList;
 
@@ -437,13 +462,13 @@ public class Report
 
 		ResultSet resultSet = null;
 		List<Order> orderArrayList = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				orderArrayList = new ArrayList<Order>();
 				if(reportRequest.getYear()!=null)
 				{
@@ -483,6 +508,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return orderArrayList;
 
@@ -493,13 +522,13 @@ public class Report
 
 		ResultSet resultSet = null;
 		List<Order> orderArrayList = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				orderArrayList = new ArrayList<Order>();
 				if(reportRequest.getYear()!=null)
 				{
@@ -539,6 +568,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return orderArrayList;
 
@@ -566,13 +599,13 @@ public class Report
 
 		ResultSet resultSet = null;
 		Vector<String> yearList = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				yearList = new Vector<String>();
 
 				resultSet = stmt
@@ -593,6 +626,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return yearList;
 
@@ -606,13 +643,13 @@ public class Report
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
 				resultSet = stmt
 						.executeQuery("select sum(price),cat.categoryName,year(orderdate) from purchaseorder po,category cat where po.categoryId = cat.categoryId  group by po.categoryId,year(po.orderdate)");
@@ -634,6 +671,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return reportList;
 
@@ -646,13 +687,13 @@ public class Report
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
 				resultSet = stmt
 						.executeQuery("select sum(price),prod.productname,year(orderdate) from purchaseorder po,product prod where po.productid = prod.productId  group by po.productId,year(po.orderdate)");
@@ -674,6 +715,10 @@ public class Report
 				throw e;
 
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
 		}
 		return reportList;
 
@@ -690,13 +735,13 @@ public class Report
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
 		StringBuffer queryStr = null;
-
+		Statement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
 				queryStr = new StringBuffer();
 				if(reportRequest.getYear()!=null)
@@ -742,6 +787,10 @@ public class Report
 				e.printStackTrace();
 				throw e;
 
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 		return reportList;

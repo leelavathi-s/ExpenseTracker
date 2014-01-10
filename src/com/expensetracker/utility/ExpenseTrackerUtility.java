@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,21 @@ public class ExpenseTrackerUtility
 			JOptionPane.showMessageDialog(component,message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 
+		}
+
+	}
+	public static void releaseResources(Connection connection,Statement statement) throws SQLException
+  {
+
+		if (connection != null) 
+		{
+			connection.close();
+
+		}
+
+		if (statement != null)
+		{
+			statement.close();
 		}
 
 	}

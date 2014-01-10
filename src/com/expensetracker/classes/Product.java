@@ -42,16 +42,17 @@ public class Product {
 		this.productName = productName;
 	}
 	 
-	public static Vector<Product> getAvailableProducts(Object obj)
+	public static Vector<Product> getAvailableProducts(Object obj)throws SQLException
 	{
 		Vector<Product> brandList = new Vector<Product>();
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		ResultSet resultSet =  null;
+		Statement	stmt =  null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				Category categoryObj =obj!=null?(Category)obj:null;
 				if(categoryObj!=null)
 				{
@@ -73,7 +74,13 @@ public class Product {
 			{
 				
 				e.printStackTrace();
+				throw e;
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+
 		}
 
 
@@ -85,11 +92,12 @@ public class Product {
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer categoryId=null;
 		Product product = null;
+		Statement stmt = null;
 		if(connection!=null)
 		{
 			try 
- {
-				Statement stmt = connection.createStatement();
+			{
+				stmt = connection.createStatement();
 
 				Category category = obj != null ? (Category) obj : null;
 				if (category != null) 
@@ -107,10 +115,15 @@ public class Product {
 				{	
 					product.setProductId(resultSet.getInt(1));
 				}			
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 		return product;
@@ -119,18 +132,22 @@ public class Product {
 	public void removeProduct(Product product)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement	stmt = null;
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("delete from product where productId = " + product.getProductId());
 			} catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
@@ -138,21 +155,27 @@ public class Product {
 
 	public void updateProduct(Product product)throws SQLException
 	{
-
+		
+		Statement	stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("update product set productName =" +"'" + productName + "' where productId = " + product.getProductId());
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
 			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+
 		}
 
 	

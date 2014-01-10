@@ -20,7 +20,6 @@ public class Brand
 	 }
 
 	public Brand() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public String getBrandName() {
@@ -39,16 +38,17 @@ public class Brand
 		this.brandName = brandName;
 	}
 	 
-	public static Vector<Brand> getAvailableBrands(Object obj)
+	public static Vector<Brand> getAvailableBrands(Object obj)throws SQLException
 	{
 		Vector<Brand> brandList = new Vector<Brand>();
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		ResultSet resultSet = null;
+		Statement	stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				Product product = obj!=null?(Product)obj:null;
 				if(product!=null)
 				{
@@ -67,10 +67,15 @@ public class Brand
 					brandList.add(brand);
 				
 				}
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
@@ -83,11 +88,12 @@ public class Brand
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer productId = null;
 		Brand brand =null;
+		Statement	stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				Product product= object!=null?(Product) object:null;
 				if(product!=null)
 				{
@@ -103,10 +109,15 @@ public class Brand
 					 brand.setBrandId(resultSet.getInt(1)); 
 				 } 
 	
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
 				e.printStackTrace();
 				throw e;				
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 		return brand;
@@ -114,18 +125,21 @@ public class Brand
 	public void removeBrand(Brand brand)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
-		
+		Statement	stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("delete from brand where brandId = " + brand.getBrandId());
 			} catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
@@ -134,18 +148,23 @@ public class Brand
 	{
 
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		Statement	stmt = null;
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("update brand set brandName =" +"'" + brandName + "' where brandId = " + brand.getBrandId());
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 

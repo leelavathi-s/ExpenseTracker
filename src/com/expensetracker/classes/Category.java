@@ -30,15 +30,16 @@ public class Category
 		this.categoryName = categoryName;
 	}
 	
-	public static Vector<Category> getAvailableCategories()
+	public static Vector<Category> getAvailableCategories()throws SQLException
 	{
+		Statement	stmt = null;
 		Vector<Category> categoriesList = new Vector<Category>();
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				ResultSet resultSet = stmt.executeQuery("Select * from Category");
 				while (resultSet.next()) 
 				{
@@ -48,10 +49,15 @@ public class Category
 					categoriesList.add(category);
 				
 				}
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
@@ -74,11 +80,12 @@ public class Category
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Category category=null;
+		Statement	stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("Insert into category (CategoryName) values(" + "'" + categoryName + "')");
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement
@@ -89,11 +96,15 @@ public class Category
 					category.setCategoryId(resultSet.getInt(1));
 				}			
 
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 		return category;
@@ -101,39 +112,48 @@ public class Category
 	}
 	public void removeCategory(Category category)throws SQLException
 	{
+		Statement	stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("delete from category where categoryId = " + category.getCategoryId());
-			} catch (SQLException e)
+			}
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
 	}
 	public void updateCategory(Category category)throws SQLException
 	{
-
+		Statement	stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				Statement	stmt = connection.createStatement();
+				stmt = connection.createStatement();
 				stmt.executeUpdate("update category set categoryName =" +"'" + categoryName + "' where categoryId = " + category.getCategoryId());
-			} catch (SQLException e)
+			} 
+			catch (SQLException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw e;
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 
