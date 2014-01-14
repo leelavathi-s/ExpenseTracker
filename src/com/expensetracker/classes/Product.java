@@ -53,20 +53,20 @@ public class Product {
 			try 
 			{
 				stmt = connection.createStatement();
-				Category categoryObj =obj!=null?(Category)obj:null;
-				if(categoryObj!=null)
+				Subcategory subcategory =obj!=null?(Subcategory)obj:null;
+				if(subcategory!=null)
 				{
-					 resultSet = stmt.executeQuery("SELECT *FROM product where categoryId=" +categoryObj.getCategoryId() +" group by productName");
+					 resultSet = stmt.executeQuery("SELECT *FROM product where subcategoryId=" +subcategory.getSubCategoryId() +" group by productName order by productname");
 				}	
 				else
 				{
-					resultSet = stmt.executeQuery("SELECT *FROM product");
+					resultSet = stmt.executeQuery("SELECT *FROM product order by productname");
 				}
 				while (resultSet!=null && resultSet.next()) 
 				{
 					Product product = new Product();
 					product.setProductId(resultSet.getInt(1));
-					product.setProductName(resultSet.getString(2));
+					product.setProductName(resultSet.getString(3));
 					brandList.add(product);
 				
 				}
@@ -99,12 +99,12 @@ public class Product {
 			{
 				stmt = connection.createStatement();
 
-				Category category = obj != null ? (Category) obj : null;
+				Subcategory category = obj != null ? (Subcategory) obj : null;
 				if (category != null) 
 				{
 					categoryId = category.getCategoryId();
 				}
-				stmt.executeUpdate("Insert into product (productName,categoryId) values("
+				stmt.executeUpdate("Insert into product (productName,subcategoryId) values("
 						+ "'" + productName + "'," + categoryId + ")");
 				connection.commit();
 				Statement statement = connection.createStatement();

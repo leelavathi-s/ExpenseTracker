@@ -48,7 +48,7 @@ public static Vector<Shop> getAvailableShops()
 		try 
 		{
 			Statement	stmt = connection.createStatement();
-			ResultSet resultSet = stmt.executeQuery("Select * from Shop");
+			ResultSet resultSet = stmt.executeQuery("Select * from Shop order by shopname asc");
 			while (resultSet.next()) 
 			{
 				Shop shop = new Shop();

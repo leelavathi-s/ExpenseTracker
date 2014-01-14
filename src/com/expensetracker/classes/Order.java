@@ -172,9 +172,9 @@ public class Order
 						+ ","
 						+ orderDetails.getPrice()
 						+ ","
-						+ orderDetails.getShop().getShopId()
+						+ (orderDetails.getShop()!=null?(orderDetails.getShop().getShopId()):null)
 						+ ","
-						+ orderDetails.getBrand().getBrandId()
+						+ (orderDetails.getBrand()!=null?(orderDetails.getBrand().getBrandId()):null)
 						+ ","
 						+ orderDetails.getCategory().getCategoryId()
 						+ ",'"

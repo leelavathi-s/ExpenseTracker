@@ -143,11 +143,21 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 		if (productNameRadioButton.isSelected())
 		{
-			showCategoryComboxBox(selectedCategory);
+			try {
+				showCategoryComboxBox(selectedCategory);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} 
 		else if (brandRadioButton.isSelected()) 
 		{
-			showProduct(selectedProduct);
+			try {
+				showProduct(selectedProduct);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		groupLayout.setAutoCreateGaps(true);
 		groupLayout.setAutoCreateContainerGaps(true);
@@ -211,7 +221,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void showCategoryComboxBox(Category selecCategory) {
+	public void showCategoryComboxBox(Category selecCategory)throws SQLException {
 
 		categoryJLabel = new JLabel("Category to be associated with");
 		categoryField = new JComboBox(Category.getAvailableCategories());
@@ -245,7 +255,7 @@ public class AddNewPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void showProduct(Product selectedProduct) {
+	public void showProduct(Product selectedProduct) throws SQLException {
 		productNameJLabel = new JLabel("Product to be associated with");
 		productNameField = new JComboBox(Product.getAvailableProducts(null));
 		
@@ -349,7 +359,12 @@ public class AddNewPanel extends JPanel implements ActionListener {
 		{
 			if (productNameField == null || !productNameField.isVisible())
 			{
-				showProduct(null);
+				try {
+					showProduct(null);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 
 			if (!(newllyAddedItem == null || newllyAddedItem.equals("")))
@@ -372,7 +387,12 @@ public class AddNewPanel extends JPanel implements ActionListener {
 		{
 			if (categoryField == null || !categoryField.isVisible()) 
 			{
-				showCategoryComboxBox(null);
+				try {
+					showCategoryComboxBox(null);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			if (!(newllyAddedItem == null || newllyAddedItem.equals("")))
 			{

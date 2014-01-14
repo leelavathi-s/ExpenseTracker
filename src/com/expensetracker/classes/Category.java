@@ -40,7 +40,7 @@ public class Category
 			try 
 			{
 				stmt = connection.createStatement();
-				ResultSet resultSet = stmt.executeQuery("Select * from Category");
+				ResultSet resultSet = stmt.executeQuery("Select * from Category order by categoryName asc");
 				while (resultSet.next()) 
 				{
 					Category category= new Category();

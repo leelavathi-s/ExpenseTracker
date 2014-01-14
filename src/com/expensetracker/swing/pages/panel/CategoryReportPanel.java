@@ -121,7 +121,14 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
-			return getValueAt(0, columnIndex).getClass();
+			if(getValueAt(0, columnIndex)!=null)
+			{
+				return getValueAt(0, columnIndex).getClass();
+			}
+			else
+			{
+				return String.class;
+			}
 		}
 
 		@Override

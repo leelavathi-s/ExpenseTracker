@@ -52,11 +52,11 @@ public class Brand
 				Product product = obj!=null?(Product)obj:null;
 				if(product!=null)
 				{
-				 resultSet = stmt.executeQuery("Select * from Brand where productId=" + product.getProductId());
+				 resultSet = stmt.executeQuery("Select * from Brand where productId=" + product.getProductId() + " order by brandname asc");
 				}
 				else
 				{
-					resultSet = stmt.executeQuery("Select * from Brand");
+					resultSet = stmt.executeQuery("Select * from Brand order by brandname asc");
 				}
 				while (resultSet.next()) 
 				{

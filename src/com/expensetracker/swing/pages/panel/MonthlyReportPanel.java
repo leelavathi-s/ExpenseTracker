@@ -130,7 +130,14 @@ public class MonthlyReportPanel extends JPanel implements ItemListener
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
+			if(getValueAt(0, columnIndex)!=null)
+			{
 			return getValueAt(0, columnIndex).getClass();
+			}
+			else
+			{
+				return String.class;
+			}
 		}
 
 		@Override
