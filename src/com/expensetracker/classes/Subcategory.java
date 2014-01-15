@@ -8,7 +8,7 @@ import java.util.Vector;
 
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
-public class Subcategory extends Category
+public class Subcategory
 {
 
 	private int subCategoryId;
@@ -110,6 +110,7 @@ public Subcategory()
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Subcategory subcategory=null;
 		Statement	stmt = null;
+		Integer categoryId = null;
 		if(connection!=null)
 		{
 			try 
@@ -121,7 +122,7 @@ public Subcategory()
 					categoryId = category.getCategoryId();
 				}
 				
-				stmt.executeUpdate("Insert into subcategory (SubCategoryName,categoryId) values(" + "'" + categoryName + "'" + categoryId+ ")");
+				stmt.executeUpdate("Insert into subcategory (SubCategoryName,categoryId) values(" + "'" + subCategoryName + "'," + categoryId+ ")");
 				
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement

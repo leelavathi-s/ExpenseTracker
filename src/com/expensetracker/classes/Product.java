@@ -102,7 +102,7 @@ public class Product {
 				Subcategory category = obj != null ? (Subcategory) obj : null;
 				if (category != null) 
 				{
-					categoryId = category.getCategoryId();
+					categoryId = category.getSubCategoryId();
 				}
 				stmt.executeUpdate("Insert into product (productName,subcategoryId) values("
 						+ "'" + productName + "'," + categoryId + ")");

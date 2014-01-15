@@ -330,7 +330,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
            TreeNode[] treeNodes = treeModel.getPathToRoot(parentNode);
            
             //Brand should not have any children, so restrict it here
-            if(treeNodes.length==4)
+            if(treeNodes.length==5)
             {
             	childNode.setAllowsChildren(false);
     			JOptionPane.showMessageDialog(this,"Brand cannot have any children", "Invalid request", JOptionPane.INFORMATION_MESSAGE);
@@ -618,7 +618,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 		}
 		if(treeNode.length==3)
 		{
-			return "Sub-Category";
+			return "SubCategory";
 		}
 		if(treeNode.length==4)
 		{

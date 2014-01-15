@@ -142,6 +142,9 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 		addToPanel(jPanel, subCategoryJLabel, 0, 2, 0.1);
 
 		subCategoryField= new JComboBox<Subcategory>();
+		subCategoryField.addItemListener(this);
+		subCategoryField.addActionListener(this);
+		
 		subCategoryField.setName("SubCategory");
 		DefaultComboBoxModel<Subcategory> defaultComboBoxModel2 = new DefaultComboBoxModel<>();
 		try {
@@ -479,85 +482,96 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 
 			brandNameField.setModel(defaultComboBoxModel);
 
-		} else {
-			if ("Category".equals(comboBox.getName())) {
-				
+		}
+		else
+		{
+			if ("Category".equals(comboBox.getName())) 
+			{
+
 				Category selectedCategory = (Category) comboBox
 						.getSelectedItem();
-				
 				DefaultComboBoxModel<Subcategory> defaultComboBoxModelForSubCategory = new DefaultComboBoxModel<>();
 				try {
 					for (Subcategory subcategory : Subcategory
 							.getAvailableSubCategories(selectedCategory))
-						defaultComboBoxModelForSubCategory.addElement(subcategory);
+					{	
+						defaultComboBoxModelForSubCategory
+								.addElement(subcategory);
+					}	
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 				subCategoryField.setModel(defaultComboBoxModelForSubCategory);
 
-				DefaultComboBoxModel<Brand> defaultComboBoxModelForBrand = new DefaultComboBoxModel<>();
-
-				if (productNameField.getSelectedItem() == null)
-				{
-					brandNameField.setModel(defaultComboBoxModelForBrand);
-				} else {
-					try {
-						for (Brand brand : Brand
-								.getAvailableBrands(productNameField
-										.getSelectedItem()))
-							defaultComboBoxModelForBrand.addElement(brand);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					brandNameField.setModel(defaultComboBoxModelForBrand);
-
-				}
-
-			}
-			else if("SubCategory".equals(comboBox.getName()))
+				reloadComboBoxes(subCategoryField.getSelectedItem());
+				
+			} 
+			else if ("SubCategory".equalsIgnoreCase(comboBox.getName()))
 			{
 				Subcategory selectedSubCategory = (Subcategory) comboBox
 						.getSelectedItem();
-				DefaultComboBoxModel<Product> defaultComboBoxModel = new DefaultComboBoxModel<>();
-				try {
-					for (Product product : Product
-							.getAvailableProducts(selectedSubCategory))
-						defaultComboBoxModel.addElement(product);
-				} catch (SQLException e) {
+				reloadComboBoxes(selectedSubCategory);
+			}
+			
+			}
+	}
+
+	private void reloadComboBoxes(Object obj)
+	{
+		if(obj  instanceof Subcategory)
+		{
+			Subcategory selectedSubCategory = (Subcategory)obj;
+			
+			
+			DefaultComboBoxModel<Product> defaultComboBoxModel = new DefaultComboBoxModel<>();
+			try 
+			{
+				for (Product product : Product
+						.getAvailableProducts(selectedSubCategory))
+				{	
+					defaultComboBoxModel.addElement(product);
+				}	
+			} 
+			catch (SQLException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			productNameField.setModel(defaultComboBoxModel);
+
+			DefaultComboBoxModel<Brand> defaultComboBoxModelForBrand = new DefaultComboBoxModel<>();
+
+			if (productNameField.getSelectedItem() == null)
+			{
+				brandNameField.setModel(defaultComboBoxModelForBrand);
+			}
+			else 
+			{
+				try 
+				{
+					for (Brand brand : Brand
+							.getAvailableBrands(productNameField
+									.getSelectedItem()))
+					{	
+						defaultComboBoxModelForBrand.addElement(brand);
+					}	
+				} 
+				catch (SQLException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
-				productNameField.setModel(defaultComboBoxModel);
-	
-				DefaultComboBoxModel<Brand> defaultComboBoxModelForBrand = new DefaultComboBoxModel<>();
+				brandNameField.setModel(defaultComboBoxModelForBrand);
 
-				if (productNameField.getSelectedItem() == null)
-				{
-					brandNameField.setModel(defaultComboBoxModelForBrand);
-				} else {
-					try {
-						for (Brand brand : Brand
-								.getAvailableBrands(productNameField
-										.getSelectedItem()))
-							defaultComboBoxModelForBrand.addElement(brand);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+			}
 
-					brandNameField.setModel(defaultComboBoxModelForBrand);
-
-				}
-
-			}	
 		}
-	}
 
+	}
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g.create();
