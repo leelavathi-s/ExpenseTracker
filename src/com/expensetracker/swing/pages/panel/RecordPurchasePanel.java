@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JTextField;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 
@@ -64,8 +65,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 	 */
 	private static final long serialVersionUID = 6144956813978134963L;
 	JFormattedTextField dtPurchaseField;
-	JComboBox<Category> categoryField;
-	JComboBox<Subcategory> subCategoryField;
+	JTextField categoryField;
+	JTextField subCategoryField;
 	JComboBox<Product> productNameField;
 	JFormattedTextField qtyField;
 	JFormattedTextField priceField;
@@ -113,78 +114,30 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 
 		addToPanel(jPanel, dtPurchaseField, 1, 0, 0.8);
 
-		JLabel categoryJLabel = new JLabel("Category");
-		addToPanel(jPanel, categoryJLabel, 0, 1, 0.1);
-
-		categoryField = new JComboBox<Category>();
-		DefaultComboBoxModel<Category> defaultComboBoxModel = new DefaultComboBoxModel<>();
-		try {
-			for (Category category : Category.getAvailableCategories()) {
-				defaultComboBoxModel.addElement(category);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		categoryField.setModel(defaultComboBoxModel);
-
-		addToPanel(jPanel, categoryField, 1, 1, 0.8);
-		categoryField.setName("Category");
-		categoryField.addItemListener(this);
-		categoryField.addActionListener(this);
-		categoryField.setActionCommand("Category");
-
-		label1 = new JLabel("<html><a href=\" #\"> Not Available?</a></html>");
-		addToPanel(jPanel, label1, 2, 1, 0.1);
-		label1.addMouseListener(new LabelClickHandler("Category Name"));
-
-		JLabel subCategoryJLabel = new JLabel("Sub - Category");
-		addToPanel(jPanel, subCategoryJLabel, 0, 2, 0.1);
-
-		subCategoryField= new JComboBox<Subcategory>();
-		subCategoryField.addItemListener(this);
-		subCategoryField.addActionListener(this);
-		
-		subCategoryField.setName("SubCategory");
-		DefaultComboBoxModel<Subcategory> defaultComboBoxModel2 = new DefaultComboBoxModel<>();
-		try {
-			for (Subcategory subcategory : Subcategory.getAvailableSubCategories(categoryField.getSelectedItem())) {
-				defaultComboBoxModel2.addElement(subcategory);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		subCategoryField.setModel(defaultComboBoxModel2);
-
-		addToPanel(jPanel, subCategoryField, 1, 2, 0.8);
-
-		
 		JLabel itemJLabel = new JLabel("Product Name");
-		addToPanel(jPanel, itemJLabel, 0, 3, 0.1);
+		addToPanel(jPanel, itemJLabel, 0, 1, 0.1);
 
-		if (subCategoryField.getSelectedItem() != null) {
-			try {
+		try {
 				productNameField = new JComboBox<Product>(
-						Product.getAvailableProducts(subCategoryField
-								.getSelectedItem()));
-			} catch (SQLException e) {
+						Product.getAvailableProducts(null));
+			}
+		catch (SQLException e)
+		{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
-			productNameField = new JComboBox<>();
-		}
-		addToPanel(jPanel, productNameField, 1, 3, 0.8);
+		
+		addToPanel(jPanel, productNameField, 1, 1, 0.8);
 		productNameField.addItemListener(this);
 		productNameField.setName("Product Name");
-
+		
 		label2 = new JLabel("<html><a href=\" #\"> Not Available?</a></html>");
-		addToPanel(jPanel, label2, 2, 3, 0.1);
+		addToPanel(jPanel, label2, 2, 1, 0.1);
 		label2.addMouseListener(new LabelClickHandler("Product Name"));
 
+
 		brandNameJLabel = new JLabel("Brand Name");
-		addToPanel(jPanel, brandNameJLabel, 0, 4, 0.1);
+		addToPanel(jPanel, brandNameJLabel, 0, 2, 0.1);
 
 		if (productNameField.getSelectedItem() != null) {
 			try {
@@ -198,12 +151,59 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 		} else {
 			brandNameField = new JComboBox<>();
 		}
-		addToPanel(jPanel, brandNameField, 1, 4, 0.8);
+		addToPanel(jPanel, brandNameField, 1, 2, 0.8);
 
 		label3 = new JLabel("<html><a href=\" #\"> Not Available?</a></html>");
-		addToPanel(jPanel, label3, 2, 4, 0.1);
+		addToPanel(jPanel, label3, 2, 2, 0.1);
 		label3.addMouseListener(new LabelClickHandler("Brand Name"));
 
+
+		
+		JLabel categoryJLabel = new JLabel("Category");
+		addToPanel(jPanel, categoryJLabel, 0, 3, 0.1);
+
+		categoryField = new JTextField();
+		
+		categoryField.setName("Category");
+		categoryField.addActionListener(this);
+		categoryField.setActionCommand("Category");
+
+		label1 = new JLabel("<html><a href=\" #\"> Not Available?</a></html>");
+		addToPanel(jPanel, label1, 2, 3, 0.1);
+		label1.addMouseListener(new LabelClickHandler("Category Name"));
+
+		JLabel subCategoryJLabel = new JLabel("Sub - Category");
+		addToPanel(jPanel, subCategoryJLabel, 0, 4, 0.1);
+
+		subCategoryField= new JTextField();
+		subCategoryField.addActionListener(this);
+		
+		subCategoryField.setName("SubCategory");
+		try {
+			for (Subcategory subcategory : Subcategory.getAvailableSubCategories(productNameField.getSelectedItem())) {
+				subCategoryField.setText(subcategory.getSubCategoryName());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		addToPanel(jPanel, subCategoryField, 1, 4, 0.8);
+
+		try
+		{
+			for (Category category : Category.getAvailableCategories(subCategoryField.getText())) 
+			{
+				categoryField.setText(category.getCategoryName());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		addToPanel(jPanel, categoryField, 1, 3, 0.8);
+		
+		
 		shopNameJLabel = new JLabel("Shop Name");
 		addToPanel(jPanel, shopNameJLabel, 0, 5, 0.1);
 
@@ -327,44 +327,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 
 		} else if ("Clear".equals(e.getActionCommand())) {
 			clearFields();
-		} else if ("Category".equals(e.getActionCommand())) {
-			System.out.println(categoryField.getSelectedItem());
-
-			if ("Lodging".equals(categoryField.getSelectedItem().toString())
-					|| "Miscellanous".equals(categoryField.getSelectedItem()
-							.toString())
-					|| "Communication".equals(categoryField.getSelectedItem()
-							.toString())) {
-				purchasedFromField.setVisible(false);
-				shopNameJLabel.setVisible(false);
-				label4.setVisible(false);
-
-				brandNameJLabel.setVisible(false);
-				brandNameField.setVisible(false);
-				label3.setVisible(false);
-			} else {
-				purchasedFromField.setVisible(true);
-				shopNameJLabel.setVisible(true);
-				label4.setVisible(true);
-
-				brandNameJLabel.setVisible(true);
-				brandNameField.setVisible(true);
-				label3.setVisible(true);
-			}
-			if (brandNameField.isVisible()) {
-				if ("Outside Food".equalsIgnoreCase(categoryField
-						.getSelectedItem().toString())) {
-					brandNameJLabel.setVisible(false);
-					brandNameField.setVisible(false);
-					label3.setVisible(false);
-				} else {
-					brandNameJLabel.setVisible(true);
-					brandNameField.setVisible(true);
-					label3.setVisible(true);
-				}
-			}
+		} 
 		}
-	}
 
 	public boolean checkMandatoryFields() {
 		if (dtPurchaseField.getValue() == null) {
@@ -382,7 +346,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 			}
 
 		}
-		Category category = (Category) (categoryField.getSelectedItem());
+		String category =  categoryField.getText();
 		if (category == null) {
 			JOptionPane.showMessageDialog(jPanel, "Select or add a Category",
 					"Category missing", JOptionPane.ERROR_MESSAGE);
@@ -445,7 +409,8 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 
 		}
 
-		Category category = (Category) (categoryField.getSelectedItem());
+		Category category = new Category(categoryField.getText());
+		category.setCategoryId(0);
 		order.setCategory(category);
 
 		Product product = (Product) (productNameField.getSelectedItem());
@@ -468,55 +433,52 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 	@Override
 	public void itemStateChanged(ItemEvent itemEvent) {
 		JComboBox comboBox = (JComboBox) itemEvent.getSource();
-		ItemSelectable itemSelectabl = itemEvent.getItemSelectable();
-		if ("Product Name".equals(comboBox.getName())) {
+		if ("Product Name".equals(comboBox.getName()))
+		{
 			Product selectedProduct = (Product) comboBox.getSelectedItem();
 			DefaultComboBoxModel<Brand> defaultComboBoxModel = new DefaultComboBoxModel<>();
-			try {
+			try 
+			{
 				for (Brand brand : Brand.getAvailableBrands(selectedProduct))
 					defaultComboBoxModel.addElement(brand);
-			} catch (SQLException e) {
+			} 
+			catch (SQLException e) 
+			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			brandNameField.setModel(defaultComboBoxModel);
+			
+			try {
+				for (Subcategory subcategory : Subcategory
+						.getAvailableSubCategories(selectedProduct))
+				{	
+					subCategoryField.setText(subcategory.getSubCategoryName());
+
+				}	
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+			try {
+				for (Category category : Category
+						.getAvailableCategories(subCategoryField.getText()))
+				{	
+					categoryField.setText(category.getCategoryName());
+
+				}	
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 
 		}
-		else
-		{
-			if ("Category".equals(comboBox.getName())) 
-			{
-
-				Category selectedCategory = (Category) comboBox
-						.getSelectedItem();
-				DefaultComboBoxModel<Subcategory> defaultComboBoxModelForSubCategory = new DefaultComboBoxModel<>();
-				try {
-					for (Subcategory subcategory : Subcategory
-							.getAvailableSubCategories(selectedCategory))
-					{	
-						defaultComboBoxModelForSubCategory
-								.addElement(subcategory);
-					}	
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				subCategoryField.setModel(defaultComboBoxModelForSubCategory);
-
-				reloadComboBoxes(subCategoryField.getSelectedItem());
-				
-			} 
-			else if ("SubCategory".equalsIgnoreCase(comboBox.getName()))
-			{
-				Subcategory selectedSubCategory = (Subcategory) comboBox
-						.getSelectedItem();
-				reloadComboBoxes(selectedSubCategory);
-			}
-			
-			}
-	}
+		
+		}
 
 	private void reloadComboBoxes(Object obj)
 	{
@@ -588,7 +550,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent arg0) {
+		public void mouseClicked(MouseEvent arg0) {/*
 			product = (Product) productNameField.getSelectedItem();
 			category = (Category) categoryField.getSelectedItem();
 			String lastItem = showAddNewItemUI(selectedLink, category, product);
@@ -597,7 +559,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 				categoryField.removeAllItems();
 
 				try {
-					for (Category category : Category.getAvailableCategories())
+					for (Category category : Category.getAvailableCategories(null))
 						categoryField.addItem(category);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -675,7 +637,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 
 			}
 
-		}
+		*/}
 
 		@Override
 		public void mouseEntered(MouseEvent arg0) {

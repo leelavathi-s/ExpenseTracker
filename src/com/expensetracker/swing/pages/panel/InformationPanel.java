@@ -147,7 +147,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 
 	private void createNodes(DefaultMutableTreeNode top) throws SQLException
 	{
-		Vector<Category> categories = Category.getAvailableCategories();
+		Vector<Category> categories = Category.getAvailableCategories(null);
 		for (Category categoryObj : categories) 
 		{
 			DefaultMutableTreeNode categoryNode = addObject(null, categoryObj);
