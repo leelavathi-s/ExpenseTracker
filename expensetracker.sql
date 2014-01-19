@@ -9,7 +9,7 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
--- Dumping data for table expensetracker.brand: ~29 rows (approximately)
+-- Dumping data for table expensetracker.brand: ~28 rows (approximately)
 DELETE FROM `brand`;
 /*!40000 ALTER TABLE `brand` DISABLE KEYS */;
 INSERT INTO `brand` (`BrandId`, `BrandName`, `ProductId`) VALUES
@@ -76,7 +76,7 @@ INSERT INTO `months` (`Id`, `Name`) VALUES
 	(12, 'December');
 /*!40000 ALTER TABLE `months` ENABLE KEYS */;
 
--- Dumping data for table expensetracker.product: ~67 rows (approximately)
+-- Dumping data for table expensetracker.product: ~68 rows (approximately)
 DELETE FROM `product`;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
 INSERT INTO `product` (`ProductId`, `SubCategoryId`, `ProductName`) VALUES
