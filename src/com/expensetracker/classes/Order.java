@@ -37,21 +37,15 @@ public class Order
 	
 	String productName;
 	
+	Subcategory subcategory;
+	
+	String subcategoryName;
+	
+	String commentTxt;
 	
 	public static String mySqlFormat= "YYYY-MM-dd";
 
 	
-	public Order(String purchaseDate, String category,String productName, int quantity,
-			double price, String shopName, String brandName)
-	{
-		//this.purchaseDate = purchaseDate;
-		//this.productName = productName;
-	//	this.category = category;
-		this.quantity = quantity;
-		this.price = price;
-		//this.shopName = shopName;
-		//this.brandName = brandName;
-	}
 	
 	public String getCategoryName() {
 		return categoryName;
@@ -67,6 +61,14 @@ public class Order
 
 	public String getProductName() {
 		return productName;
+	}
+
+	public String getCommentTxt() {
+		return commentTxt;
+	}
+
+	public void setCommentTxt(String commentTxt) {
+		this.commentTxt = commentTxt;
 	}
 
 	public void setCategoryName(String categoryName) {
@@ -155,6 +157,22 @@ public class Order
 		this.price = price;
 	}
 
+	public Subcategory getSubcategory() {
+		return subcategory;
+	}
+
+	public void setSubcategory(Subcategory subcategory) {
+		this.subcategory = subcategory;
+	}
+
+	public String getSubcategoryName() {
+		return subcategoryName;
+	}
+
+	public void setSubcategoryName(String subcategoryName) {
+		this.subcategoryName = subcategoryName;
+	}
+
 	public void saveOrderDetails(Order orderDetails)throws SQLException
 	{
 		
@@ -165,19 +183,23 @@ public class Order
 			{
 				Statement	stmt = connection.createStatement();
 				
-				stmt.executeUpdate("Insert into purchaseorder (quantity,productID,price,shopId,brandId,categoryId,orderDate) values("
+				stmt.executeUpdate("Insert into purchaseorder (quantity,productID,price,shopId,brandId,categoryId,subCategoryId,comments,orderDate) values("
 						+ orderDetails.getQuantity()
 						+ ","
 						+ orderDetails.getProduct().getProductId()
 						+ ","
 						+ orderDetails.getPrice()
 						+ ","
-						+ orderDetails.getShop().getShopId()
+						+ (orderDetails.getShop()!=null?(orderDetails.getShop().getShopId()):null)
 						+ ","
-						+ orderDetails.getBrand().getBrandId()
+						+ (orderDetails.getBrand()!=null?(orderDetails.getBrand().getBrandId()):null)
 						+ ","
 						+ orderDetails.getCategory().getCategoryId()
-						+ ",'"
+						+","
+						+orderDetails.getSubcategory().getSubCategoryId()
+						+",'"
+						+orderDetails.getCommentTxt()
+						+ "','"
 						+ ExpenseTrackerUtility.formatDate(orderDetails.getPurchaseDate(),mySqlFormat) + "')");
 
 			} 

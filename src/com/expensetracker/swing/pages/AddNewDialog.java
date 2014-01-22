@@ -10,9 +10,9 @@ import com.expensetracker.swing.pages.panel.AddNewPanel;
 
 public class AddNewDialog {
 
-	String lastAddedItem;
+	Object lastAddedItem;
 	
-	public String getLastAddedItem()
+	public Object getLastAddedItem()
 	{
 		return lastAddedItem;
 	}

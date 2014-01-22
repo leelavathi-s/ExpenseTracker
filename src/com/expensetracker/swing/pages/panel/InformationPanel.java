@@ -15,6 +15,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,6 +36,7 @@ import javax.swing.tree.TreeSelectionModel;
 import com.expensetracker.classes.Brand;
 import com.expensetracker.classes.Category;
 import com.expensetracker.classes.Product;
+import com.expensetracker.classes.Subcategory;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
 public class InformationPanel extends JPanel implements FocusListener,ActionListener,TreeModelListener,TreeSelectionListener
@@ -44,33 +46,60 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 	 */
 	private static final long serialVersionUID = 3360181986159832554L;
 	DefaultMutableTreeNode top;
+	DefaultMutableTreeNode sampleTop;
+
 	JTextField jTextField;
 	JTree tree;
 	DefaultTreeModel treeModel;
 	int newNodeCount;
 	String currentlySelectedNodeValue;
 	int currentlySelectedNodeKey;
+	JTree sampleTree;
 
 	public InformationPanel() 
 	{
 		setLayout(new GridBagLayout());
+		
+		JPanel sampleTreePane = new JPanel(new GridBagLayout());
+		
+		JPanel originalTreePane = new JPanel(new GridBagLayout());
+
+		
 		top = new DefaultMutableTreeNode("All");
+		sampleTop = new DefaultMutableTreeNode("All");
 		treeModel = new DefaultTreeModel(top);
 
-		createNodes(top);
+		try {
+			createSampleNodes(top);
+			sampleTree = new JTree(sampleTop);
+			sampleTree.setName("Sample Tree");
+			createNodes(top);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		tree = new JTree(treeModel);
+		tree.setName("Tree");
 		tree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-		JLabel jLabel = new JLabel("Enter the item to search");
-		addToPanel(this, jLabel, 0, 0, 0.0,1);
+		sampleTreePane
+		.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory
+						.createTitledBorder("Sample Tree"),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
-		jTextField = new JTextField();
-		jTextField.addFocusListener(this);
-		addToPanel(this, jTextField, 1, 0, 0.0,2);
+		originalTreePane
+		.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory
+						.createTitledBorder("Original Tree"),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+		JScrollPane sampleTreeView = new JScrollPane(sampleTree);
+		addToPanel(sampleTreePane, sampleTreeView, 0, 3, 0.0,2);
 
 		JScrollPane treeView = new JScrollPane(tree);
-		addToPanel(this, treeView, 0, 1, 0.0,3);
+		addToPanel(originalTreePane, treeView, 1, 3, 0.0,2);
 
 		tree.setEditable(true);
 		tree.addTreeSelectionListener(this);
@@ -83,9 +112,19 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 		JButton removeButton = new JButton("Remove");
 		removeButton.addActionListener(this);
 
-		
-		addToPanel(this, addButton, 0, 2, 0,1);
-		addToPanel(this, removeButton, 2, 2, 0,1);
+		JLabel jLabel = new JLabel("Enter the item to search");
+		addToPanel(this, jLabel, 0, 0, 0.0,1);
+
+		jTextField = new JTextField();
+		jTextField.addFocusListener(this);
+		addToPanel(this, jTextField, 1, 0, 0.0,2);
+
+
+		addToPanel(this, sampleTreePane, 0, 2, 0,1);
+		addToPanel(this, originalTreePane, 1, 2, 0,1);
+
+		addToPanel(this, addButton, 0, 3, 0,1);
+		addToPanel(this, removeButton, 1, 3, 0,1);
 
 	}
 	private static void addToPanel(JPanel container, Component item, int x,
@@ -106,28 +145,60 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 		container.add(item, temp);
 	}
 
-	private void createNodes(DefaultMutableTreeNode top) 
+	private void createNodes(DefaultMutableTreeNode top) throws SQLException
 	{
-		Vector<Category> categories = Category.getAvailableCategories();
+		Vector<Category> categories = Category.getAvailableCategories(null);
 		for (Category categoryObj : categories) 
 		{
 			DefaultMutableTreeNode categoryNode = addObject(null, categoryObj);
 
-			Vector<Product> products = Product
-					.getAvailableProducts(categoryObj);
+			Vector<Subcategory> subCatogries = Subcategory
+					.getAvailableSubCategories(categoryObj);
 
-			for (Product productObj : products)
+			for (Subcategory subcategoryObj : subCatogries)
 			{
-				DefaultMutableTreeNode productNode = addObject(categoryNode,productObj);
-				Vector<Brand> brandList = Brand.getAvailableBrands(productObj);
-				for (Brand brand2 : brandList)
-				{
-					DefaultMutableTreeNode brandNode = addObject(productNode, brand2);
-				}
+				DefaultMutableTreeNode subCategoryNode = addObject(categoryNode, subcategoryObj);
 
+
+				Vector<Product> products = Product
+						.getAvailableProducts(subcategoryObj);
+
+				for (Product productObj : products) 
+				{
+					DefaultMutableTreeNode productNode = addObject(
+							subCategoryNode, productObj);
+					Vector<Brand> brandList = Brand
+							.getAvailableBrands(productObj);
+					for (Brand brand2 : brandList)
+					{
+						DefaultMutableTreeNode brandNode = addObject(
+								productNode, brand2);
+					}
+
+				}
 			}
 		}
 
+	}
+	private void createSampleNodes(DefaultMutableTreeNode top) throws SQLException
+	{
+	
+		for (int i=0;i<2;i++) 
+		{
+			DefaultMutableTreeNode categoryNode = new DefaultMutableTreeNode("Category " +(i+1));
+
+			DefaultMutableTreeNode subCategoryNode = new DefaultMutableTreeNode("Sub-Category "+(i+1));
+			categoryNode.add(subCategoryNode);
+			
+			DefaultMutableTreeNode productNode = new DefaultMutableTreeNode("Product "+(i+1));
+			subCategoryNode.add(productNode);
+			
+			DefaultMutableTreeNode brandNode = new DefaultMutableTreeNode("Brand "+(i+1));
+			productNode.add(brandNode);
+			
+			sampleTop.add(categoryNode);
+			
+		}
 	}
 
 	public DefaultMutableTreeNode addObject(Object child) 
@@ -222,7 +293,10 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-
+		boolean isSampleTreeFocused = tree.getLastSelectedPathComponent() == null;
+		
+		if(!isSampleTreeFocused)
+		{
 		if ("Add".equals(e.getActionCommand()))
 		{
 	        TreePath parentPath = tree.getSelectionPath();
@@ -256,7 +330,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
            TreeNode[] treeNodes = treeModel.getPathToRoot(parentNode);
            
             //Brand should not have any children, so restrict it here
-            if(treeNodes.length==4)
+            if(treeNodes.length==5)
             {
             	childNode.setAllowsChildren(false);
     			JOptionPane.showMessageDialog(this,"Brand cannot have any children", "Invalid request", JOptionPane.INFORMATION_MESSAGE);
@@ -282,12 +356,27 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 					ExpenseTrackerUtility.showFailureMessage(this, "Insert of new Category failed because of the error ::", sqlException);
 				}
             }
+            if("SubCategory".equals(itemType))
+            {
+            	
+            	Subcategory subcategory = new Subcategory(childNode.getUserObject().toString());
+            	childNode.setUserObject(subcategory);
+            	try
+            	{
+            		subcategory = subcategory.addNewSubCategory(((DefaultMutableTreeNode)treeNodes[1]).getUserObject());
+            		childNode.setUserObject(subcategory);
+				} 
+            	catch (SQLException sqlException)
+            	{
+					ExpenseTrackerUtility.showFailureMessage(this, "Insert of new Sub-Category failed because of the error ::", sqlException);
+				}
+            }
             if("Product".equals(itemType))
             {
             	Product product = new Product(childNode.getUserObject().toString());
             	try 
             	{
-					product = product.addNewProduct(((DefaultMutableTreeNode)treeNodes[1]).getUserObject());
+					product = product.addNewProduct(((DefaultMutableTreeNode)treeNodes[2]).getUserObject());
 	            	childNode.setUserObject(product);
 
 				} 
@@ -302,7 +391,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
             	Brand brand = new Brand(childNode.getUserObject().toString());
             	try
             	{
-					brand = brand.addNewBrand(((DefaultMutableTreeNode)treeNodes[2]).getUserObject());
+					brand = brand.addNewBrand(((DefaultMutableTreeNode)treeNodes[3]).getUserObject());
 	            	childNode.setUserObject(brand);
 
 				}
@@ -355,6 +444,31 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 			}
 			if(treeNode.length==3)
 			{
+				Subcategory subcategory = (Subcategory)defaultMutableTreeNode.getUserObject();
+				int n = JOptionPane.showConfirmDialog(this,
+						"Are you sure you want to delete the Category: " + subcategory.getSubCategoryName(), "Confirm",
+						JOptionPane.YES_NO_OPTION);
+				if(n==0)
+				{
+					try 
+					{
+						subcategory.removeSubCategory((Subcategory) defaultMutableTreeNode
+								.getUserObject());
+					} 
+					catch (SQLException sqlException) 
+					{
+						ExpenseTrackerUtility.showFailureMessage(this, "Deletion of Sub-Category failed because of the error ::", sqlException);
+						return;
+
+					}
+					treeModel
+							.removeNodeFromParent((DefaultMutableTreeNode) tree
+									.getLastSelectedPathComponent());
+				}
+			}
+
+			if(treeNode.length==4)
+			{
 				Product product = (Product)defaultMutableTreeNode.getUserObject();
 				int n = JOptionPane.showConfirmDialog(this,
 						"Are you sure you want to delete the Product: " + product.getProductName(), "Confirm",
@@ -375,7 +489,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 									.getLastSelectedPathComponent());
 				}
 			}
-			if(treeNode.length==4)
+			if(treeNode.length==5)
 			{
 				Brand brand = (Brand)defaultMutableTreeNode.getUserObject();
 				int n = JOptionPane.showConfirmDialog(this,
@@ -397,6 +511,7 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 									.getLastSelectedPathComponent());
 				}
 			}
+		}
 		}
 	}
 
@@ -430,6 +545,27 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 				}
 			}
 		}
+		if("SubCategory".equals(itemType))
+		{
+			if (currentlySelectedNodeValue != null
+					&& !currentlySelectedNodeValue.equals(editedStringValue))
+			{
+				try
+				{
+					Subcategory subcategory = new Subcategory(editedStringValue);
+					subcategory.setSubCategoryId(currentlySelectedNodeKey);
+					subcategory.updateSubCategory(subcategory);
+					node.setUserObject(subcategory);
+				} 
+				
+				catch (SQLException sqlException) 
+				{
+					ExpenseTrackerUtility.showFailureMessage(this, "Update of Category failed because of the error ::", sqlException);
+
+				}
+			}
+		}
+
 		if("Product".equals(itemType))
 		{
 			if (currentlySelectedNodeValue != null
@@ -482,9 +618,13 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 		}
 		if(treeNode.length==3)
 		{
-			return "Product";
+			return "SubCategory";
 		}
 		if(treeNode.length==4)
+		{
+			return "Product";
+		}
+		if(treeNode.length==5)
 		{
 			return "Brand";
 		}
@@ -522,6 +662,14 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 			currentlySelectedNodeKey = category.getCategoryId();
 
 		}
+		if(defaultMutableTreeNode!=null && defaultMutableTreeNode.getUserObject() instanceof Subcategory)
+		{
+			Subcategory subcategory = (Subcategory)defaultMutableTreeNode.getUserObject();
+			currentlySelectedNodeValue = subcategory.getSubCategoryName();
+			currentlySelectedNodeKey = subcategory.getSubCategoryId();
+
+		}
+
 		if(defaultMutableTreeNode!=null && defaultMutableTreeNode.getUserObject() instanceof Product)
 		{
 			Product product = (Product)defaultMutableTreeNode.getUserObject();
@@ -536,9 +684,5 @@ public class InformationPanel extends JPanel implements FocusListener,ActionList
 			currentlySelectedNodeKey = brand.getBrandId();
 
 		}
-
-
-		System.out.println("Am getting called coz  of selection");
-		
 	}
 }

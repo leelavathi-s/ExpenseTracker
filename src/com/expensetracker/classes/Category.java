@@ -30,17 +30,34 @@ public class Category
 		this.categoryName = categoryName;
 	}
 	
-	public static Vector<Category> getAvailableCategories()throws SQLException
+	public static Vector<Category> getAvailableCategories(Object obj)throws SQLException
 	{
 		Statement	stmt = null;
 		Vector<Category> categoriesList = new Vector<Category>();
 		Connection connection = ExpenseTrackerUtility.getConnection();
+		ResultSet resultSet = null;
 		if(connection!=null)
 		{
 			try 
 			{
 				stmt = connection.createStatement();
-				ResultSet resultSet = stmt.executeQuery("Select * from Category");
+				
+				if (obj instanceof Subcategory) 
+				{
+					Subcategory subCategoryObj = obj != null ? (Subcategory) obj : null;
+					if (obj != null)
+					{
+						resultSet = stmt
+								.executeQuery("select cat.categoryid, cat.categoryname from category cat join subcategory sub where cat.categoryid = sub.categoryid "
+										+ "and sub.subcategoryid = "
+										+ subCategoryObj.getSubCategoryId());
+					}
+
+				}
+				else
+				{	
+					 resultSet = stmt.executeQuery("Select * from Category order by categoryName asc");
+				} 
 				while (resultSet.next()) 
 				{
 					Category category= new Category();

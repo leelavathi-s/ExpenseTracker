@@ -48,7 +48,7 @@ public static Vector<Shop> getAvailableShops()
 		try 
 		{
 			Statement	stmt = connection.createStatement();
-			ResultSet resultSet = stmt.executeQuery("Select * from Shop");
+			ResultSet resultSet = stmt.executeQuery("Select * from Shop order by shopname asc");
 			while (resultSet.next()) 
 			{
 				Shop shop = new Shop();
@@ -60,7 +60,6 @@ public static Vector<Shop> getAvailableShops()
 			}
 		} catch (SQLException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -69,24 +68,48 @@ public static Vector<Shop> getAvailableShops()
 	return shopsList;
 }
 
-public void addNewShop()throws SQLException
+public Shop addNewShop()throws SQLException
 {
 	Connection connection = ExpenseTrackerUtility.getConnection();
-	
+	Shop shop = null;
 	if(connection!=null)
 	{
 		try 
 		{
 			Statement	stmt = connection.createStatement();
 			stmt.executeUpdate("Insert into shop (ShopName) values(" + "'" + shopName + "')");
+			
+			ResultSet resultSet = stmt
+					.executeQuery("SELECT LAST_INSERT_ID()");
+			 shop = new Shop(shopName);
+			while (resultSet.next())
+			{
+				shop.setShopId(resultSet.getInt(1));
+			}			
+
+			
 		} catch (SQLException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw e;
 		}
 	}
+	return shop;
 
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	
+	if (obj == null)
+		return false;
+	
+	if (obj instanceof Shop == false)
+		return false;
+	
+	return this.shopId == ((Shop)obj).shopId;
 }
 
 @Override
@@ -96,4 +119,3 @@ public String toString() {
 }
 
 }
-

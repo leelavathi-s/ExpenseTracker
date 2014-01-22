@@ -159,11 +159,12 @@ public class Report
 
 					resultSet = stmt
 							.executeQuery("Select sum(price)  price "
-									+ "from purchaseorder po,category cat,shop,product pro,brand "
+									+ "from purchaseorder po left join shop "
+									+ "on po.ShopId =  shop.ShopId "
+									+ "left join brand on brand.brandid=po.brandid "
+									+ "join category cat join product pro "
 									+ "where po.CategoryId = cat.CategoryId "
-									+ "and po.ShopId =  shop.ShopId "
-									+ "and pro.ProductId=po.ProductId "
-									+ "and brand.brandid=po.brandid"
+									+" and pro.ProductId=po.ProductId "
 									+ " and orderDate between "
 									+ "'"
 									+ ExpenseTrackerUtility.formatDate(startDt,
@@ -183,6 +184,7 @@ public class Report
 
 					while (resultSet.next()) 
 					{
+						System.out.println(resultSet.getDouble(1));
 					
 						priceList.add(new Double(new DecimalFormat("#0.00").format(resultSet.getDouble(1))));
 					}	
@@ -269,11 +271,12 @@ public class Report
 
 				}
 				queryStr.append("Select orderDate,price,quantity,categoryName,shopName,brandName,productName ");
-				queryStr.append("from purchaseorder po,category cat,shop,product pro,brand ");
+				queryStr.append("from purchaseorder po left join shop ");
+				queryStr.append("on po.ShopId =  shop.ShopId ");
+				queryStr.append("left join brand on brand.brandid=po.brandid ");
+				queryStr.append("join category cat join product pro ");
 				queryStr.append("where po.CategoryId = cat.CategoryId ");
-				queryStr.append("and po.ShopId =  shop.ShopId ");
-				queryStr.append("and pro.ProductId=po.ProductId ");
-				queryStr.append("and brand.brandid=po.brandid ");
+				queryStr.append("and pro.ProductId=po.ProductId  ");
 				queryStr.append(" and orderDate between ");
 				queryStr.append("'");
 				queryStr.append(ExpenseTrackerUtility.formatDate((ExpenseTrackerUtility.convertStringToDate(arrayList.get(2).replace('(', ' ').trim(), "dd-MMM-yyyy")),
@@ -349,11 +352,12 @@ public class Report
 				
 					resultSet = stmt
 							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName "
-									+ "from purchaseorder po,category cat,shop,product pro,brand "
+									+ "from purchaseorder po left join shop "
+									+ "on po.ShopId =  shop.ShopId "
+									+ "left join brand on brand.brandid=po.brandid "
+									+ "join category cat join product pro "
 									+ "where po.CategoryId = cat.CategoryId "
-									+ "and po.ShopId =  shop.ShopId "
-									+ "and pro.ProductId=po.ProductId "
-									+ "and brand.brandid=po.brandid "
+									+" and pro.ProductId=po.ProductId "
 									+"and monthname(orderdate)='" 
 									+ reportRequest.getMonth() + "'"
 									+ " and year(orderdate) = "
@@ -410,11 +414,12 @@ public class Report
 				{
 					queryStr = new StringBuffer();
 					queryStr.append("Select orderDate,price,quantity,categoryName,shopName,brandName,productName ");
-					queryStr.append("from purchaseorder po,category cat,shop,product pro,brand ");
+					queryStr.append("from purchaseorder po left join shop ");
+					queryStr.append("on po.ShopId =  shop.ShopId ");
+					queryStr.append("left join brand on brand.brandid=po.brandid ");
+					queryStr.append("join category cat join product pro ");
 					queryStr.append("where po.CategoryId = cat.CategoryId ");
-					queryStr.append("and po.ShopId =  shop.ShopId ");
-					queryStr.append("and pro.ProductId=po.ProductId ");
-					queryStr.append("and brand.brandid=po.brandid ");
+					queryStr.append(" and pro.ProductId=po.ProductId");
 					queryStr.append(" and year(orderdate) = ");
 					queryStr.append(year);
 					if(category!=null)
@@ -475,11 +480,12 @@ public class Report
 				
 					resultSet = stmt
 							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName "
-									+ "from purchaseorder po,category cat,shop,product pro,brand "
+									+ "from purchaseorder po left join shop "
+									+ "on po.ShopId =  shop.ShopId "
+									+ "left join brand on brand.brandid=po.brandid "
+									+ "join category cat join product pro "
 									+ "where po.CategoryId = cat.CategoryId "
-									+ "and po.ShopId =  shop.ShopId "
 									+ "and pro.ProductId=po.ProductId "
-									+ "and brand.brandid=po.brandid "
 									+ " and year(orderdate) = "
 									+ reportRequest.getYear()
 									+" and cat.categoryName = '"
@@ -535,11 +541,12 @@ public class Report
 				
 					resultSet = stmt
 							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName "
-									+ "from purchaseorder po,category cat,shop,product pro,brand "
+									+ "from purchaseorder po left join shop "
+									+ "on po.ShopId =  shop.ShopId "
+									+ "left join brand on brand.brandid=po.brandid "
+									+ "join category cat join product pro "
 									+ "where po.CategoryId = cat.CategoryId "
-									+ "and po.ShopId =  shop.ShopId "
-									+ "and pro.ProductId=po.ProductId "
-									+ "and brand.brandid=po.brandid "
+									+"and pro.ProductId=po.ProductId "
 									+ " and year(orderdate) = "
 									+ reportRequest.getYear()
 									+" and pro.productName = '"
@@ -696,7 +703,7 @@ public class Report
 				stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
 				resultSet = stmt
-						.executeQuery("select sum(price),prod.productname,year(orderdate) from purchaseorder po,product prod where po.productid = prod.productId  group by po.productId,year(po.orderdate)");
+						.executeQuery("select sum(price),prod.productname,year(orderdate) from purchaseorder po,product prod where po.productid = prod.productId  group by po.productId,year(po.orderdate),prod.productname");
 								
 				while (resultSet.next()) 
 				{
