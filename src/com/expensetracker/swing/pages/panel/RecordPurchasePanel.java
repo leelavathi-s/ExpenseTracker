@@ -592,7 +592,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 			{
 				ExpenseTrackerUtility.showFailureMessage(this, "Uable to load category text::", e1);		
 			}
-
+			jFrame.pack();
 
 		}
 		
@@ -775,6 +775,6 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 		priceField.setText("");
 		priceField.setValue(null);
 		qtyField.setText("");
-		dtPurchaseField.setText("");
+		commentTxtField.setText("");
 	}
 }

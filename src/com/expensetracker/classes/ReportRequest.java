@@ -10,6 +10,17 @@ public class ReportRequest
 	private String category;
 	
 	private String product;
+	
+	private String subcategory;
+
+
+	public String getSubcategory() {
+		return subcategory;
+	}
+
+	public void setSubcategory(String subcategory) {
+		this.subcategory = subcategory;
+	}
 
 	public String getMonth() {
 		return month;

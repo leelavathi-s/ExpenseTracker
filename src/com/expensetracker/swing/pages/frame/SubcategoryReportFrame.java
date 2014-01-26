@@ -24,11 +24,10 @@ import javax.swing.table.TableModel;
 import com.expensetracker.classes.Report;
 import com.expensetracker.classes.ReportRequest;
 import com.expensetracker.classes.ReportType;
-import com.expensetracker.swing.pages.panel.CategoryReportPanel;
-import com.expensetracker.swing.pages.panel.ProductReportPanel;
+import com.expensetracker.swing.pages.panel.SubCategoryReportPanel;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
-public class ProductReportFrame  extends JFrame implements MouseListener
+public class SubcategoryReportFrame extends JFrame implements MouseListener
 {
 
 
@@ -39,26 +38,26 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 	/**
 	 * 
 	 */
-	JScrollPane jScrollPaneForProductWiseReport;
-	JTable footerForProductWiseReport;
-	JTable jTableForProductWiseReport;
-	List<Report> dataListForProductWiseReport;
+	JScrollPane jScrollPaneForSubCategoryWiseReport;
+	JTable footerForSubCategoryWiseReport;
+	JTable jTableForSubCategoryWiseReport;
+	List<Report> dataListForSubCategoryWiseReport;
 	JPanel jPanel;
 
-	public ProductReportFrame(JPanel jPanel) 
+	public SubcategoryReportFrame(JPanel jPanel) 
 	{
 		this.jPanel = jPanel;
-		retrieveAndBuildTabelForProductWiseReport(jPanel);
+		retrieveAndBuildTabelForSubCategoryWiseReport(jPanel);
 
 	}
 
-	public void retrieveAndBuildTabelForProductWiseReport(JPanel jPanel) 
+	public void retrieveAndBuildTabelForSubCategoryWiseReport(JPanel jPanel) 
 	{
 		try
 
 		{
-			dataListForProductWiseReport = Report
-					.retrievePriceForProductWiseReport();
+			dataListForSubCategoryWiseReport = Report
+					.retrievePriceForSubCategoryWiseReport();
 
 		} catch (SQLException sqlException) {
 			JOptionPane.showMessageDialog(this,
@@ -69,57 +68,57 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 
 			sqlException.printStackTrace();
 		}
-		jTableForProductWiseReport = new JTable(
+		jTableForSubCategoryWiseReport = new JTable(
 				new MyTableModelForCategoryWiseReport());
-		jTableForProductWiseReport
+		jTableForSubCategoryWiseReport
 				.setPreferredScrollableViewportSize(new Dimension(450, 70));
-		jTableForProductWiseReport.setFillsViewportHeight(true);
-		jTableForProductWiseReport.setAutoCreateRowSorter(true);
-		jTableForProductWiseReport.setName(ReportType.PRODUCT.toString());
+		jTableForSubCategoryWiseReport.setFillsViewportHeight(true);
+		jTableForSubCategoryWiseReport.setAutoCreateRowSorter(true);
+		jTableForSubCategoryWiseReport.setName(ReportType.SUBCATEGORY.toString());
 
-		jTableForProductWiseReport.addMouseListener(this);
+		jTableForSubCategoryWiseReport.addMouseListener(this);
 
-		ExpenseTrackerUtility.initColumnSizes(jTableForProductWiseReport);
+		ExpenseTrackerUtility.initColumnSizes(jTableForSubCategoryWiseReport);
 
-		DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForProductWiseReport
+		DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForSubCategoryWiseReport
 				.getColumnModel();
 		TableColumn col = colModel.getColumn(0);
 		col.setCellRenderer(new CategoryWiseRenderer());
-		jScrollPaneForProductWiseReport = new JScrollPane(
-				jTableForProductWiseReport);
-		jScrollPaneForProductWiseReport.setVisible(true);
-		jPanel.add(jScrollPaneForProductWiseReport);
+		jScrollPaneForSubCategoryWiseReport = new JScrollPane(
+				jTableForSubCategoryWiseReport);
+		jScrollPaneForSubCategoryWiseReport.setVisible(true);
+		jPanel.add(jScrollPaneForSubCategoryWiseReport);
 
 		double totalAmountSpentPerMonth = 0.0;
 
-		for (Report report : dataListForProductWiseReport)
+		for (Report report : dataListForSubCategoryWiseReport)
 		{
-			totalAmountSpentPerMonth += report.getTotalPricePerProduct();
+			totalAmountSpentPerMonth += report.getTotalPricePerSubCategory();
 		}
 
-		footerForProductWiseReport = new JTable(1,
-				jTableForProductWiseReport.getColumnCount());
-		footerForProductWiseReport.setValueAt("Total", 0, 1);
-		footerForProductWiseReport.setValueAt(
+		footerForSubCategoryWiseReport = new JTable(1,
+				jTableForSubCategoryWiseReport.getColumnCount());
+		footerForSubCategoryWiseReport.setValueAt("Total", 0, 1);
+		footerForSubCategoryWiseReport.setValueAt(
 				new DecimalFormat("#0.00").format(totalAmountSpentPerMonth), 0,
 				2);
-		footerForProductWiseReport.setVisible(true);
+		footerForSubCategoryWiseReport.setVisible(true);
 
-		for (int columnIndex = 0; columnIndex < jTableForProductWiseReport
+		for (int columnIndex = 0; columnIndex < jTableForSubCategoryWiseReport
 				.getColumnCount(); columnIndex++) 
 		{
 			ExpenseTrackerUtility.setChildTableColumnWidth(
-					footerForProductWiseReport, columnIndex,
+					footerForSubCategoryWiseReport, columnIndex,
 					ExpenseTrackerUtility.getParentTableColumnWidth(
-							jTableForProductWiseReport, columnIndex));
+							jTableForSubCategoryWiseReport, columnIndex));
 		}
-		jPanel.add(footerForProductWiseReport);
+		jPanel.add(footerForSubCategoryWiseReport);
 	}
 
 	public class MyTableModelForCategoryWiseReport implements TableModel 
 	{
 
-		private String[] columnNames = { "Product", "Year",
+		private String[] columnNames = { "Sub-Category", "Year",
 				"Amount spent(per year)" };
 
 		@Override
@@ -145,10 +144,10 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 
 		@Override
 		public int getRowCount() {
-			if (dataListForProductWiseReport != null
-					&& !dataListForProductWiseReport.isEmpty()) 
+			if (dataListForSubCategoryWiseReport != null
+					&& !dataListForSubCategoryWiseReport.isEmpty()) 
 			{
-				return dataListForProductWiseReport.size();
+				return dataListForSubCategoryWiseReport.size();
 			} 
 			else 
 			{
@@ -159,16 +158,16 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
-			Report report = (Report) dataListForProductWiseReport
+			Report report = (Report) dataListForSubCategoryWiseReport
 					.get(rowIndex);
 			switch (columnIndex)
 			{
 			case 0:
-				return report.getProductName();
+				return report.getSubCategoryName();
 			case 1:
 				return report.getYearForYearlyReport();
 			case 2:
-				return report.getTotalPricePerProduct();
+				return report.getTotalPricePerSubCategory();
 
 			}
 			return null;
@@ -219,10 +218,10 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 	public void mouseClicked(MouseEvent e) {
 
 		JTable jTable = (JTable) e.getSource();
-		Report selectedRowString = (Report) dataListForProductWiseReport
+		Report selectedRowString = (Report) dataListForSubCategoryWiseReport
 				.get(jTable.getSelectedRow());
 		ReportRequest reportRequest = new ReportRequest();
-		reportRequest.setProduct(selectedRowString.getProductName());
+		reportRequest.setSubcategory(selectedRowString.getSubCategoryName());
 		reportRequest.setYear(selectedRowString.getYearForYearlyReport());
 		createFrame(reportRequest, jTable.getName());
 
@@ -256,9 +255,9 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 	{
 
 		JFrame jFrame = new JFrame();
-		jFrame.setTitle("Product wise Report");
+		jFrame.setTitle("Sub-Category wise Report");
 
-		ProductReportPanel panel = new ProductReportPanel(reportRequest,
+		SubCategoryReportPanel panel = new SubCategoryReportPanel(reportRequest,
 				jFrame);
 		jFrame.getContentPane().add(BorderLayout.CENTER, panel);
 		jFrame.setVisible(true);
@@ -270,11 +269,13 @@ public class ProductReportFrame  extends JFrame implements MouseListener
 	{
 
 		ExpenseTrackerUtility.showComponenets(showFlag,
-				jScrollPaneForProductWiseReport);
+				jScrollPaneForSubCategoryWiseReport);
 		ExpenseTrackerUtility.showComponenets(showFlag,
-				footerForProductWiseReport);
+				footerForSubCategoryWiseReport);
 
 	}
+
+
 
 
 }

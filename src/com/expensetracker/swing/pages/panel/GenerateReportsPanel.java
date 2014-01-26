@@ -19,6 +19,7 @@ import com.expensetracker.classes.ReportRequest;
 import com.expensetracker.swing.pages.frame.CategoryReportFrame;
 import com.expensetracker.swing.pages.frame.MonthlyFrame;
 import com.expensetracker.swing.pages.frame.ProductReportFrame;
+import com.expensetracker.swing.pages.frame.SubcategoryReportFrame;
 import com.expensetracker.swing.pages.frame.WeeklyFrame;
 import com.expensetracker.swing.pages.frame.YearlyFrame;
 
@@ -36,6 +37,8 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 	YearlyFrame yearlyFrame;
 	CategoryReportFrame categoryReportFrame;
 	ProductReportFrame productReportFrame;
+	SubcategoryReportFrame subcategoryReportFrame;
+	
 	ReportRequest reportRequest = new ReportRequest();
 
 	GenerateReportsPanel generateReportsPanel = null;
@@ -79,6 +82,11 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 		JRadioButton productWiseReport = new JRadioButton("Product");
 		productWiseReport.setMnemonic(KeyEvent.VK_P);
 		productWiseReport.add(Box.createRigidArea(new Dimension(100,30)));
+		
+		JRadioButton subCategoryWiseReport = new JRadioButton("Sub-Category");
+		subCategoryWiseReport.setMnemonic(KeyEvent.VK_S);
+		subCategoryWiseReport.add(Box.createRigidArea(new Dimension(100,30)));
+
 
 		weeklyReport.setActionCommand("Weekly Report");
 		weeklyReport.addActionListener(this);
@@ -95,12 +103,18 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 		productWiseReport.setActionCommand("Product wise");
 		productWiseReport.addActionListener(this);
 		
+		subCategoryWiseReport.setActionCommand("Sub Category wise");
+		subCategoryWiseReport.addActionListener(this);
+
+		
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(weeklyReport);
 		buttonGroup.add(monthlyReport);
 		buttonGroup.add(yearlyReport);
 		buttonGroup.add(categoryWiseReport);
 		buttonGroup.add(productWiseReport);
+		buttonGroup.add(subCategoryWiseReport);
+
 
 		
 		weeklyReport.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -112,6 +126,8 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 		this.add(yearlyReport);
 		this.add(categoryWiseReport);
 		this.add(productWiseReport);
+		this.add(subCategoryWiseReport);
+
 
 		
 		weeklyFrame = new WeeklyFrame(reportRequest,this);
@@ -141,6 +157,10 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 			{
 				productReportFrame.setVisible(false);
 			}
+			if(subcategoryReportFrame!=null)
+			{
+				subcategoryReportFrame.setVisible(false);
+			}
 
 		}	
 		else if("Monthly Report".equals(e.getActionCommand()))
@@ -160,6 +180,10 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 			{
 				productReportFrame.setVisible(false);
 			}
+			if(subcategoryReportFrame!=null)
+			{
+				subcategoryReportFrame.setVisible(false);
+			}
 
 		}
 		else if("Yearly Report".equals(e.getActionCommand()))
@@ -177,6 +201,10 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 			if(productReportFrame!=null)
 			{
 				productReportFrame.setVisible(false);
+			}
+			if(subcategoryReportFrame!=null)
+			{
+				subcategoryReportFrame.setVisible(false);
 			}
 			yearlyFrame.setVisible(true);
 		}
@@ -196,6 +224,10 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 			if(productReportFrame!=null)
 			{
 				productReportFrame.setVisible(false);
+			}
+			if(subcategoryReportFrame!=null)
+			{
+				subcategoryReportFrame.setVisible(false);
 			}
 			weeklyFrame.setVisible(false);
 		}
@@ -219,9 +251,40 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 			{
 				categoryReportFrame.setVisible(false);
 			}
+			if(subcategoryReportFrame!=null)
+			{
+				subcategoryReportFrame.setVisible(false);
+			}
 			
 			weeklyFrame.setVisible(false);
 		}
+		else if("Sub Category wise".equals(e.getActionCommand()))
+		{
+			subcategoryReportFrame = new SubcategoryReportFrame(this);
+			subcategoryReportFrame.setVisible(true);
+			if(monthlyFrame!=null)
+			{
+				monthlyFrame.setVisible(false);
+			}
+			if(yearlyFrame!=null)
+			{
+				yearlyFrame.setVisible(false);
+			}
+			if(monthlyFrame!=null)
+			{
+				monthlyFrame.setVisible(false);
+			}
+			if(categoryReportFrame!=null)
+			{
+				categoryReportFrame.setVisible(false);
+			}
+			if(productReportFrame!=null)
+			{
+				productReportFrame.setVisible(false);
+			}	
+			weeklyFrame.setVisible(false);
+		}
+	
 	
 	
 	}

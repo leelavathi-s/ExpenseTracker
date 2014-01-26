@@ -7,7 +7,9 @@ public enum ReportType {
 	MONTHLY("Monthly"),
 	YEARLY("Yearly"),
 	CATEGORY("Category"),
-	PRODUCT("Product");
+	PRODUCT("Product"),
+	SUBCATEGORY("SubCategory"),
+;
 	public String reportType;
 	
 	ReportType(String reportType)

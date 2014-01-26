@@ -36,6 +36,7 @@ public class HomePage
 	
 	JTabbedPane tabbedPane = null;
 	RecordPurchasePanel recordPurchasePane = null;
+	ComparePricePanel comparePricePanel = null;
 	
 	JFrame jFrame = null;
 	public static void main(String args[])
@@ -51,17 +52,10 @@ public class HomePage
 		jFrame.setLocation(300, 300);
 
 		recordPurchasePane = new RecordPurchasePanel(jFrame);
-		ComparePricePanel comparePricePanel = new ComparePricePanel();
+		 comparePricePanel = new ComparePricePanel(jFrame);
 		generateReportsPanel = new GenerateReportsPanel();
-		InformationPanel informationPanel =  new InformationPanel();
+		InformationPanel informationPanel =  new InformationPanel(jFrame);
 
-		Border blackline = BorderFactory.createLineBorder(Color.black);
-		comparePricePanel.setBorder(BorderFactory.createTitledBorder(blackline,
-				"Compare"));
-		JButton comPriceButton = new JButton("Compare Price");
-		comparePricePanel.add(comPriceButton);
-
-	
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Record Purchase", null,recordPurchasePane, "Record Data");
 		tabbedPane.setMnemonicAt(0,KeyEvent.VK_1);
@@ -99,16 +93,20 @@ public class HomePage
 	          if("Generate Reports".equals(sourceTabbedPane.getTitleAt(index)))
 	          {
 	        	  generateReportsPanel.buildGUI();
-	        	  jFrame.pack();
-	        	  
+        	  
 	          }
 	          if("Record Purchase".equals(sourceTabbedPane.getTitleAt(index)))
 	          {
 	        	  recordPurchasePane.buildStoreDataGUI();
-	        	  jFrame.pack();
 	        	  
 	          }
-	        			
+	          if("Compare Price".equals(sourceTabbedPane.getTitleAt(index)))
+	          {
+	        	  comparePricePanel.buildGUI();
+	        	  
+	          }
+        	  jFrame.pack();
+
 		}
 		
 	}

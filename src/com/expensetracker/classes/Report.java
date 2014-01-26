@@ -33,11 +33,32 @@ public class Report
 	private double totalPricePerCategory;
 	
 	private String productName;
+	private String subCategoryName;
+
+	private double totalPricePerSubCategory;
+
 	
 	private double totalPricePerProduct;
 	private double totalPricePerMonthForMonthlyReport;
 	private double totalPricePerYearForYearlyReport;
 
+	
+
+	public String getSubCategoryName() {
+		return subCategoryName;
+	}
+
+	public void setSubCategoryName(String subCategoryName) {
+		this.subCategoryName = subCategoryName;
+	}
+
+	public double getTotalPricePerSubCategory() {
+		return totalPricePerSubCategory;
+	}
+
+	public void setTotalPricePerSubCategory(double totalPricePerSubCategory) {
+		this.totalPricePerSubCategory = totalPricePerSubCategory;
+	}
 
 	public String getProductName() {
 		return productName;
@@ -162,9 +183,9 @@ public class Report
 									+ "from purchaseorder po left join shop "
 									+ "on po.ShopId =  shop.ShopId "
 									+ "left join brand on brand.brandid=po.brandid "
-									+ "join category cat join product pro "
+									+ "join category cat join product pro join subcategory sub "
 									+ "where po.CategoryId = cat.CategoryId "
-									+" and pro.ProductId=po.ProductId "
+									+" and pro.ProductId=po.ProductId and sub.subcategoryid=po.subcategoryid "
 									+ " and orderDate between "
 									+ "'"
 									+ ExpenseTrackerUtility.formatDate(startDt,
@@ -174,7 +195,8 @@ public class Report
 									+ ExpenseTrackerUtility.formatDate(endDate,
 											mySqlFormat) + "'"
 									+ (reportRequest.getCategory() != null ? " and cat.categoryName = '" + reportRequest.getCategory() +  "'" : "")
-									+(reportRequest.getProduct() != null ? " and pro.productname = '" + reportRequest.getProduct() +  "'" : ""));
+									+(reportRequest.getProduct() != null ? " and pro.productname = '" + reportRequest.getProduct() +  "'" : "")
+									+(reportRequest.getSubcategory() != null ? " and sub.subcategoryname = '" + reportRequest.getSubcategory() +  "'" : ""));
 					
 	        		cal.add(Calendar.DATE,1);
 
@@ -183,9 +205,7 @@ public class Report
 					currentDt = endDate;
 
 					while (resultSet.next()) 
-					{
-						System.out.println(resultSet.getDouble(1));
-					
+					{					
 						priceList.add(new Double(new DecimalFormat("#0.00").format(resultSet.getDouble(1))));
 					}	
 
@@ -274,9 +294,9 @@ public class Report
 				queryStr.append("from purchaseorder po left join shop ");
 				queryStr.append("on po.ShopId =  shop.ShopId ");
 				queryStr.append("left join brand on brand.brandid=po.brandid ");
-				queryStr.append("join category cat join product pro ");
+				queryStr.append("join category cat join product pro join subcategory sub ");
 				queryStr.append("where po.CategoryId = cat.CategoryId ");
-				queryStr.append("and pro.ProductId=po.ProductId  ");
+				queryStr.append("and pro.ProductId=po.ProductId  and sub.subcategoryid=po.subcategoryid ");
 				queryStr.append(" and orderDate between ");
 				queryStr.append("'");
 				queryStr.append(ExpenseTrackerUtility.formatDate((ExpenseTrackerUtility.convertStringToDate(arrayList.get(2).replace('(', ' ').trim(), "dd-MMM-yyyy")),
@@ -289,6 +309,13 @@ public class Report
 				{
 					queryStr.append(" and cat.categoryName = '");
 					queryStr.append(reportRequest.getCategory());
+					queryStr.append("'");
+					
+				}
+				if(reportRequest.getSubcategory()!=null)
+				{
+					queryStr.append(" and sub.subcategoryName = '");
+					queryStr.append(reportRequest.getSubcategory());
 					queryStr.append("'");
 					
 				}
@@ -355,15 +382,16 @@ public class Report
 									+ "from purchaseorder po left join shop "
 									+ "on po.ShopId =  shop.ShopId "
 									+ "left join brand on brand.brandid=po.brandid "
-									+ "join category cat join product pro "
+									+ "join category cat join product pro join subcategory sub "
 									+ "where po.CategoryId = cat.CategoryId "
-									+" and pro.ProductId=po.ProductId "
+									+" and pro.ProductId=po.ProductId and sub.subcategoryid=po.subcategoryid "
 									+"and monthname(orderdate)='" 
 									+ reportRequest.getMonth() + "'"
 									+ " and year(orderdate) = "
 									+ reportRequest.getYear()
 									+(reportRequest.getCategory()!=null? " and cat.categoryname ='" + reportRequest.getCategory() + "'":"")
-									+(reportRequest.getProduct()!=null? " and pro.productname ='" + reportRequest.getProduct() + "'":""));
+									+(reportRequest.getProduct()!=null? " and pro.productname ='" + reportRequest.getProduct() + "'":"")
+									+(reportRequest.getSubcategory()!=null? " and sub.subcategoryname ='" + reportRequest.getSubcategory() + "'":""));
 					while(resultSet.next())
 					{
 						Order order = new Order();
@@ -583,6 +611,70 @@ public class Report
 		return orderArrayList;
 
 	}
+	public static List<Order> retrieveDataForSubCategoryYearlyReport(ReportRequest reportRequest)throws SQLException
+	{
+
+		ResultSet resultSet = null;
+		List<Order> orderArrayList = null;
+		Statement stmt = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				stmt = connection.createStatement();
+				orderArrayList = new ArrayList<Order>();
+				if(reportRequest.getYear()!=null)
+				{
+				
+					resultSet = stmt
+							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName,subcategoryname "
+									+ "from purchaseorder po left join shop "
+									+ "on po.ShopId =  shop.ShopId "
+									+ "left join brand on brand.brandid=po.brandid "
+									+ "join category cat join product pro join subcategory sub"
+									+ " where po.CategoryId = cat.CategoryId "
+									+" and pro.ProductId=po.ProductId "
+									+" and po.subcategoryid = sub.subcategoryid "
+									+ " and year(orderdate) = '"
+									+ reportRequest.getYear()
+									+" ' and sub.subcategoryname = '"
+									+reportRequest.getSubcategory()
+									+"'");
+					while(resultSet.next())
+					{
+						Order order = new Order();
+						order.setPurchaseDate(resultSet.getDate(1));
+						order.setPrice(resultSet.getDouble(2));
+						order.setQuantity(resultSet.getInt(3));
+						order.setCategoryName(resultSet.getString(4));
+						order.setShopName(resultSet.getString(5));
+						order.setBrandName(resultSet.getString(6));
+						order.setProductName(resultSet.getString(7));
+						order.setSubcategoryName(resultSet.getString(8));
+
+						orderArrayList.add(order);
+						
+					}		
+
+				}
+			
+			} 
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+		}
+		return orderArrayList;
+
+	}
+
 
 	public String getMonthForMonthlyReport() {
 		return monthForMonthlyReport;
@@ -687,6 +779,72 @@ public class Report
 
 	
 	}
+	public static List<Order> retrieveLastPurchaseInfo(int productId)throws SQLException
+	{
+
+
+		Report report = null;
+		ResultSet resultSet = null;
+		List<Order> orderArrayList = null;
+		Statement stmt = null;
+		StringBuffer quBuffer = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				stmt = connection.createStatement();
+				orderArrayList = new ArrayList<Order>();
+				quBuffer = new StringBuffer();
+				quBuffer.append("Select * from(");
+				quBuffer.append("Select orderDate,price,quantity,categoryName,shopName,brandName,productName,subcategoryname,comments from purchaseorder po left join shop ");
+				quBuffer.append(" on po.ShopId =  shop.ShopId ");
+				quBuffer.append(" left join brand on brand.brandid=po.brandid ");
+				quBuffer.append(" join category cat join product pro join subcategory sub ");
+				quBuffer.append(" where po.CategoryId = cat.CategoryId ");
+				quBuffer.append(" and pro.ProductId=po.ProductId ");
+				quBuffer.append(" and po.subcategoryid = sub.subcategoryid ");
+				quBuffer.append(" and pro.productid = ");
+				quBuffer.append(productId);
+				quBuffer.append(" )  m1");
+				quBuffer.append(" where m1.orderdate = (select pur.orderdate from purchaseorder pur,product prod where pur.productid = prod.productid and prod.productid= ");
+				quBuffer.append(productId );
+				quBuffer.append(" order by orderdate desc limit  1)");
+				resultSet = stmt
+						.executeQuery(quBuffer.toString());
+								
+				while (resultSet.next()) 
+				{
+					Order order = new Order();
+					order.setPurchaseDate(resultSet.getDate(1));
+					order.setPrice(resultSet.getDouble(2));
+					order.setQuantity(resultSet.getInt(3));
+					order.setCategoryName(resultSet.getString(4));
+					order.setShopName(resultSet.getString(5));
+					order.setBrandName(resultSet.getString(6));
+					order.setProductName(resultSet.getString(7));
+					order.setSubcategoryName(resultSet.getString(8));
+					order.setCommentTxt(resultSet.getString(9));
+					orderArrayList.add(order);
+}
+				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+		}
+		return orderArrayList;
+
+	
+	}
+
 	public static List<Report> retrievePriceForProductWiseReport()throws SQLException
 	{
 
@@ -732,6 +890,50 @@ public class Report
 	
 	}
 
+	public static List<Report> retrievePriceForSubCategoryWiseReport()throws SQLException
+	{
+
+
+		Report report = null;
+		ResultSet resultSet = null;
+		List<Report> reportList = null;
+		Statement stmt = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				stmt = connection.createStatement();
+				reportList = new ArrayList<Report>();
+				resultSet = stmt
+						.executeQuery("select sum(price),sub.subCategoryName,year(orderdate) from purchaseorder po,subcategory sub where sub.subcategoryid = po.subcategoryid  group by po.subcategoryid,year(po.orderdate),sub.subcategoryname");
+								
+				while (resultSet.next()) 
+				{
+					report = new Report();
+					report.setSubCategoryName(resultSet.getString(2));
+					report.setTotalPricePerSubCategory(resultSet.getDouble(1));
+					report.setYearForYearlyReport(resultSet.getString(3));
+					reportList.add(report);
+					
+				}
+				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+		}
+		return reportList;
+
+	
+	}
 
 
 	public static List<Report> retrievePriceForMonthlyReport(ReportRequest reportRequest)throws SQLException
@@ -770,6 +972,12 @@ public class Report
 					{
 						queryStr.append("inner join product pro on po.productid=pro.productid and pro.productname='");
 						queryStr.append(reportRequest.getProduct());
+						queryStr.append("'");
+					}
+					if(reportRequest.getSubcategory()!=null)
+					{
+						queryStr.append("inner join subcategory sub on sub.subcategoryid=po.subcategoryid and sub.subcategoryname='");
+						queryStr.append(reportRequest.getSubcategory());
 						queryStr.append("'");
 					}
 					queryStr.append(" GROUP BY m.name");

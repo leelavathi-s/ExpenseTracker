@@ -101,7 +101,7 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 	{
 		jPanel.remove(jScrollPaneForMonthlyReport);
 		jPanel.remove(footerForMonthlyReport);
-		//Forcing to take value of year field from 'Select an yr' drop down rather from rport request
+		//Forcing to take value of year field from 'Select an yr' drop down rather from report request
 		reportReq.setYear(null);
 	}
 	try
