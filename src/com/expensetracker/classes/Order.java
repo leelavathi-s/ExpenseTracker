@@ -1,6 +1,7 @@
 package com.expensetracker.classes;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -256,6 +257,38 @@ public class Order
 		}	
 		return orderArrayList;
 	}
+	
+	public static ArrayList<Order> retrievePurchasesForProduct(int productId) throws SQLException
+	{	
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		
+		PreparedStatement stmt = connection.prepareStatement("select purchaseOrder.OrderDate, brand.BrandName, shop.ShopName, purchaseorder.Price, purchaseOrder.Quantity from" + 
+															" purchaseorder, product, brand, shop " + 
+															"where product.ProductId = ? "+ 
+															"and product.ProductId = purchaseorder.ProductId " +
+															"and shop.ShopId = purchaseOrder.ShopId and brand.BrandId = purchaseOrder.BrandId " +
+															"group by brand.BrandId, shop.ShopId " +
+															"order by purchaseorder.OrderDate ");
+		stmt.setInt(1, productId);
+		final ResultSet resultSet = stmt.executeQuery();
+		
+		ArrayList<Order> orderArrayList = new ArrayList<Order>();
+		
+		while (resultSet.next())
+		{
+			orderArrayList.add(new Order() 
+			{{ 
+				purchaseDate = resultSet.getDate(1);
+				brandName = resultSet.getString(2);
+				shopName = resultSet.getString(3);
+				price = resultSet.getDouble(4);
+				quantity = resultSet.getInt(5);
+			}});
+		}
+		
+		return orderArrayList;	
+	}
+
 	
 	
 	@Override
