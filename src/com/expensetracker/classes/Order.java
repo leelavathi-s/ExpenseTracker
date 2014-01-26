@@ -22,7 +22,7 @@ public class Order
 	
 	Product product;
 
-	int quantity;
+	double quantity;
 	
 	double price;
 	
@@ -136,13 +136,13 @@ public class Order
 		this.purchaseDate = purchaseDate;
 	}
 
-	public int getQuantity() {
+	public double getQuantity() {
 		return quantity;
 	}
 
 
 
-	public void setQuantity(int quantity) {
+	public void setQuantity(double quantity) {
 		this.quantity = quantity;
 	}
 
@@ -238,7 +238,7 @@ public class Order
 					Order order = new Order();
 					order.setPurchaseDate(resultSet.getDate(1));
 					order.setPrice(resultSet.getDouble(2));
-					order.setQuantity(resultSet.getInt(3));
+					order.setQuantity(resultSet.getDouble(3));
 					order.setCategoryName(resultSet.getString(4));
 					order.setShopName(resultSet.getString(5));
 					order.setBrandName(resultSet.getString(6));
@@ -263,12 +263,14 @@ public class Order
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		PreparedStatement stmt = connection.prepareStatement("select purchaseOrder.OrderDate, brand.BrandName, shop.ShopName, purchaseorder.Price, purchaseOrder.Quantity from" + 
-															" purchaseorder, product, brand, shop " + 
-															"where product.ProductId = ? "+ 
-															"and product.ProductId = purchaseorder.ProductId " +
-															"and shop.ShopId = purchaseOrder.ShopId and brand.BrandId = purchaseOrder.BrandId " +
-															"group by brand.BrandId, shop.ShopId " +
-															"order by purchaseorder.OrderDate ");
+															" purchaseorder join product " +
+															" on purchaseOrder.ProductId = product.ProductId " +
+															" left join brand " +
+															" on purchaseOrder.BrandId = brand.BrandId " +
+															" left join shop " +
+															" on purchaseOrder.ShopId = shop.ShopId " +
+															"where purchaseorder.ProductId = ? "+ 
+															"order by purchaseorder.OrderDate, purchaseOrder.BrandId, purchaseOrder.ShopId");
 		stmt.setInt(1, productId);
 		final ResultSet resultSet = stmt.executeQuery();
 		
@@ -282,7 +284,7 @@ public class Order
 				brandName = resultSet.getString(2);
 				shopName = resultSet.getString(3);
 				price = resultSet.getDouble(4);
-				quantity = resultSet.getInt(5);
+				quantity = resultSet.getDouble(5);
 			}});
 		}
 		

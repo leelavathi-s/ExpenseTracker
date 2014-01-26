@@ -335,7 +335,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -398,7 +398,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -465,7 +465,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -525,7 +525,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -586,7 +586,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -647,7 +647,7 @@ public class Report
 						Order order = new Order();
 						order.setPurchaseDate(resultSet.getDate(1));
 						order.setPrice(resultSet.getDouble(2));
-						order.setQuantity(resultSet.getInt(3));
+						order.setQuantity(resultSet.getDouble(3));
 						order.setCategoryName(resultSet.getString(4));
 						order.setShopName(resultSet.getString(5));
 						order.setBrandName(resultSet.getString(6));
@@ -819,7 +819,7 @@ public class Report
 					Order order = new Order();
 					order.setPurchaseDate(resultSet.getDate(1));
 					order.setPrice(resultSet.getDouble(2));
-					order.setQuantity(resultSet.getInt(3));
+					order.setQuantity(resultSet.getDouble(3));
 					order.setCategoryName(resultSet.getString(4));
 					order.setShopName(resultSet.getString(5));
 					order.setBrandName(resultSet.getString(6));
