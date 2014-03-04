@@ -1,6 +1,12 @@
 package com.expensetracker.utility;
 
 import java.awt.Component;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -11,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -41,6 +48,69 @@ public class ExpenseTrackerUtility
 					JOptionPane.ERROR_MESSAGE);
 
 		}
+
+	}
+	public static String getQuery(String queryString)
+	{
+		return getQuery(queryString,null);
+	}
+	public static String getQuery(String queryString,Properties properties)
+ {
+		if (properties == null)
+		{
+			properties = new Properties();
+			File file = new File("src/Query.properties");
+			InputStream inputStream = null;
+			try 
+			{
+				inputStream = new FileInputStream(file);
+			} 
+			catch (FileNotFoundException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			try
+			{
+				properties.load(inputStream);
+			} 
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return properties.getProperty(queryString);
+
+	}
+	public static Properties getAndSetProperty(String queryString,String propertyToSet)
+	{
+		File file = new File("src/Query.Properties");
+		Properties properties = new Properties();
+		InputStream inputStream = null;
+		try 
+		{
+			inputStream = new FileInputStream(file);
+		}
+		catch (FileNotFoundException e2) 
+		{
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		try
+		{
+			properties.load(inputStream);
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String existingQueryString = properties.getProperty(queryString);
+		properties.put(queryString, existingQueryString.concat(propertyToSet));
+		return properties;
 
 	}
 	public static void releaseResources(Connection connection,Statement statement) throws SQLException
@@ -92,11 +162,13 @@ public class ExpenseTrackerUtility
 	}
 	public static int getMonth(String month)
 	{
+		System.out.println(month);
+		System.out.println(month.length());
 		switch(month)
 		{
 		case "January":
 			return 0;
-		case "Febraury":
+		case "February":
 			return 1;
 		case "March":
 			return 2;
@@ -152,7 +224,7 @@ public class ExpenseTrackerUtility
 	    cal.set(Calendar.YEAR, new Integer(year));
         cal.set(Calendar.DATE, 1);
 
-        cal.set(Calendar.MONTH, getMonth(month));
+        cal.set(Calendar.MONTH, getMonth(month.trim()));
         return cal;
 
 		

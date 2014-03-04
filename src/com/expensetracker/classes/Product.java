@@ -1,6 +1,7 @@
 package com.expensetracker.classes;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -47,21 +48,23 @@ public class Product {
 		Vector<Product> brandList = new Vector<Product>();
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		ResultSet resultSet =  null;
-		Statement	stmt =  null;
+		PreparedStatement	stmt =  null;
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
 				Subcategory subcategory =obj!=null?(Subcategory)obj:null;
 				if(subcategory!=null)
 				{
-					 resultSet = stmt.executeQuery("SELECT *FROM product where subcategoryId=" +subcategory.getSubCategoryId() +" group by productName order by productname");
+					stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Product.getAvailableProductsBySubCategory"));
+					stmt.setInt(1, subcategory.getSubCategoryId());
 				}	
 				else
 				{
-					resultSet = stmt.executeQuery("SELECT *FROM product order by productname");
+					stmt=connection.prepareStatement(ExpenseTrackerUtility.getQuery("Product.getAvailableProducts"));
 				}
+				resultSet = stmt.executeQuery();
+
 				while (resultSet!=null && resultSet.next()) 
 				{
 					Product product = new Product();
@@ -92,21 +95,23 @@ public class Product {
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Integer categoryId=null;
 		Product product = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Product.adddProduct"));
 
 				Subcategory category = obj != null ? (Subcategory) obj : null;
 				if (category != null) 
 				{
 					categoryId = category.getSubCategoryId();
 				}
-				stmt.executeUpdate("Insert into product (productName,subcategoryId) values("
-						+ "'" + productName + "'," + categoryId + ")");
-				connection.commit();
+				stmt.setString(1, productName);
+				stmt.setInt(2, categoryId);
+				stmt.executeUpdate();
+				
+				
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement
 						.executeQuery("SELECT LAST_INSERT_ID()");
@@ -132,14 +137,15 @@ public class Product {
 	public void removeProduct(Product product)throws SQLException
 	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
-		Statement	stmt = null;
+		PreparedStatement	stmt = null;
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
-				stmt.executeUpdate("delete from product where productId = " + product.getProductId());
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Product.deleteProduct"));
+				stmt.setInt(1, product.getProductId());
+				stmt.executeUpdate();
 			} catch (SQLException e)
 			{
 				e.printStackTrace();
@@ -156,15 +162,17 @@ public class Product {
 	public void updateProduct(Product product)throws SQLException
 	{
 		
-		Statement	stmt = null;
+		PreparedStatement	stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
-				stmt.executeUpdate("update product set productName =" +"'" + productName + "' where productId = " + product.getProductId());
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Product.updateProduct"));
+				stmt.setString(1, product.getProductName());
+				stmt.setInt(2, product.getProductId());
+				stmt.executeUpdate();
 			} 
 			catch (SQLException e)
 			{

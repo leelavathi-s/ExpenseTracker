@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -180,28 +181,40 @@ public class Order
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
-			try 
+			try(PreparedStatement stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Order.saveOrder"))) 
 			{
-				Statement	stmt = connection.createStatement();
+				Integer brandId = null;
+				if(orderDetails.getBrand()!=null)
+				{
+					brandId = orderDetails.getBrand().getBrandId();
+					stmt.setInt(5, brandId);
+
+				}
+				else
+				{
+					stmt.setNull(5, Types.NULL);
+				}
 				
-				stmt.executeUpdate("Insert into purchaseorder (quantity,productID,price,shopId,brandId,categoryId,subCategoryId,comments,orderDate) values("
-						+ orderDetails.getQuantity()
-						+ ","
-						+ orderDetails.getProduct().getProductId()
-						+ ","
-						+ orderDetails.getPrice()
-						+ ","
-						+ (orderDetails.getShop()!=null?(orderDetails.getShop().getShopId()):null)
-						+ ","
-						+ (orderDetails.getBrand()!=null?(orderDetails.getBrand().getBrandId()):null)
-						+ ","
-						+ orderDetails.getCategory().getCategoryId()
-						+","
-						+orderDetails.getSubcategory().getSubCategoryId()
-						+",'"
-						+orderDetails.getCommentTxt()
-						+ "','"
-						+ ExpenseTrackerUtility.formatDate(orderDetails.getPurchaseDate(),mySqlFormat) + "')");
+				Integer shopId = null;
+				if(orderDetails.getShop()!=null)
+				{
+					shopId = orderDetails.getShop().getShopId();
+					stmt.setInt(4, shopId);
+				}
+				else
+				{
+					stmt.setNull(4, Types.NULL);
+
+				}
+				
+				stmt.setDouble(1, orderDetails.getQuantity());
+				stmt.setInt(2, orderDetails.getProduct().getProductId());
+				stmt.setDouble(3, orderDetails.getPrice());
+				stmt.setInt(6, orderDetails.getCategory().getCategoryId());
+				stmt.setInt(7, orderDetails.getSubcategory().getSubCategoryId());
+				stmt.setString(8, orderDetails.getCommentTxt());
+				stmt.setString(9, ExpenseTrackerUtility.formatDate(orderDetails.getPurchaseDate(),mySqlFormat));
+				stmt.executeUpdate();
 
 			} 
 			catch (SQLException e)
@@ -213,64 +226,12 @@ public class Order
 		}	
 	}
 	
-	public static List<Order> retrieveData(String basedOn)throws SQLException
-	{
-		Connection connection = ExpenseTrackerUtility.getConnection();
-		ArrayList<Order> orderArrayList = null;
-		ResultSet resultSet = null;
-
-		if(connection!=null)
-		{
-			try 
-			{
-				Statement	stmt = connection.createStatement();
-				if("Weekly".equals(basedOn))
-				{
-						resultSet = stmt
-						.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName"
-								+ " from purchaseorder po,category cat,shop,product pro,brand"
-								+ " where po.CategoryId = cat.CategoryId and po.ShopId =  shop.ShopId and pro.ProductId=po.ProductId and brand.brandid=po.brandid"
-								);
-				}
-				orderArrayList = new ArrayList<Order>();
-				while(resultSet.next())
-				{
-					Order order = new Order();
-					order.setPurchaseDate(resultSet.getDate(1));
-					order.setPrice(resultSet.getDouble(2));
-					order.setQuantity(resultSet.getDouble(3));
-					order.setCategoryName(resultSet.getString(4));
-					order.setShopName(resultSet.getString(5));
-					order.setBrandName(resultSet.getString(6));
-					order.setProductName(resultSet.getString(7));
-					orderArrayList.add(order);
-					
-				}	
-					
-					
-			} catch (SQLException e)
-			{
-				e.printStackTrace();
-				throw e;
-				
-			}
-		}	
-		return orderArrayList;
-	}
-	
+		
 	public static ArrayList<Order> retrievePurchasesForProduct(int productId) throws SQLException
 	{	
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		
-		PreparedStatement stmt = connection.prepareStatement("select purchaseOrder.OrderDate, brand.BrandName, shop.ShopName, purchaseorder.Price, purchaseOrder.Quantity from" + 
-															" purchaseorder join product " +
-															" on purchaseOrder.ProductId = product.ProductId " +
-															" left join brand " +
-															" on purchaseOrder.BrandId = brand.BrandId " +
-															" left join shop " +
-															" on purchaseOrder.ShopId = shop.ShopId " +
-															"where purchaseorder.ProductId = ? "+ 
-															"order by purchaseorder.OrderDate, purchaseOrder.BrandId, purchaseOrder.ShopId");
+		PreparedStatement stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Order.retrievePurchasesForProduct"));
 		stmt.setInt(1, productId);
 		final ResultSet resultSet = stmt.executeQuery();
 		

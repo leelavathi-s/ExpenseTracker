@@ -75,9 +75,10 @@ public class WeeklyFrame extends JFrame implements MouseListener
 
 				sqlException.printStackTrace();
 			}
-			Object[][] rowData = new Object[maxWeeknumber][2];
+			Object[][] rowData = new Object[priceListForWeeklyReport.size()][2];
 			Date currentDt=cal.getTime();
-			for(int i=0;i<maxWeeknumber;i++)
+			Calendar todaysDate  = ExpenseTrackerUtility.getCurrentDate();
+			for(int i=0;i<priceListForWeeklyReport.size();i++)
 			{
 				
 				for(int j=0;j<2;j++)
@@ -88,12 +89,20 @@ public class WeeklyFrame extends JFrame implements MouseListener
 						Date startDt=currentDt;
 						Calendar tempCal =(Calendar) cal.clone();
 			        	cal.add(Calendar.DAY_OF_MONTH, 6);
+			        	if(reportRequest.getProduct()==null && reportRequest.getCategory()==null && reportRequest.getSubcategory()==null)
+				        {
+			        		if(cal.get(Calendar.MONTH)!=todaysDate.get(Calendar.MONTH))
+			        		{
+			        			break;
+			        		}
+				        }	
 			        	if(cal.get(Calendar.MONTH)!=tempCal.get(Calendar.MONTH))
 			        	{
 			        		cal.set(Calendar.DATE, tempCal.getActualMaximum(Calendar.DATE));
 			        		cal.set(Calendar.MONTH,tempCal.get(Calendar.MONTH));
 			        		cal.set(Calendar.YEAR,tempCal.get(Calendar.YEAR));
 			        	}
+			        	
 			        	Date endDate=cal.getTime();
 			        	report.setWeeklyReportStartDt(startDt);
 			        	report.setWeeklyReportEndDt(endDate);
@@ -223,7 +232,14 @@ public class WeeklyFrame extends JFrame implements MouseListener
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			// TODO Auto-generated method stub
+			if(getValueAt(0, columnIndex)!=null)
+			{	
 			return getValueAt(0, columnIndex).getClass();
+			}
+			else
+			{
+				return String.class;
+			}
 		}
 
 		@Override
@@ -250,7 +266,10 @@ public class WeeklyFrame extends JFrame implements MouseListener
 			if(columnIndex!=1)
 			{
 				Report report = (Report) rowData[rowIndex][columnIndex];
-				String veiwString = "Week "
+				String veiwString = "";
+				if(report!=null && report.getWeeklyReportStartDt()!=null && report.getWeeklyReportEndDt()!=null)
+				{	
+				 veiwString = "Week "
 						+ (rowIndex + 1)
 						+ " (" +ExpenseTrackerUtility.formatDate(
 								report.getWeeklyReportStartDt(), "dd-MMM-yyyy")
@@ -258,7 +277,7 @@ public class WeeklyFrame extends JFrame implements MouseListener
 						+ ExpenseTrackerUtility.formatDate(
 								report.getWeeklyReportEndDt(), "dd-MMM-yyyy")
 						+ ")";
-
+				}
 				return veiwString;
 			}
 			else

@@ -1,6 +1,7 @@
 package com.expensetracker.classes;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,23 +40,21 @@ public class Subcategory {
 
 	public static Vector<Subcategory> getAvailableSubCategories(Object obj)
 			throws SQLException {
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Vector<Subcategory> subCategoriesList = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		ResultSet resultSet = null;
 		if (connection != null) {
 			try {
 				subCategoriesList = new Vector<Subcategory>();
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.getAvailableSubCategoriesByCategory"));
 				if (obj instanceof Category) 
 				{
 					Category categoryObj = obj != null ? (Category) obj : null;
 					if (categoryObj != null)
 					{
-						resultSet = stmt
-								.executeQuery("Select * from subCategory where categoryId = "
-										+ categoryObj.getCategoryId()
-										+ "  order by subcategoryName asc");
+						stmt.setInt(1, categoryObj.getCategoryId());
+						resultSet = stmt.executeQuery();
 					}
 
 				}
@@ -65,16 +64,15 @@ public class Subcategory {
 					
 					if (productObj != null)
 					{
-						resultSet = stmt
-								.executeQuery("select sub.subcategoryid,sub.subcategoryname from subcategory sub join product where sub.SubCategoryId = product.SubCategoryId"
-										+" and product.productid = "
-										+ productObj.getProductId());
+						stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.getAvailableSubCategoriesByProduct"));
+						stmt.setInt(1, productObj.getProductId());
+						resultSet = stmt.executeQuery();
 					}
 				}	
 				else
 				{
-					resultSet = stmt
-							.executeQuery("Select * from subCategory order by subcategoryName asc");
+					stmt=connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.getAvailableSubCategories"));
+					resultSet = stmt.executeQuery();
 				}
 				while (resultSet.next()) {
 					Subcategory subcategory = new Subcategory();
@@ -93,53 +91,69 @@ public class Subcategory {
 		return subCategoriesList;
 	}
 
-	public void updateSubCategory(Subcategory subCategory) throws SQLException {
-		Statement stmt = null;
+	public void updateSubCategory(Subcategory subCategory) throws SQLException 
+	{
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 
 		if (connection != null) {
-			try {
-				stmt = connection.createStatement();
-				stmt.executeUpdate("update subcategory set subcategoryName ="
-						+ "'" + subCategoryName + "' where subcategoryId = "
-						+ subCategory.getSubCategoryId());
-			} catch (SQLException e) {
+			try 
+			{
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.updateSubCategory"));
+				stmt.setString(1, subCategoryName);
+				stmt.setInt(2, subCategory.getSubCategoryId());
+				stmt.executeUpdate();
+			} 
+			catch (SQLException e) 
+			{
 				e.printStackTrace();
 				throw e;
-			} finally {
+			} 
+			finally 
+			{
 				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
 	}
 
-	public Subcategory addNewSubCategory(Object obj) throws SQLException {
+	public Subcategory addNewSubCategory(Object obj) throws SQLException
+	{
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		Subcategory subcategory = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Integer categoryId = null;
-		if (connection != null) {
-			try {
-				stmt = connection.createStatement();
+		if (connection != null)
+		{
+			try
+			{
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.addSubCategory"));
 				Category category = obj != null ? (Category) obj : null;
-				if (category != null) {
+				if (category != null)
+				{
 					categoryId = category.getCategoryId();
 				}
 
-				stmt.executeUpdate("Insert into subcategory (SubCategoryName,categoryId) values("
-						+ "'" + subCategoryName + "'," + categoryId + ")");
+				stmt.setString(1, subCategoryName);
+				stmt.setInt(2, categoryId);
+				stmt.executeUpdate();
 
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement
 						.executeQuery("SELECT LAST_INSERT_ID()");
 				subcategory = new Subcategory(subCategoryName);
-				while (resultSet.next()) {
+				while (resultSet.next())
+				{
 					subcategory.setSubCategoryId(resultSet.getInt(1));
 				}
 
-			} catch (SQLException e) {
+			} 
+			catch (SQLException e) 
+			{
 				e.printStackTrace();
 				throw e;
-			} finally {
+			} 
+			finally 
+			{
 				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
@@ -147,19 +161,26 @@ public class Subcategory {
 
 	}
 
-	public void removeSubCategory(Subcategory subCategory) throws SQLException {
-		Statement stmt = null;
+	public void removeSubCategory(Subcategory subCategory) throws SQLException
+	{
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 
-		if (connection != null) {
-			try {
-				stmt = connection.createStatement();
-				stmt.executeUpdate("delete from subcategory where subcategoryId = "
-						+ subCategory.getSubCategoryId());
-			} catch (SQLException e) {
+		if (connection != null)
+		{
+			try 
+			{
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("SubCategory.deleteSubCategory"));
+				stmt.setInt(1, subCategory.getSubCategoryId());
+				stmt.executeUpdate();
+			} 
+			catch (SQLException e) 
+			{
 				e.printStackTrace();
 				throw e;
-			} finally {
+			}
+			finally 
+			{
 				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}

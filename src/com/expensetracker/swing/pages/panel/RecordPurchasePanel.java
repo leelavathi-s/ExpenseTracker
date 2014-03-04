@@ -528,7 +528,7 @@ public class RecordPurchasePanel extends JPanel implements ItemListener,
 		}
 
 		Number number = (Number) qtyField.getValue();
-		order.setQuantity(number.intValue());
+		order.setQuantity(number.doubleValue());
 		Number priceNumber = (Number) priceField.getValue();
 		double price = priceNumber.doubleValue();
 		order.setPrice(price);

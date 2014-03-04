@@ -1,6 +1,7 @@
 package com.expensetracker.classes;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -45,10 +46,9 @@ public static Vector<Shop> getAvailableShops()
 	Connection connection = ExpenseTrackerUtility.getConnection();
 	if(connection!=null)
 	{
-		try 
+		try(PreparedStatement stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Shop.getAvailableShops")))
 		{
-			Statement	stmt = connection.createStatement();
-			ResultSet resultSet = stmt.executeQuery("Select * from Shop order by shopname asc");
+			ResultSet resultSet = stmt.executeQuery();
 			while (resultSet.next()) 
 			{
 				Shop shop = new Shop();
@@ -74,10 +74,10 @@ public Shop addNewShop()throws SQLException
 	Shop shop = null;
 	if(connection!=null)
 	{
-		try 
+		try(PreparedStatement stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Shop.addShop"))) 
 		{
-			Statement	stmt = connection.createStatement();
-			stmt.executeUpdate("Insert into shop (ShopName) values(" + "'" + shopName + "')");
+			stmt.setString(1, shopName);
+			stmt.executeUpdate();
 			
 			ResultSet resultSet = stmt
 					.executeQuery("SELECT LAST_INSERT_ID()");

@@ -1,6 +1,7 @@
 package com.expensetracker.classes;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,21 +44,22 @@ public class Brand
                 Vector<Brand> brandList = new Vector<Brand>();
                 Connection connection = ExpenseTrackerUtility.getConnection();
                 ResultSet resultSet = null;
-                Statement        stmt = null;
+                PreparedStatement        stmt = null;
                 if(connection!=null)
                 {
                         try 
                         {
-                                stmt = connection.createStatement();
                                 Product product = obj!=null?(Product)obj:null;
                                 if(product!=null)
                                 {
-                                 resultSet = stmt.executeQuery("Select * from Brand where productId=" + product.getProductId() + " order by brandname asc");
+                                    stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Brand.getAvailableBrandsByProduct"));
+                                	stmt.setInt(1, product.getProductId());
                                 }
                                 else
                                 {
-                                        resultSet = stmt.executeQuery("Select * from Brand order by brandname asc");
+                                	stmt= connection.prepareStatement(ExpenseTrackerUtility.getQuery("Brand.getAvailableBrands"));
                                 }
+                                resultSet = stmt.executeQuery();
                                 while (resultSet.next()) 
                                 {
                                         Brand brand = new Brand();
@@ -88,18 +90,20 @@ public class Brand
                 Connection connection = ExpenseTrackerUtility.getConnection();
                 Integer productId = null;
                 Brand brand =null;
-                Statement        stmt = null;
+                PreparedStatement        stmt = null;
                 if(connection!=null)
                 {
                         try 
                         {
-                                stmt = connection.createStatement();
+                                stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Brand.addBrand"));
                                 Product product= object!=null?(Product) object:null;
                                 if(product!=null)
                                 {
                                         productId = product.getProductId();
                                 }
-                                stmt.executeUpdate("Insert into brand (brandName,productId) values(" + "'" + brandName + "'," + productId+")");
+                                stmt.setInt(2, productId);
+                                stmt.setString(1, brandName);
+                                stmt.executeUpdate();
                                 
                                 Statement statement = connection.createStatement();
                                 ResultSet resultSet = statement.executeQuery("SELECT LAST_INSERT_ID()");
@@ -125,13 +129,14 @@ public class Brand
         public void removeBrand(Brand brand)throws SQLException
         {
                 Connection connection = ExpenseTrackerUtility.getConnection();
-                Statement        stmt = null;
+                PreparedStatement        stmt = null;
                 if(connection!=null)
                 {
                         try 
                         {
-                                stmt = connection.createStatement();
-                                stmt.executeUpdate("delete from brand where brandId = " + brand.getBrandId());
+                                stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Brand.deleteBrand"));
+                                stmt.setInt(1, brand.getBrandId());
+                                stmt.executeUpdate();
                         } catch (SQLException e)
                         {
                                 e.printStackTrace();
@@ -148,14 +153,16 @@ public class Brand
         {
 
                 Connection connection = ExpenseTrackerUtility.getConnection();
-                Statement        stmt = null;
+                PreparedStatement        stmt = null;
                 
                 if(connection!=null)
                 {
                         try 
                         {
-                                stmt = connection.createStatement();
-                                stmt.executeUpdate("update brand set brandName =" +"'" + brandName + "' where brandId = " + brand.getBrandId());
+                                stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Brand.updatedBrand"));
+                                stmt.setString(1, brandName);
+                                stmt.setInt(2, brand.getBrandId());
+                                stmt.executeUpdate();
                         } 
                         catch (SQLException e)
                         {

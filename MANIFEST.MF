@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: 1.7.0_45 (Oracle Corporation)
+Main-Class: classes.com.expensetracker.swing.pages.HomePage
+Classpath: mariadb-java-client-1.1.5.jar
+Permissions: all-permissions 
+
+
+
+

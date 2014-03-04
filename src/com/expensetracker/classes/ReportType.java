@@ -8,8 +8,8 @@ public enum ReportType {
 	YEARLY("Yearly"),
 	CATEGORY("Category"),
 	PRODUCT("Product"),
-	SUBCATEGORY("SubCategory"),
-;
+	SUBCATEGORY("SubCategory");
+	
 	public String reportType;
 	
 	ReportType(String reportType)

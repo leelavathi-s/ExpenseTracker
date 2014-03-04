@@ -711,7 +711,7 @@ public class InformationPanel extends JPanel implements ActionListener
 				{
 					Subcategory subcategory = (Subcategory)defaultMutableTreeNode.getUserObject();
 					int n = JOptionPane.showConfirmDialog(null,
-							"Are you sure you want to delete the Category: " + subcategory.getSubCategoryName(), "Confirm",
+							"Are you sure you want to delete the Sub-Category: " + subcategory.getSubCategoryName(), "Confirm",
 							JOptionPane.YES_NO_OPTION);
 					if(n==0)
 					{
