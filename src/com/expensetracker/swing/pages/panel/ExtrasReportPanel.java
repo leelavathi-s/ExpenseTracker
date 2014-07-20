@@ -2,7 +2,6 @@ package com.expensetracker.swing.pages.panel;
 
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -21,38 +20,49 @@ import javax.swing.table.TableModel;
 import com.expensetracker.classes.Order;
 import com.expensetracker.classes.Report;
 import com.expensetracker.classes.ReportRequest;
-import com.expensetracker.swing.pages.frame.MonthlyFrame;
+import com.expensetracker.swing.pages.frame.WeeklyFrame;
+import com.expensetracker.swing.pages.panel.MonthlyReportPanel.MyTableModel;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
-public class CategoryReportPanel extends JPanel implements ItemListener
+public class ExtrasReportPanel extends JPanel
 {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7709309975765225113L;
-	ReportRequest reportRequest;
+	private static final long serialVersionUID = 4216369308456844262L;
+	String selectedMonth = null;
+	List<Order> orderList = null;
+	String selectedYear = null;
 	JFrame jFrame;
-	List<Order> orderList;
-	MonthlyFrame monthlyFrame;
-	public CategoryReportPanel(ReportRequest reportRequest,JFrame jFrame)
+	String cateString;
+	ReportRequest reportRequest;
+	WeeklyFrame weeklyFrame;
+
+	public ExtrasReportPanel(ReportRequest reportRequest,JFrame jFrame)
 	{
-		this.reportRequest = reportRequest;
 		this.jFrame = jFrame;
+		this.reportRequest = reportRequest;
 		buildGUI();
 	}
+	public ExtrasReportPanel()
+	{
+		buildGUI();	
+		
+	}
+	
 	public void buildGUI()
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 			
 		this.setBorder(BorderFactory.createCompoundBorder(
 					BorderFactory
-					.createTitledBorder("Report of Category " + reportRequest.getCategory()),
+					.createTitledBorder("Report of " + reportRequest.getMonth() + "-" + reportRequest.getYear()),
 			BorderFactory.createEmptyBorder(20, 20, 20, 20)));
 			
 		try 
 		{
-			orderList = Report.retrieveDataForCategoryYearlyReport(reportRequest);
+			orderList = Report.retrieveDataForExtrasReport(reportRequest);
 		} 
 		catch (SQLException sqlException)
 		{
@@ -64,9 +74,6 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 
 			sqlException.printStackTrace();
 		}
-		
-		
-		
 		if(!orderList.isEmpty() && orderList.size()>0)
 		{
 			JTable jTable = new JTable(new MyTableModel());
@@ -94,16 +101,10 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 			    }	
 			    this.add(footer);
 			    
-			    JCheckBox jCheckBox = new JCheckBox("Monthly Split-up");
-			    jCheckBox.setSelected(false);
-			    jCheckBox.addItemListener(this);
-			    jCheckBox.setName("Yearly");
-			    this.add(jCheckBox);
-
 		}
 		else
 		{
-			JLabel jLabel = new JLabel("No records found for the selected year.");
+			JLabel jLabel = new JLabel("No records found for the selected month.");
 			this.add(jLabel);
 		}
 
@@ -112,7 +113,7 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 	public class MyTableModel implements TableModel
 	{
 		
-		private String[] columnNames={"Order Date","Category","Product","Brand","Shop Name","Quantity","Price"};
+		private String[] columnNames={"Order Date","Category","Product","Brand","Shop Name","Quantity","Price","Sub-Category","Comments"};
 		
 
 		
@@ -126,7 +127,7 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 		public Class<?> getColumnClass(int columnIndex) {
 			if(getValueAt(0, columnIndex)!=null)
 			{
-				return getValueAt(0, columnIndex).getClass();
+			return getValueAt(0, columnIndex).getClass();
 			}
 			else
 			{
@@ -169,7 +170,10 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 					return order.getQuantity();
 				case 6:
 					return order.getPrice();
-					
+				case 7:
+					return order.getSubcategoryName();
+				case 8:
+					return order.getCommentTxt();
 				 
 			}
 			return null;
@@ -197,23 +201,5 @@ public class CategoryReportPanel extends JPanel implements ItemListener
 	}
 
 	
-	@Override
-	public void itemStateChanged(ItemEvent e) 
-	{
-	    if(e.getStateChange() == ItemEvent.SELECTED)
-		{
-			 monthlyFrame = new MonthlyFrame(reportRequest,this);
-			 monthlyFrame.setVisible(true);		     
-
-		}
-	    if(e.getStateChange() == ItemEvent.DESELECTED)
-	  	{	 
-	    	monthlyFrame.setVisible(false);
- 	  	}
-	    
-	     jFrame.pack();
-	
-	}
-
 
 }

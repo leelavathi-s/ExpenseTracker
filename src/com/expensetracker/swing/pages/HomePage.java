@@ -53,7 +53,7 @@ public class HomePage
 
 		recordPurchasePane = new RecordPurchasePanel(jFrame);
 		 comparePricePanel = new ComparePricePanel(jFrame);
-		generateReportsPanel = new GenerateReportsPanel();
+		generateReportsPanel = new GenerateReportsPanel(jFrame);
 		InformationPanel informationPanel =  new InformationPanel(jFrame);
 
 		tabbedPane = new JTabbedPane();

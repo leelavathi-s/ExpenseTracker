@@ -3,12 +3,21 @@ package com.expensetracker.swing.pages.frame;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -27,7 +36,7 @@ import com.expensetracker.classes.ReportType;
 import com.expensetracker.swing.pages.panel.CategoryReportPanel;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
-public class CategoryReportFrame extends JFrame implements MouseListener
+public class CategoryReportFrame extends JFrame implements MouseListener,ItemListener
  {
 
 	/**
@@ -39,21 +48,68 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 	JTable jTableForCategoryWiseReport;
 	List<Report> dataListForCategoryWiseReport;
 	JPanel jPanel;
+	JCheckBox jCheckBoxForMonthSelection;
+	List<HashMap<String, JScrollPane>> newScrollPaneList = new ArrayList();
+	List<HashMap<String, JTable>> newTableList = new ArrayList();
+	String currentMonth= null;
+	String previousMonth=null;
+	static int count=0;
+	List<JCheckBox> checkBoxList = null;
+	JFrame jFrame;
+	JLabel jLabelForMonth = null;
+	JPanel jPanel2 = null;
 
-	public CategoryReportFrame(JPanel jPanel) 
+	public CategoryReportFrame(JPanel jPanel,JFrame parentfFrame) 
 	{
 		this.jPanel = jPanel;
-		retrieveAndBuildTabelForCategoryWiseReport(jPanel);
+		this.jFrame = parentfFrame;
+		currentMonth=ExpenseTrackerUtility.getMonthName(ExpenseTrackerUtility.getCurrentDate().get(Calendar.MONTH));
+		checkBoxList = new ArrayList<JCheckBox>();
+		
+		Vector<String> monthList = new Vector<String>();
+		try 
+		{
+			monthList = Report.retrieveAvailableMonths();
+		} 
+		catch (SQLException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		 jPanel2 = new JPanel(new GridLayout(1,monthList.size()));
+		
+		
+		JLabel jLabelForMonth = new JLabel("Select month");
+		jPanel2.add(jLabelForMonth);
+		for(String month:monthList)
+		{
+			jCheckBoxForMonthSelection = new JCheckBox(month);
+			jCheckBoxForMonthSelection.addItemListener(this);
+
+			jPanel2.add(jCheckBoxForMonthSelection);
+			checkBoxList.add(jCheckBoxForMonthSelection);
+			if(currentMonth.equals(jCheckBoxForMonthSelection.getText()))
+			{
+				jCheckBoxForMonthSelection.setSelected(true);				
+				jCheckBoxForMonthSelection.addItemListener(this);
+
+			}
+
+		}
+		jPanel.add(jPanel2);
 
 	}
 
-	public void retrieveAndBuildTabelForCategoryWiseReport(JPanel jPanel) 
+	public void retrieveAndBuildTabelForCategoryWiseReport(JPanel jPanel,String month) 
 	{
+
 		try
 
 		{
+			ReportRequest reportRequest = new ReportRequest();
+			reportRequest.setMonth(month);
 			dataListForCategoryWiseReport = Report
-					.retrievePriceForCategoryWiseReport();
+					.retrievePriceForCategoryWiseReport(reportRequest);
 
 		} catch (SQLException sqlException) {
 			JOptionPane.showMessageDialog(this,
@@ -64,8 +120,11 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 
 			sqlException.printStackTrace();
 		}
+		
+		
+
 		jTableForCategoryWiseReport = new JTable(
-				new MyTableModelForCategoryWiseReport());
+				new MyTableModelForCategoryWiseReport(dataListForCategoryWiseReport,month));
 		jTableForCategoryWiseReport
 				.setPreferredScrollableViewportSize(new Dimension(450, 70));
 		jTableForCategoryWiseReport.setFillsViewportHeight(true);
@@ -73,6 +132,8 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 		jTableForCategoryWiseReport.setName(ReportType.CATEGORY.toString());
 
 		jTableForCategoryWiseReport.addMouseListener(this);
+
+
 
 		ExpenseTrackerUtility.initColumnSizes(jTableForCategoryWiseReport);
 
@@ -83,6 +144,12 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 		jScrollPaneForCategoryWiseReport = new JScrollPane(
 				jTableForCategoryWiseReport);
 		jScrollPaneForCategoryWiseReport.setVisible(true);
+		
+		jScrollPaneForCategoryWiseReport.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory
+				.createTitledBorder("Report of Month -  " + month),
+		BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		
 		jPanel.add(jScrollPaneForCategoryWiseReport);
 
 		double totalAmountSpentPerMonth = 0.0;
@@ -113,6 +180,13 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 
 	public class MyTableModelForCategoryWiseReport implements TableModel 
 	{
+		List<Report> dataList = null;
+		String month= null;
+		public MyTableModelForCategoryWiseReport(List<Report>  dataList,String month)
+		{
+			this.dataList = dataList;
+			this.month = month;
+		}
 
 		private String[] columnNames = { "Category", "Year",
 				"Amount spent(per year)" };
@@ -140,10 +214,10 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 
 		@Override
 		public int getRowCount() {
-			if (dataListForCategoryWiseReport != null
-					&& !dataListForCategoryWiseReport.isEmpty()) 
+			if (dataList != null
+					&& !dataList.isEmpty()) 
 			{
-				return dataListForCategoryWiseReport.size();
+				return dataList.size();
 			} 
 			else 
 			{
@@ -154,7 +228,7 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
-			Report report = (Report) dataListForCategoryWiseReport
+			Report report = (Report) dataList
 					.get(rowIndex);
 			switch (columnIndex)
 			{
@@ -211,14 +285,17 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
+	public void mouseClicked(MouseEvent e)
+	{
 
 		JTable jTable = (JTable) e.getSource();
-		Report selectedRowString = (Report) dataListForCategoryWiseReport
+		MyTableModelForCategoryWiseReport myTableModelForCategoryWiseReport = (MyTableModelForCategoryWiseReport)jTable.getModel();
+		Report selectedRowString = (Report) myTableModelForCategoryWiseReport.dataList
 				.get(jTable.getSelectedRow());
 		ReportRequest reportRequest = new ReportRequest();
 		reportRequest.setCategory(selectedRowString.getCategoryName());
 		reportRequest.setYear(selectedRowString.getYearForYearlyReport());
+		reportRequest.setMonth(myTableModelForCategoryWiseReport.month);
 		createFrame(reportRequest, jTable.getName());
 
 	}
@@ -268,7 +345,87 @@ public class CategoryReportFrame extends JFrame implements MouseListener
 				jScrollPaneForCategoryWiseReport);
 		ExpenseTrackerUtility.showComponenets(showFlag,
 				footerForCategoryWiseReport);
+		
+		ExpenseTrackerUtility.showComponenets(showFlag, jLabelForMonth);
+		for(JCheckBox jCheckBox:checkBoxList)
+		{
+			ExpenseTrackerUtility.showComponenets(showFlag, jCheckBox);
+		}	
 
+	}
+
+	public void recordPreviousReferences(String month)
+	{
+		HashMap<String, JScrollPane> tempScrollPaneReference = null;
+		HashMap<String, JTable> tempJTableReference = null;
+		if(jScrollPaneForCategoryWiseReport!=null)
+		{
+		    tempScrollPaneReference = new HashMap<>();
+			tempScrollPaneReference.put(month, jScrollPaneForCategoryWiseReport);
+		}
+		
+		if(footerForCategoryWiseReport!=null)
+		{
+			tempJTableReference = new HashMap<>();
+			tempJTableReference.put(month,footerForCategoryWiseReport);
+		}	
+		
+		newScrollPaneList.add(tempScrollPaneReference);
+		newTableList.add(tempJTableReference);
+	}
+	
+	public void findReference(String month)
+	{
+		for(int i=0;i<newScrollPaneList.size();i++)
+		{
+			HashMap<String, JScrollPane> hashMap = newScrollPaneList.get(i);
+			JScrollPane jScrollPane = null;
+			if(hashMap!=null)
+			{
+				 jScrollPane = hashMap.get(month);
+			}
+			if(jScrollPane!=null)
+			{	
+				jScrollPane.setVisible(false);
+				hashMap.remove(month);
+			}	
+				
+		}
+		for(int i=0;i<newTableList.size();i++)
+		{
+			JTable jTable = null;
+			HashMap<String, JTable> hashMap = newTableList.get(i);
+			if(hashMap!=null)
+			{
+				jTable= hashMap.get(month);
+			}	
+			if(jTable!=null)
+			{
+				jTable.setVisible(false);
+				hashMap.remove(month);
+
+			}	
+				
+		}
+
+	}
+	@Override
+	public void itemStateChanged(ItemEvent e) 
+	{
+		JCheckBox jCheckBox = (JCheckBox)e.getSource();
+	    if(e.getStateChange() == ItemEvent.SELECTED)
+		{
+	    	retrieveAndBuildTabelForCategoryWiseReport(jPanel,jCheckBox.getText());
+	    	
+	    	recordPreviousReferences(jCheckBox.getText());
+		}
+	    if(e.getStateChange() == ItemEvent.DESELECTED)
+		{
+	    	findReference(jCheckBox.getText());	    	
+	    	jCheckBox.setSelected(false);
+		}
+	    jFrame.pack();
+		
 	}
 
 }
