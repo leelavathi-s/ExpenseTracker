@@ -54,19 +54,19 @@ func find (query string, param string) (results []FindResult, err error) {
 }
 
 func FindProducts (searchString string) (products [] FindResult, err error) {
-    return find ("SELECT ProductId, ProductName from products where productname LIKE ? order by productname", searchString)
+    return find ("SELECT ProductId, ProductName from product where productname LIKE ? order by productname", searchString)
 }
 
 func FindBrands (searchString string) (brands [] FindResult, err error) {
-    return find ("SELECT BrandId, BrandName from brands where brandname LIKE ? order by brandname", searchString)
+    return find ("SELECT BrandId, BrandName from brand where brandname LIKE ? order by brandname", searchString)
 }
 
 func FindCategories (searchString string) (categories [] FindResult, err error) {
-    return find ("SELECT CategoryId, CategoryName from categories where categoryname LIKE ? order by categoryname", searchString)
+    return find ("SELECT CategoryId, CategoryName from category where categoryname LIKE ? order by categoryname", searchString)
 }
 
 func FindShops (searchString string) (shops [] FindResult, err error) {
-    return find ("SELECT ShopId, ShopName from shops where shopname LIKE ? order by shopname", searchString)
+    return find ("SELECT ShopId, ShopName from shop where shopname LIKE ? order by shopname", searchString)
 }
 
 func Save (order OrderData) (err error) {
