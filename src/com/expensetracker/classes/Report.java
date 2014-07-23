@@ -44,7 +44,26 @@ public class Report
 	private double totalPricePerMonthForMonthlyReport;
 	private double totalPricePerYearForYearlyReport;
 
+	private double totalPriceForExtrasSelf;
+	private double totalPriceForExtrasOthers;
 	
+	
+
+	public double getTotalPriceForExtrasSelf() {
+		return totalPriceForExtrasSelf;
+	}
+
+	public void setTotalPriceForExtrasSelf(double totalPriceForExtrasSelf) {
+		this.totalPriceForExtrasSelf = totalPriceForExtrasSelf;
+	}
+
+	public double getTotalPriceForExtrasOthers() {
+		return totalPriceForExtrasOthers;
+	}
+
+	public void setTotalPriceForExtrasOthers(double totalPriceForExtrasOthers) {
+		this.totalPriceForExtrasOthers = totalPriceForExtrasOthers;
+	}
 
 	public String getSubCategoryName() {
 		return subCategoryName;
@@ -378,6 +397,56 @@ public class Report
 		return orderArrayList;
 
 	}
+	public static List<Order> retrieveDataForExtrasReport(ReportRequest reportRequest)throws SQLException
+	{
+		
+		PreparedStatement preparedStatement = null;
+		List<Order> orderArrayList = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				preparedStatement = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrieveDataForExtras"));
+				preparedStatement.setString(1, reportRequest.getSubcategory());
+				preparedStatement.setString(2, reportRequest.getYear());
+				preparedStatement.setString(3, reportRequest.getMonth());
+				
+				ResultSet resultSet = preparedStatement.executeQuery();
+				
+				orderArrayList = new ArrayList<Order>();
+				while(resultSet.next())
+				{
+					Order order = new Order();
+					order.setPurchaseDate(resultSet.getDate(1));
+					order.setPrice(resultSet.getDouble(2));
+					order.setQuantity(resultSet.getDouble(3));
+					order.setCategoryName(resultSet.getString(4));
+					order.setShopName(resultSet.getString(5));
+					order.setBrandName(resultSet.getString(6));
+					order.setProductName(resultSet.getString(7));
+					order.setSubcategoryName(resultSet.getString(8));
+					order.setCommentTxt(resultSet.getString(9));
+					orderArrayList.add(order);
+					
+				}		
+				
+				}
+				catch (SQLException e)
+				{
+					e.printStackTrace();
+					throw e;
+
+				}
+				finally
+				{
+					ExpenseTrackerUtility.releaseResources(connection, preparedStatement);
+				}
+			}
+			return orderArrayList;
+
+		}
+
 	public static List<Order> retrieveDataForMonthlyReport(ReportRequest reportRequest)throws SQLException
 	{
 
@@ -535,30 +604,38 @@ public class Report
 
 		ResultSet resultSet = null;
 		List<Order> orderArrayList = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
+		Properties properties=null;
+		String thirdParameter = null;
+		StringBuffer additionalQueryString = new StringBuffer();
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				
+				if(reportRequest.getMonth()!=null)
+				{
+	        		additionalQueryString.append(" and monthname(orderdate) = ? ");
+	        		thirdParameter = reportRequest.getMonth();
+		        	properties = ExpenseTrackerUtility.getAndSetProperty("Report.retrieveDataForCategoryYearlyReport", additionalQueryString.toString());
+
+				}
+				
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrieveDataForCategoryYearlyReport",properties));
+				stmt.setString(1, reportRequest.getYear());
+				stmt.setString(2, reportRequest.getCategory());
+				
+				if(thirdParameter!=null)
+				{
+					stmt.setString(3, reportRequest.getMonth());
+				}
+				
 				orderArrayList = new ArrayList<Order>();
 				if(reportRequest.getYear()!=null)
 				{
 				
-					resultSet = stmt
-							.executeQuery("Select orderDate,price,quantity,categoryName,shopName,brandName,productName "
-									+ "from purchaseorder po left join shop "
-									+ "on po.ShopId =  shop.ShopId "
-									+ "left join brand on brand.brandid=po.brandid "
-									+ "join category cat join product pro "
-									+ "where po.CategoryId = cat.CategoryId "
-									+ "and pro.ProductId=po.ProductId "
-									+ " and year(orderdate) = "
-									+ reportRequest.getYear()
-									+" and cat.categoryName = '"
-									+reportRequest.getCategory()
-									+"'");
+					resultSet = stmt.executeQuery();
 					while(resultSet.next())
 					{
 						Order order = new Order();
@@ -738,17 +815,16 @@ public class Report
 
 		ResultSet resultSet = null;
 		Vector<String> yearList = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrieveAvailableYears"));
 				yearList = new Vector<String>();
 
-				resultSet = stmt
-						.executeQuery("select distinct year(orderdate) from purchaseorder");
+				resultSet = stmt.executeQuery();
 								
 				while (resultSet.next()) 
 				{
@@ -770,28 +846,67 @@ public class Report
 				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
-		return yearList;
-
-	
-	
+		return yearList;	
 	}
-	public static List<Report> retrievePriceForCategoryWiseReport()throws SQLException
+	
+	
+	public static Vector<String> retrieveAvailableMonths() throws SQLException
+	{
+
+		ResultSet resultSet = null;
+		Vector<String> monthList = null;
+		PreparedStatement stmt = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		if(connection!=null)
+		{
+			try 
+			{
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrieveAvailableMonths"));
+				monthList = new Vector<String>();
+
+				resultSet = stmt.executeQuery();
+								
+				while (resultSet.next()) 
+				{
+					monthList.add(resultSet.getString(1));
+					
+				}
+
+				
+				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
+
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+		}
+		return monthList;	
+	}
+	
+	public static List<Report> retrievePriceForCategoryWiseReport(ReportRequest reportRequest)throws SQLException
 	{
 
 
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrievePriceForCategoryWiseReport"));
+				
+				stmt.setString(1, reportRequest.getMonth());
 				reportList = new ArrayList<Report>();
-				resultSet = stmt
-						.executeQuery("select sum(price),cat.categoryName,year(orderdate) from purchaseorder po,category cat where po.categoryId = cat.categoryId  group by po.categoryId,year(po.orderdate)");
+				resultSet = stmt.executeQuery();
 								
 				while (resultSet.next()) 
 				{
@@ -822,36 +937,20 @@ public class Report
 	public static List<Order> retrieveLastPurchaseInfo(int productId)throws SQLException
 	{
 
-
-		Report report = null;
 		ResultSet resultSet = null;
 		List<Order> orderArrayList = null;
-		Statement stmt = null;
-		StringBuffer quBuffer = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrieveLastPurchaseInfo"));
+				stmt.setInt(1, productId);
+				stmt.setInt(2, productId);
+
 				orderArrayList = new ArrayList<Order>();
-				quBuffer = new StringBuffer();
-				quBuffer.append("Select * from(");
-				quBuffer.append("Select orderDate,price,quantity,categoryName,shopName,brandName,productName,subcategoryname,comments from purchaseorder po left join shop ");
-				quBuffer.append(" on po.ShopId =  shop.ShopId ");
-				quBuffer.append(" left join brand on brand.brandid=po.brandid ");
-				quBuffer.append(" join category cat join product pro join subcategory sub ");
-				quBuffer.append(" where po.CategoryId = cat.CategoryId ");
-				quBuffer.append(" and pro.ProductId=po.ProductId ");
-				quBuffer.append(" and po.subcategoryid = sub.subcategoryid ");
-				quBuffer.append(" and pro.productid = ");
-				quBuffer.append(productId);
-				quBuffer.append(" )  m1");
-				quBuffer.append(" where m1.orderdate = (select pur.orderdate from purchaseorder pur,product prod where pur.productid = prod.productid and prod.productid= ");
-				quBuffer.append(productId );
-				quBuffer.append(" order by orderdate desc limit  1)");
-				resultSet = stmt
-						.executeQuery(quBuffer.toString());
+				resultSet = stmt.executeQuery();
 								
 				while (resultSet.next()) 
 				{
@@ -893,16 +992,15 @@ public class Report
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrievePriceForProductWiseReport"));
 				reportList = new ArrayList<Report>();
-				resultSet = stmt
-						.executeQuery("select sum(price),prod.productname,year(orderdate) from purchaseorder po,product prod where po.productid = prod.productId  group by po.productId,year(po.orderdate),prod.productname");
+				resultSet = stmt.executeQuery();
 								
 				while (resultSet.next()) 
 				{
@@ -938,16 +1036,15 @@ public class Report
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
+				stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrievePriceForSubCategoryWiseReport"));
 				reportList = new ArrayList<Report>();
-				resultSet = stmt
-						.executeQuery("select sum(price),sub.subCategoryName,year(orderdate) from purchaseorder po,subcategory sub where sub.subcategoryid = po.subcategoryid  group by po.subcategoryid,year(po.orderdate),sub.subcategoryname");
+				resultSet = stmt.executeQuery();
 								
 				while (resultSet.next()) 
 				{
@@ -976,7 +1073,53 @@ public class Report
 	
 	}
 
+	public static List<Report> retrievePriceForExtras(ReportRequest reportRequest) throws SQLException
+	{
+		PreparedStatement stmt = null;
+		Connection connection = ExpenseTrackerUtility.getConnection();
+		List<Report> priceList = null; 
+		if(connection!=null)
+		{
+			try 
+			{
+				
+				if(reportRequest.getYear()!=null)
+				{
+					String selectedYrStr = (String)reportRequest.getYear();
+		
+					stmt= connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrievePriceForExtrasMonthlyReport"));
+					stmt.setString(1, selectedYrStr);
+					stmt.setString(2, selectedYrStr);
+					
+					ResultSet resultSet = stmt.executeQuery();
+					
+					priceList = new ArrayList<Report>();
+					while(resultSet.next())
+					{
+						Report report = new Report();
+						report.setMonthForMonthlyReport(resultSet.getString(2));
+						report.setCategoryName(resultSet.getString(3));
+						report.setSubCategoryName(resultSet.getString(4));
+						report.setTotalPricePerMonthForMonthlyReport(resultSet.getDouble(1));
+						priceList.add(report);
+					}
+				}				
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+				throw e;
 
+			}
+			finally
+			{
+				ExpenseTrackerUtility.releaseResources(connection, stmt);
+			}
+			
+		}	
+		return priceList;
+
+	}
 	public static List<Report> retrievePriceForMonthlyReport(ReportRequest reportRequest)throws SQLException
 	{
 
@@ -984,56 +1127,84 @@ public class Report
 		Report report = null;
 		ResultSet resultSet = null;
 		List<Report> reportList = null;
-		StringBuffer queryStr = null;
-		Statement stmt = null;
+		Properties properties = null;
+		PreparedStatement stmt = null;
 		Connection connection = ExpenseTrackerUtility.getConnection();
 		if(connection!=null)
 		{
 			try 
 			{
-				stmt = connection.createStatement();
 				reportList = new ArrayList<Report>();
-				queryStr = new StringBuffer();
 				if(reportRequest.getYear()!=null)
 				{
 					String selectedYrStr = (String)reportRequest.getYear();
-					queryStr.append(" SELECT sum(price) AS price, m.name FROM MONTHS m");
-					queryStr.append(" LEFT JOIN purchaseorder po ON MONTH(STR_TO_DATE(CONCAT(m.name,'");
-					queryStr.append(selectedYrStr);
-					queryStr.append("'),'%M %Y')) = MONTH(po.orderDate) AND YEAR(po.orderDate) = '");
-					queryStr.append(selectedYrStr);
-					queryStr.append("'");
+					StringBuffer additionalQueryString = new StringBuffer();
+					String thirdParameter = null;
+					
 					if(reportRequest.getCategory()!=null)
 					{
-						queryStr.append("inner join category cat on po.categoryid=cat.categoryid and cat.categoryname='");
-						queryStr.append(reportRequest.getCategory());
-						queryStr.append("'");
+		        		additionalQueryString.append(" inner join category cat on po.categoryid=cat.categoryid and cat.categoryname= ?");
+		        		thirdParameter = reportRequest.getCategory();
+			        	properties = ExpenseTrackerUtility.getAndSetProperty("Report.retrievePriceForMonthlyReport", additionalQueryString.toString());
+						
 					}
+
 					if(reportRequest.getProduct()!=null)
 					{
-						queryStr.append("inner join product pro on po.productid=pro.productid and pro.productname='");
-						queryStr.append(reportRequest.getProduct());
-						queryStr.append("'");
+		        		additionalQueryString.append(" inner join product pro on po.productid=pro.productid and pro.productname= ?");
+		        		thirdParameter = reportRequest.getProduct();
+			        	properties = ExpenseTrackerUtility.getAndSetProperty("Report.retrievePriceForMonthlyReport", additionalQueryString.toString());
+						
 					}
 					if(reportRequest.getSubcategory()!=null)
 					{
-						queryStr.append("inner join subcategory sub on sub.subcategoryid=po.subcategoryid and sub.subcategoryname='");
-						queryStr.append(reportRequest.getSubcategory());
-						queryStr.append("'");
+		        		additionalQueryString.append(" inner join subcategory sub on sub.subcategoryid=po.subcategoryid and sub.subcategoryname= ?");
+		        		thirdParameter = reportRequest.getSubcategory();
+			        	properties = ExpenseTrackerUtility.getAndSetProperty("Report.retrievePriceForMonthlyReport", additionalQueryString.toString());
+						
 					}
-					queryStr.append(" GROUP BY m.name");
-					queryStr.append(" ORDER BY m.id");
-				resultSet = stmt
-						.executeQuery(queryStr.toString());
-								
-				while (resultSet.next()) 
-				{
-					report = new Report();
-					report.setMonthForMonthlyReport(resultSet.getString(2));
-					report.setTotalPricePerMonthForMonthlyReport(new Double(ExpenseTrackerUtility.formatAmountWithTwoDecimalPlaces(resultSet.getDouble(1))));
-					reportList.add(report);
 					
-				}
+					additionalQueryString.append(" GROUP BY m.name");
+					additionalQueryString.append(" ORDER BY m.id");
+					
+		        	properties = ExpenseTrackerUtility.getAndSetProperty("Report.retrievePriceForMonthlyReport", additionalQueryString.toString());
+
+					stmt = connection.prepareStatement(ExpenseTrackerUtility.getQuery("Report.retrievePriceForMonthlyReport",properties));
+
+					stmt.setString(1, selectedYrStr);
+					stmt.setString(2, selectedYrStr);
+					
+					if(thirdParameter!=null)
+					{
+						stmt.setString(3, thirdParameter);
+					}
+					resultSet = stmt.executeQuery();
+					List<Report> priceListForExtras = retrievePriceForExtras(reportRequest);
+			
+					while (resultSet.next()) 
+					{
+						report = new Report();
+						report.setMonthForMonthlyReport(resultSet.getString(2));
+						report.setTotalPricePerMonthForMonthlyReport(new Double(ExpenseTrackerUtility.formatAmountWithTwoDecimalPlaces(resultSet.getDouble(1))));
+						for(Report extrasInfoReport:priceListForExtras)
+						{
+							// Setting price information month-wise
+							if(report.getMonthForMonthlyReport().equals(extrasInfoReport.getMonthForMonthlyReport()))
+							{
+								if("Self".equals(extrasInfoReport.getSubCategoryName()))
+								{
+									report.setTotalPriceForExtrasSelf(extrasInfoReport.getTotalPricePerMonthForMonthlyReport());
+
+								}	
+								else if("Others".equals(extrasInfoReport.getSubCategoryName()))
+								{
+									report.setTotalPriceForExtrasOthers(extrasInfoReport.getTotalPricePerMonthForMonthlyReport());
+								}	
+							}
+						}	
+						reportList.add(report);
+						
+					}
 
 				}
 				
@@ -1049,6 +1220,8 @@ public class Report
 				ExpenseTrackerUtility.releaseResources(connection, stmt);
 			}
 		}
+		
+		List<Report> priceListForExtras = retrievePriceForExtras(reportRequest);
 		return reportList;
 
 	

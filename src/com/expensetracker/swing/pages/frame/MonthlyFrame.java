@@ -29,6 +29,7 @@ import javax.swing.table.TableModel;
 import com.expensetracker.classes.Report;
 import com.expensetracker.classes.ReportRequest;
 import com.expensetracker.classes.ReportType;
+import com.expensetracker.swing.pages.panel.ExtrasReportPanel;
 import com.expensetracker.swing.pages.panel.MonthlyReportPanel;
 import com.expensetracker.utility.ExpenseTrackerUtility;
 
@@ -97,6 +98,8 @@ public class MonthlyFrame extends JFrame implements MouseListener
 	}
 public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 {
+	//This variable indicates if the MonthlyFrame displayed is from the select of Monthly choice in Main 'Generate Reports' tab or from within other report options
+	boolean mainMonthlyFrame = false;
 	if(yrOnchg)
 	{
 		jPanel.remove(jScrollPaneForMonthlyReport);
@@ -113,11 +116,16 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 			
 		dataListForMonthlyReport = Report
 				.retrievePriceForMonthlyReport(reportReq);
+		jTableForMonthlyreport = new JTable(new MyTableModelForMonthylReportwithExtras());
+		mainMonthlyFrame = true;
+
 		}
 		else
 		{
 			dataListForMonthlyReport = Report
 					.retrievePriceForMonthlyReport(reportReq);
+			jTableForMonthlyreport = new JTable(new MyTableModelForMonthlyReport());
+
 			
 		}
 	} 
@@ -131,7 +139,6 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 
 		sqlException.printStackTrace();
 	}
-	jTableForMonthlyreport = new JTable(new MyTableModelForMonthlyReport());
 	jTableForMonthlyreport
 			.setPreferredScrollableViewportSize(new Dimension(450, 70));
 	jTableForMonthlyreport.setFillsViewportHeight(true);
@@ -139,27 +146,32 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 	jTableForMonthlyreport.setName(ReportType.MONTHLY.toString());
 
 	jTableForMonthlyreport.addMouseListener(this);
+	
 
+	
 	ExpenseTrackerUtility.initColumnSizes(jTableForMonthlyreport);
 
-	for (int c = 0; c < jTableForMonthlyreport.getColumnCount() - 1; c++) 
-	{
-		DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForMonthlyreport
-				.getColumnModel();
-		TableColumn col = colModel.getColumn(c);
-		col.setCellRenderer(new MonthColumnRender());
-
-	}
+	DefaultTableColumnModel colModel = (DefaultTableColumnModel) jTableForMonthlyreport
+		.getColumnModel();
+	TableColumn col = colModel.getColumn(0);
+	col.setCellRenderer(new MonthColumnRender());
+	
 	jScrollPaneForMonthlyReport = new JScrollPane(jTableForMonthlyreport);
 	jScrollPaneForMonthlyReport.setVisible(true);
 	jPanel.add(jScrollPaneForMonthlyReport);
 
 	double totalAmountSpentPerMonth = 0.0;
-
+	double totalAmountSpentOnExtrasSelf=0.0;
+	double totalAmountSpentOnExtrasOthers=0.0;
+	
 	for (Report report : dataListForMonthlyReport) 
 	{
 		totalAmountSpentPerMonth += report
 				.getTotalPricePerMonthForMonthlyReport();
+		
+		totalAmountSpentOnExtrasSelf+=report.getTotalPriceForExtrasSelf();
+		
+		totalAmountSpentOnExtrasOthers+=report.getTotalPriceForExtrasOthers();
 	}
 
 	footerForMonthlyReport = new JTable(1,
@@ -168,6 +180,13 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 	footerForMonthlyReport.setValueAt(
 			new DecimalFormat("#0.00").format(totalAmountSpentPerMonth), 0,
 			1);
+	if(mainMonthlyFrame)
+	{	
+		footerForMonthlyReport.setValueAt(new DecimalFormat("#0.00").format(totalAmountSpentOnExtrasSelf), 0,
+			2);
+		footerForMonthlyReport.setValueAt(new DecimalFormat("#0.00").format(totalAmountSpentOnExtrasOthers), 0,
+			3);
+	}
 	footerForMonthlyReport.setVisible(true);
 
 	for (int columnIndex = 0; columnIndex < jTableForMonthlyreport
@@ -179,6 +198,94 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 								columnIndex));
 	}
 	jPanel.add(footerForMonthlyReport);
+}
+
+public class MyTableModelForMonthylReportwithExtras implements TableModel
+
+{
+	
+	private String[] columnNames = { "Month", "Amount spent(per month)" ,"Extras(Self)","Extras(Others)"};
+
+	@Override
+	public void addTableModelListener(TableModelListener l) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex) 
+	{
+		if(getValueAt(0, columnIndex)!=null)
+		{
+			return getValueAt(0, columnIndex).getClass();
+		}else
+		{
+			return String.class;
+		}
+	}
+
+	@Override
+	public int getColumnCount() {
+		return columnNames.length;
+	}
+
+	@Override
+	public String getColumnName(int columnIndex) {
+		return columnNames[columnIndex];
+	}
+
+	@Override
+	public int getRowCount()
+	{
+		if (dataListForMonthlyReport != null
+				&& !dataListForMonthlyReport.isEmpty()) 
+		{
+			return dataListForMonthlyReport.size();
+		} 
+		else 
+		{
+			return 0;
+		}
+	}
+
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex)
+	{
+		Report report = (Report) dataListForMonthlyReport.get(rowIndex);
+		switch (columnIndex) 
+		{
+		case 0:
+			return report.getMonthForMonthlyReport();
+		case 1:
+			return report.getTotalPricePerMonthForMonthlyReport();
+		case 2:
+			return report.getTotalPriceForExtrasSelf();
+		case 3:
+			return report.getTotalPriceForExtrasOthers();
+
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isCellEditable(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeTableModelListener(TableModelListener arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setValueAt(Object arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+
+	}
+
+
 }
 	public class MyTableModelForMonthlyReport implements TableModel
  {
@@ -192,8 +299,15 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 		}
 
 		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return getValueAt(0, columnIndex).getClass();
+		public Class<?> getColumnClass(int columnIndex) 
+		{
+			if(getValueAt(0, columnIndex)!=null)
+			{
+				return getValueAt(0, columnIndex).getClass();
+			}else
+			{
+				return String.class;
+			}
 		}
 
 		@Override
@@ -230,7 +344,7 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 				return report.getMonthForMonthlyReport();
 			case 1:
 				return report.getTotalPricePerMonthForMonthlyReport();
-
+			
 			}
 			return null;
 		}
@@ -296,13 +410,38 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 	{
 
 		JTable jTable = (JTable)e.getSource();
-		String selectedRowString = (String)jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
-		createFrame(selectedRowString,jTable.getName(),reportReq.getYear()!=null?year:jComboBoxForYearInput.getSelectedItem());			
-	
+		if(jTable.getSelectedColumn()==0)
+		{
+
+			String selectedRowString = (String)jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
+			createFrame(selectedRowString,jTable.getName(),reportReq.getYear()!=null?year:jComboBoxForYearInput.getSelectedItem());	
+		}	
+		if(jTable.getSelectedColumn()==2)
+		{
+			String month = (String)jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn()-2);
+			createFrameForExtras("Self",month);
+		}
+		else if(jTable.getSelectedColumn()==3)
+		{
+			String month = (String)jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn()-3);
+			createFrameForExtras("Others",month);
+		}	
 		
 	}
 
+	public void createFrameForExtras(String extrasType,String month)
+	{
+		JFrame jFrame = new JFrame();
+		jFrame.setTitle("Extras Report");
+		reportReq.setSubcategory(extrasType);
+		reportReq.setMonth(month);
+		ExtrasReportPanel panel = new ExtrasReportPanel(reportReq,jFrame);
+		jFrame.getContentPane().add(BorderLayout.CENTER,panel);
+		jFrame.setVisible(true);
+		jFrame.pack();
 
+	}
+	
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -343,6 +482,7 @@ public void retrieveAndBuildTabelForMonthlyReport(boolean yrOnchg,JPanel jPanel)
 	
 	
 	}
+	
 	public void setVisible(boolean showFlag)
 	{
 		

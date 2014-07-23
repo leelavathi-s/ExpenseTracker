@@ -9,7 +9,25 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
--- Dumping data for table expensetracker.brand: ~34 rows (approximately)
+
+-- Dumping database structure for expensetracker
+DROP DATABASE IF EXISTS `expensetracker`;
+CREATE DATABASE IF NOT EXISTS `expensetracker` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `expensetracker`;
+
+
+-- Dumping structure for table expensetracker.brand
+DROP TABLE IF EXISTS `brand`;
+CREATE TABLE IF NOT EXISTS `brand` (
+  `BrandId` int(10) NOT NULL AUTO_INCREMENT,
+  `BrandName` varchar(50) NOT NULL,
+  `ProductId` int(10) DEFAULT NULL,
+  PRIMARY KEY (`BrandId`),
+  KEY `FK_brand_product` (`ProductId`),
+  CONSTRAINT `FK_brand_product` FOREIGN KEY (`ProductId`) REFERENCES `product` (`ProductId`)
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=latin1 COMMENT='This table holds info about the brand tied to a particular product.';
+
+-- Dumping data for table expensetracker.brand: ~59 rows (approximately)
 DELETE FROM `brand`;
 /*!40000 ALTER TABLE `brand` DISABLE KEYS */;
 INSERT INTO `brand` (`BrandId`, `BrandName`, `ProductId`) VALUES
@@ -29,7 +47,6 @@ INSERT INTO `brand` (`BrandId`, `BrandName`, `ProductId`) VALUES
 	(44, 'SpiceTex', 37),
 	(46, 'Aachi', 20),
 	(47, 'Aachi', 21),
-	(49, 'Godrej', 69),
 	(55, 'The Hindu', 73),
 	(56, 'DTH', 71),
 	(58, 'Udhayam', 6),
@@ -46,8 +63,44 @@ INSERT INTO `brand` (`BrandId`, `BrandName`, `ProductId`) VALUES
 	(71, 'ZZ', 36),
 	(72, 'India Gate', 117),
 	(73, 'Rin', 26),
-	(74, 'Bingo', 121);
+	(74, 'Bingo', 121),
+	(75, 'Baush and Lomb', 135),
+	(76, 'Bismi', 137),
+	(77, 'Lays', 121),
+	(80, 'Septic Tank Cleaning', 142),
+	(81, 'Whisper Ultra Wings', 148),
+	(82, 'Modern Ragi & Oats', 19),
+	(83, 'SIF', 149),
+	(84, 'Amul', 150),
+	(85, 'Alive', 151),
+	(86, 'Milky Fresh', 152),
+	(87, 'Cavins', 153),
+	(88, 'Johnoson', 33),
+	(89, 'Ceralac', 158),
+	(90, 'Parrys', 160),
+	(91, 'Green', 80),
+	(92, 'Bambino', 161),
+	(93, 'Cruncho', 121),
+	(94, 'Kannan', 171),
+	(95, 'Kannan', 172),
+	(96, 'Kannan', 173),
+	(97, 'Ganapathy', 174),
+	(98, 'Photo Frame', 142),
+	(99, 'Hatsun', 182),
+	(100, 'Tata Salt', 184),
+	(101, 'Pampers', 34),
+	(102, 'Earth Problem', 142);
 /*!40000 ALTER TABLE `brand` ENABLE KEYS */;
+
+
+-- Dumping structure for table expensetracker.category
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE IF NOT EXISTS `category` (
+  `CategoryId` int(10) NOT NULL AUTO_INCREMENT,
+  `CategoryName` varchar(50) NOT NULL,
+  PRIMARY KEY (`CategoryId`),
+  UNIQUE KEY `CategoryName` (`CategoryName`)
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1 COMMENT='This table holds the list of categories like fixed expense,Health,Child care etc.';
 
 -- Dumping data for table expensetracker.category: ~11 rows (approximately)
 DELETE FROM `category`;
@@ -66,12 +119,21 @@ INSERT INTO `category` (`CategoryId`, `CategoryName`) VALUES
 	(2, 'Transport');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 
+
+-- Dumping structure for table expensetracker.months
+DROP TABLE IF EXISTS `months`;
+CREATE TABLE IF NOT EXISTS `months` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
 -- Dumping data for table expensetracker.months: ~12 rows (approximately)
 DELETE FROM `months`;
 /*!40000 ALTER TABLE `months` DISABLE KEYS */;
 INSERT INTO `months` (`id`, `name`) VALUES
 	(1, 'January'),
-	(2, 'Febraury'),
+	(2, 'February'),
 	(3, 'March'),
 	(4, 'April'),
 	(5, 'May'),
@@ -84,7 +146,19 @@ INSERT INTO `months` (`id`, `name`) VALUES
 	(12, 'December');
 /*!40000 ALTER TABLE `months` ENABLE KEYS */;
 
--- Dumping data for table expensetracker.product: ~83 rows (approximately)
+
+-- Dumping structure for table expensetracker.product
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE IF NOT EXISTS `product` (
+  `ProductId` int(10) NOT NULL AUTO_INCREMENT,
+  `ProductName` varchar(50) DEFAULT NULL,
+  `SubCategoryId` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ProductId`),
+  KEY `FK_product_subcategory` (`SubCategoryId`),
+  CONSTRAINT `FK_product_subcategory` FOREIGN KEY (`SubCategoryId`) REFERENCES `subcategory` (`SubcategoryId`)
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=latin1 COMMENT='This table  holds info about product.';
+
+-- Dumping data for table expensetracker.product: ~152 rows (approximately)
 DELETE FROM `product`;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
 INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
@@ -118,7 +192,6 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(42, 'Sapota', 5),
 	(43, 'Banana', 5),
 	(44, 'Sweet Pumpkin', 4),
-	(45, 'Puthina Leaves', 4),
 	(46, 'Green Leafy', 4),
 	(47, 'Mint Leaves', 4),
 	(49, 'Potato', 4),
@@ -137,10 +210,9 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(63, 'Big Onion', 4),
 	(64, 'Drum Stick', 4),
 	(65, 'Coconut', 4),
-	(66, 'Tablets  or Injection n Doctor Fees', 18),
-	(67, 'Injection n Doctor Fees', 19),
+	(66, 'Tablets  or Injection or Drips', 18),
+	(67, 'Vaccine Injection n Doctor Fees', 19),
 	(68, 'Insurance', 9),
-	(69, 'Knife', 34),
 	(71, 'Cable', 27),
 	(72, 'Fuel', 8),
 	(73, 'Paper', 27),
@@ -152,7 +224,6 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(80, 'Aavin Milk', 30),
 	(81, 'Agarbathi', 31),
 	(82, 'Oil', 31),
-	(83, 'Septic Tank Cleaning', 34),
 	(84, 'Internet', 27),
 	(85, 'Aavin Milk', 35),
 	(86, 'Toll Booth', 8),
@@ -165,13 +236,104 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(116, 'Dress', 44),
 	(117, 'Basmathi Rice', 46),
 	(118, 'Ponni Rice', 46),
-	(119, 'Rice', 34),
-	(120, 'Briyani Masala', 34),
 	(121, 'Chips', 10),
-	(122, 'Tomato', 4);
+	(122, 'Tomato', 4),
+	(128, 'Chow Chow', 4),
+	(129, 'Ridge Gourd', 4),
+	(130, 'Banana Raw', 4),
+	(131, 'Sweet Potato', 4),
+	(133, 'Pears', 5),
+	(134, 'Bottle Gourd', 4),
+	(135, 'Contact Lens', 47),
+	(137, 'Rice Flour', 3),
+	(139, 'Pasi Parupu', 2),
+	(140, 'Kadala Parupu', 2),
+	(141, 'Dry Red Chillies', 4),
+	(142, 'Repair and Service', 48),
+	(144, 'Others', 48),
+	(145, 'Donation and Gifts', 34),
+	(147, 'Help', 34),
+	(148, 'Sanitary Napkin', 15),
+	(149, 'Kadalai Mavu', 3),
+	(150, 'Fresh Cream', 49),
+	(151, 'Coffee', 50),
+	(152, 'Paneer', 49),
+	(153, 'Curd', 49),
+	(154, 'Onion Big', 4),
+	(155, 'Onion Small', 4),
+	(156, 'Can Water', 51),
+	(157, 'Beans', 4),
+	(158, 'Ceralac', 52),
+	(159, 'Jaggery', 53),
+	(160, 'Sugar', 53),
+	(161, 'Semiya', 1),
+	(162, '12 Strips Fried Chicken', 11),
+	(163, 'Lemon', 4),
+	(164, 'Seppai Kilangu', 4),
+	(165, 'Beet Root', 4),
+	(166, 'Grapes Black', 5),
+	(167, 'Mango Neelam', 5),
+	(168, 'Chicken Soup', 11),
+	(169, 'Chicken Gravy', 11),
+	(170, 'Eatables', 34),
+	(171, 'Jeeragam', 7),
+	(172, 'Pepper', 7),
+	(173, 'Manjal Thool', 7),
+	(174, 'Karpooram', 31),
+	(175, 'Slipper', 54),
+	(176, 'Nethili Fish Fr', 11),
+	(177, 'Fevi Kwik', 17),
+	(178, 'Fevicol', 17),
+	(179, 'Digital Photos', 17),
+	(180, 'Dolls', 21),
+	(181, 'Books', 21),
+	(182, 'Ghee', 49),
+	(183, 'Cashew Nut', 55),
+	(184, 'Salt', 49),
+	(185, 'Falooda', 10),
+	(186, 'Cutlet', 10),
+	(187, 'Ant Kill', 16),
+	(188, 'Water Melon', 5),
+	(189, 'Pomogrante', 5),
+	(190, 'Orange', 5),
+	(191, 'Grapes Green', 5),
+	(192, 'Ground Nuts', 4),
+	(193, 'Doctor Fees', 18),
+	(194, 'Meals', 11),
+	(195, 'Hongkong Noodles', 11),
+	(196, 'Chicken Lollipop', 11),
+	(197, 'Mutton Gravy', 11),
+	(198, 'Eggs', 56),
+	(199, 'Lung Fung Soup', 11),
+	(200, 'Fish', 57),
+	(201, 'Chicken', 57),
+	(202, 'Combo Food', 11),
+	(203, 'Vegetable Soup', 11),
+	(204, 'Pakoda', 10),
+	(205, 'Electricity Bill', 12),
+	(206, 'Rent Maintence', 12),
+	(207, 'Service', 9),
+	(208, 'Service', 8);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 
--- Dumping data for table expensetracker.purchaseorder: ~41 rows (approximately)
+
+-- Dumping structure for table expensetracker.purchaseorder
+DROP TABLE IF EXISTS `purchaseorder`;
+CREATE TABLE IF NOT EXISTS `purchaseorder` (
+  `OrderDate` date DEFAULT NULL,
+  `Price` double DEFAULT NULL,
+  `Quantity` double DEFAULT NULL,
+  `CategoryId` int(11) DEFAULT NULL,
+  `ShopId` int(11) DEFAULT NULL,
+  `BrandId` int(11) DEFAULT NULL,
+  `OrderId` int(11) NOT NULL AUTO_INCREMENT,
+  `ProductId` int(10) DEFAULT NULL,
+  `SubCategoryId` int(10) DEFAULT NULL,
+  `Comments` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`OrderId`)
+) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=latin1;
+
+-- Dumping data for table expensetracker.purchaseorder: ~229 rows (approximately)
 DELETE FROM `purchaseorder`;
 /*!40000 ALTER TABLE `purchaseorder` DISABLE KEYS */;
 INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `ShopId`, `BrandId`, `OrderId`, `ProductId`, `SubCategoryId`, `Comments`) VALUES
@@ -184,7 +346,7 @@ INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `Sh
 	('2014-01-09', 40, 4, 3, 14, 69, 16, 29, 10, NULL),
 	('2014-01-09', 60, 6, 9, 14, 36, 17, 30, 17, NULL),
 	('2014-01-09', 44, 4, 9, 14, 37, 19, 31, 17, NULL),
-	('2014-01-09', 50, 1, 7, 14, 38, 20, 69, 34, NULL),
+	('2014-01-09', 50, 1, 7, 14, 0, 20, 147, 34, 'Knife'),
 	('2014-01-08', 127, 1, 3, 9, NULL, 21, 14, 11, NULL),
 	('2014-01-08', 120, 1, 3, 9, NULL, 22, 15, 11, NULL),
 	('2014-01-13', 130.75, 200, 9, 15, 34, 23, 25, 15, NULL),
@@ -192,7 +354,7 @@ INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `Sh
 	('2014-01-13', 85.5, 1, 10, 15, 43, 25, 36, 20, NULL),
 	('2014-01-13', 110, 3, 10, 15, 44, 26, 37, 23, NULL),
 	('2014-01-19', 100, 31, 4, 12, 68, 27, 85, 35, NULL),
-	('2014-01-06', 500, 1, 7, 16, NULL, 28, 83, 34, NULL),
+	('2014-01-06', 500, 1, 7, 16, 80, 28, 142, 48, NULL),
 	('2014-01-10', 19, 0, 1, 1, NULL, 29, 42, 5, NULL),
 	('2014-01-19', 2130, 28, 2, 8, NULL, 30, 72, 8, NULL),
 	('2014-01-19', 800, 2, 2, 16, NULL, 31, 86, 8, NULL),
@@ -205,8 +367,8 @@ INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `Sh
 	('2014-01-21', 25, 1, 9, 19, NULL, 39, 114, 43, 'Wood grinder stick'),
 	('2014-01-21', 40, 1, 9, 19, NULL, 40, 113, 43, 'Modak maker'),
 	('2014-01-22', 25, 6, 36, 16, NULL, 41, 115, 45, NULL),
-	('2014-01-14', 95, 1, 7, 20, NULL, 42, 119, 34, 'India gate rice for briyani preparation'),
-	('2014-01-14', 5, 1, 7, 20, NULL, 43, 120, 34, 'Aachi briyani masala'),
+	('2014-01-14', 95, 1, 7, 20, NULL, 42, 147, 34, 'India gate rice for briyani preparation'),
+	('2014-01-14', 5, 1, 7, 20, NULL, 43, 147, 34, 'Aachi briyani masala'),
 	('2014-01-21', 258, 1, 6, 17, 21, 44, 10, 14, NULL),
 	('2014-01-20', 20, 4, 9, 4, 73, 45, 26, 15, NULL),
 	('2014-01-20', 10, 1, 9, 4, 73, 46, 26, 15, NULL),
@@ -214,36 +376,277 @@ INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `Sh
 	('2014-01-20', 19, 0, 1, 4, NULL, 48, 43, 5, NULL),
 	('2014-01-20', 15, 1, 1, 4, NULL, 49, 46, 4, NULL),
 	('2014-01-20', 5, 1, 1, 4, NULL, 50, 47, 4, NULL),
-	('2014-01-20', 3, 0, 1, 4, NULL, 51, 122, 4, NULL);
+	('2014-01-20', 3, 0, 1, 4, NULL, 51, 122, 4, NULL),
+	('2014-01-21', 5, 1, 1, 1, NULL, 53, 47, 4, ''),
+	('2014-01-21', 11.47, 0, 1, 1, NULL, 54, 76, 4, '	'),
+	('2014-01-21', 21.92, 0, 1, 1, NULL, 55, 53, 4, ''),
+	('2014-01-21', 5.8, 0, 1, 1, NULL, 56, 59, 4, ''),
+	('2014-01-21', 10.71, 0, 1, 1, NULL, 57, 122, 4, ''),
+	('2014-01-21', 6.76, 0, 1, 1, NULL, 58, 56, 4, '	'),
+	('2014-01-21', 6.85, 0, 1, 1, NULL, 59, 60, 4, '	'),
+	('2014-01-21', 34.1, 0, 1, 1, NULL, 60, 42, 5, '	'),
+	('2014-01-21', 24.3, 0, 1, 1, NULL, 61, 49, 4, '	'),
+	('2014-01-21', 3.8, 0, 1, 12, NULL, 62, 50, 4, ''),
+	('2014-01-21', 17.82, 0, 1, 1, NULL, 63, 57, 4, ''),
+	('2014-01-21', 31.08, 0, 1, 1, NULL, 64, 2, 5, ''),
+	('2014-01-21', 23, 0, 1, 1, NULL, 65, 58, 4, ''),
+	('2014-01-21', 17.42, 0, 1, 1, NULL, 66, 128, 4, ''),
+	('2014-01-21', 18.65, 0, 1, 1, NULL, 67, 129, 4, ''),
+	('2014-01-21', 10, 1, 1, 1, NULL, 68, 130, 4, ''),
+	('2014-01-21', 16, 0, 1, 1, NULL, 69, 131, 4, ''),
+	('2014-01-21', 33, 0, 1, 1, NULL, 70, 133, 5, ''),
+	('2014-01-21', 23, 0, 1, 1, NULL, 71, 134, 4, ''),
+	('2014-01-23', 639, 6, 15, 17, 75, 72, 135, 47, 'Monthly. '),
+	('2014-01-24', 400, 2, 7, 17, NULL, 73, 147, 34, 'Hot water bag warmer'),
+	('2014-01-23', 10, 100, 1, 22, NULL, 74, 141, 4, '	'),
+	('2014-01-23', 30, 2, 1, 22, 76, 75, 137, 3, '	'),
+	('2014-01-23', 10, 2, 3, 2, 77, 76, 121, 10, '	'),
+	('2014-01-23', 15, 1, 1, 2, 64, 77, 80, 30, '	'),
+	('2014-01-23', 80, 1, 1, 22, NULL, 78, 139, 2, ''),
+	('2014-01-26', 20, 5, 1, 4, NULL, 79, 43, 5, ''),
+	('2014-01-25', 135, 15, 9, 5, 81, 80, 148, 15, '	'),
+	('2014-01-25', 26, 400, 3, 5, 82, 81, 19, 10, ''),
+	('2014-01-25', 22, 200, 1, 5, 83, 82, 149, 3, ''),
+	('2014-01-25', 84.5, 1, 1, 5, 60, 83, 77, 28, ''),
+	('2014-01-25', 41, 200, 1, 5, 84, 84, 150, 49, ''),
+	('2014-01-25', 180, 500, 1, 5, 85, 85, 151, 50, ''),
+	('2014-01-25', 141, 3, 9, 5, 35, 86, 26, 15, ''),
+	('2014-01-25', 54, 200, 1, 5, 86, 87, 152, 49, ''),
+	('2014-01-27', 15, 1, 1, 4, 64, 88, 80, 30, ''),
+	('2014-01-27', 5, 1, 1, 4, 87, 89, 153, 49, 'small size'),
+	('2014-01-28', 15, 1, 1, 4, 64, 90, 80, 30, ''),
+	('2014-01-29', 15, 1, 1, 4, 64, 91, 80, 30, ''),
+	('2014-01-27', 100, 1.3, 2, 7, NULL, 92, 32, 9, ''),
+	('2014-01-30', 16, 0.5, 1, 4, NULL, 93, 154, 4, '	'),
+	('2014-01-30', 13, 0.5, 1, 4, NULL, 94, 49, 4, ''),
+	('2014-01-28', 60, 2, 1, 16, NULL, 95, 156, 51, ''),
+	('2014-01-29', 16, 4, 1, 4, NULL, 96, 43, 5, ''),
+	('2014-02-01', 8, 0.25, 1, 4, NULL, 97, 51, 4, '		'),
+	('2014-02-01', 10, 0.25, 1, 4, NULL, 98, 157, 4, ''),
+	('2014-01-31', 275, 1, 10, 6, 40, 99, 34, 20, 'XL WonderPants'),
+	('2014-01-31', 320, 2, 10, 6, 88, 100, 33, 20, ''),
+	('2014-01-31', 20, 4, 1, 2, NULL, 101, 43, 5, ''),
+	('2014-01-31', 15, 1, 1, 2, 64, 102, 80, 30, ''),
+	('2014-01-21', 170, 1, 10, 3, 89, 103, 158, 52, ''),
+	('2014-02-01', 15, 1, 1, 12, 64, 104, 80, 30, '	'),
+	('2014-02-02', 42, 1, 1, 4, 90, 105, 160, 53, '1 kg	'),
+	('2014-02-02', 34, 2, 1, 4, 91, 106, 80, 30, ''),
+	('2014-02-02', 13, 160, 1, 4, 92, 107, 161, 1, ''),
+	('2014-02-02', 13, 160, 1, 4, 92, 108, 161, 1, ''),
+	('2014-02-03', 160, 1, 4, 16, 56, 109, 71, 27, ''),
+	('2014-02-02', 260, 1, 3, 9, NULL, 110, 162, 11, ''),
+	('2014-02-01', 21.5, 0.86, 1, 1, NULL, 111, 44, 4, ''),
+	('2014-02-01', 21, 0.72, 1, 1, NULL, 112, 131, 4, ''),
+	('2014-02-01', 3, 0.06, 1, 1, NULL, 113, 163, 4, ''),
+	('2014-02-01', 15, 0.77, 1, 1, NULL, 114, 61, 4, ''),
+	('2014-02-01', 22, 0.41, 1, 1, NULL, 115, 164, 4, ''),
+	('2014-02-01', 17, 0.36, 1, 1, NULL, 116, 157, 4, ''),
+	('2014-02-01', 7, 0.58, 1, 1, NULL, 117, 122, 4, ''),
+	('2014-02-01', 13, 0.64, 1, 1, NULL, 118, 51, 4, ''),
+	('2014-02-01', 10, 0.4, 1, 1, NULL, 119, 165, 4, ''),
+	('2014-02-01', 20, 0.326, 1, 1, NULL, 120, 43, 5, ''),
+	('2014-02-01', 62, 0.48, 1, 1, NULL, 121, 166, 5, ''),
+	('2014-02-01', 35, 0.98, 1, 1, NULL, 122, 74, 5, ''),
+	('2014-02-01', 11.5, 0.4, 1, 1, NULL, 123, 42, 5, ''),
+	('2014-02-01', 65, 0.33, 1, 1, NULL, 124, 2, 5, ''),
+	('2014-02-01', 22.5, 0.174, 1, 1, NULL, 125, 167, 5, ''),
+	('2014-02-03', 15, 1, 1, 4, 64, 126, 80, 30, ''),
+	('2014-02-04', 15, 1, 1, 4, 64, 127, 80, 30, ''),
+	('2014-02-04', 120, 1, 3, 11, NULL, 128, 169, 11, ''),
+	('2014-02-04', 40, 1, 3, 11, NULL, 129, 168, 11, ''),
+	('2014-02-05', 15, 3, 3, 2, NULL, 130, 29, 10, ''),
+	('2014-02-05', 10, 2, 3, 2, 93, 131, 121, 10, ''),
+	('2014-02-05', 5, 1, 3, 2, 77, 132, 121, 10, ''),
+	('2014-02-05', 50, 1, 7, 2, NULL, 133, 170, 34, '1000 g Kadalai'),
+	('2014-02-06', 415, 32, 10, 17, 40, 134, 34, 20, ''),
+	('2014-02-05', 13500, 1, 4, 16, NULL, 135, 7, 12, ''),
+	('2014-02-05', 100, 1, 4, 16, 68, 136, 85, 35, ''),
+	('2014-02-05', 385, 22, 4, 16, 63, 137, 79, 29, ''),
+	('2014-02-07', 10.5, 100, 1, 15, 96, 138, 173, 7, ''),
+	('2014-02-07', 10.75, 2, 1, 15, 94, 139, 171, 7, '50 g'),
+	('2014-02-07', 34.5, 2, 1, 15, 95, 140, 172, 7, '50 g'),
+	('2014-02-07', 24, 1, 9, 15, 97, 141, 174, 31, '70'),
+	('2014-02-07', 134, 1, 10, 15, NULL, 142, 175, 54, ''),
+	('2014-02-07', 102, 3, 10, 15, 44, 143, 37, 23, ''),
+	('2014-02-10', 15, 1, 1, 2, 64, 144, 80, 30, ''),
+	('2014-02-11', 15, 1, 1, 4, 64, 146, 80, 30, ''),
+	('2014-02-09', 1345, 2, 7, 23, NULL, 147, 147, 34, 'Cooker - 1400 Kadai - 220 Discount - 275'),
+	('2014-02-12', 45, 1, 3, 11, NULL, 148, 168, 11, ''),
+	('2014-02-12', 95, 1, 3, 12, NULL, 149, 176, 11, ''),
+	('2014-02-12', 399, 2, 36, 24, NULL, 150, 116, 44, '2 T-Shirts'),
+	('2014-02-12', 200, 2.6, 2, 7, NULL, 152, 32, 9, ''),
+	('2014-02-12', 15, 1, 1, 4, 64, 153, 80, 30, ''),
+	('2014-02-12', 15, 4, 1, 4, NULL, 154, 43, 5, ''),
+	('2014-02-12', 643, 1, 7, 25, NULL, 155, 144, 48, '1 Dress for Pappu\'s Birthday'),
+	('2014-02-12', 18, 1, 7, 25, NULL, 156, 144, 48, '1 Hair Band for Pappu'),
+	('2014-02-12', 379, 1, 7, 24, NULL, 157, 144, 48, '1 Frock for pappu from reliance trends'),
+	('2014-02-18', 960, 2, 7, 26, NULL, 158, 144, 48, 'Fresh Cream Black Forest Cake - 480 per kg'),
+	('2014-02-18', 750, 30, 7, 26, NULL, 159, 144, 48, 'Paneer Puff - 25 per piece'),
+	('2014-02-18', 1400, 20, 7, 27, NULL, 160, 144, 48, 'Badam Milk - 70 per 250 ml  one glass'),
+	('2014-02-18', 500, 30, 7, 28, NULL, 161, 144, 48, 'Chum Chum Sweet'),
+	('2014-02-18', 299, 1, 7, 29, NULL, 162, 144, 48, 'Heart Shaped Archies'),
+	('2014-02-18', 79, 25, 7, 6, NULL, 163, 144, 48, 'Paper Plate'),
+	('2014-02-18', 100, 92, 7, 30, NULL, 164, 144, 48, 'Cadbury Chocolairs'),
+	('2014-02-18', 360, 72, 7, 30, NULL, 165, 145, 34, '5 start chocolate for Orphange'),
+	('2014-02-18', 3300, 75, 7, 32, NULL, 166, 145, 34, '75 kg rice for Orphanage'),
+	('2014-02-18', 30, 2, 9, 33, NULL, 167, 177, 17, 'Per tube - 15'),
+	('2014-02-18', 10, 1, 9, 33, NULL, 168, 178, 17, ''),
+	('2014-02-18', 50, 1, 7, 34, 98, 169, 142, 48, '2 broken glass fixing'),
+	('2014-02-18', 150, 6, 9, 35, NULL, 170, 179, 17, '5 photos with varying sizes'),
+	('2014-02-18', 60, 2, 7, 33, NULL, 171, 144, 48, '2 lengthy glittering paper - 30 each'),
+	('2014-02-18', 45, 1, 10, 33, NULL, 172, 180, 21, 'Removable parts doll'),
+	('2014-02-18', 45, 1, 10, 33, NULL, 173, 181, 21, 'Hard bound ABCD book'),
+	('2014-02-18', 30, 1, 1, 16, NULL, 174, 156, 51, ''),
+	('2014-02-18', 5, 1, 7, 33, NULL, 175, 144, 48, 'Color Paper - Shop not sure'),
+	('2014-02-18', 60, 10, 7, 33, NULL, 176, 144, 48, 'Ballons for decorations'),
+	('2014-02-18', 35, 5, 7, 33, NULL, 177, 144, 48, 'Glitter balls 1 big - 15 , 4  small - 5 rs each'),
+	('2014-02-18', 50, 100, 1, 32, 99, 178, 182, 49, '100ml for 100'),
+	('2014-02-18', 50, 50, 1, 32, NULL, 179, 183, 55, ''),
+	('2014-02-18', 26, 1, 1, 30, 100, 180, 184, 49, '1kg'),
+	('2014-02-18', 60, 4, 1, 4, 64, 181, 80, 30, 'Date may be incorrect'),
+	('2014-02-18', 635, 1, 7, 25, NULL, 182, 144, 48, 'Dress from laxel'),
+	('2014-02-18', 16, 1, 7, 25, NULL, 183, 144, 48, 'Hair Band'),
+	('2014-02-18', 70, 1, 3, 37, NULL, 184, 185, 10, ''),
+	('2014-02-18', 15, 1, 3, 38, NULL, 185, 186, 10, ''),
+	('2014-02-18', 18, 1, 3, 26, NULL, 186, 186, 10, ''),
+	('2014-02-19', 30, 1.5, 1, 4, NULL, 187, 43, 5, 'Had some damaged fruits too'),
+	('2014-02-19', 15, 1, 9, 4, NULL, 188, 187, 16, ''),
+	('2014-02-19', 10, 0.5, 1, 4, NULL, 189, 154, 4, ''),
+	('2014-02-19', 12, 0.25, 1, 4, NULL, 190, 44, 4, ''),
+	('2014-02-28', 28, 1.874, 1, 1, NULL, 191, 188, 5, ''),
+	('2014-02-28', 65, 0.84, 1, 1, NULL, 192, 191, 5, ''),
+	('2014-02-28', 104, 0.7, 1, 1, NULL, 193, 2, 5, ''),
+	('2014-02-28', 110, 0.56, 1, 1, NULL, 194, 2, 5, ''),
+	('2014-02-28', 53, 0.36, 1, 1, NULL, 195, 189, 5, ''),
+	('2014-02-28', 36, 0.99, 1, 1, NULL, 196, 43, 5, ''),
+	('2014-02-28', 35, 0.22, 1, 1, NULL, 197, 167, 5, ''),
+	('2014-02-28', 42, 0.78, 1, 1, NULL, 198, 190, 5, ''),
+	('2014-02-28', 36, 0.64, 1, 1, NULL, 199, 192, 4, ''),
+	('2014-02-28', 29, 2, 10, 2, 101, 200, 34, 20, 'L pant style'),
+	('2014-02-27', 10230, 1, 7, 39, NULL, 201, 144, 48, 'Nokia Lumia 520 , Screen Guard , Memory Card'),
+	('2014-02-26', 30, 2, 1, 4, 64, 202, 80, 30, ''),
+	('2014-02-27', 5, 1, 1, 4, NULL, 203, 163, 4, ''),
+	('2014-02-26', 12, 0.35, 1, 4, NULL, 204, 62, 4, ''),
+	('2014-02-26', 16, 0.5, 1, 4, NULL, 205, 63, 4, ''),
+	('2014-02-26', 10, 2, 3, 4, 74, 206, 121, 10, ''),
+	('2014-02-26', 27, 1, 1, 4, 58, 207, 6, 6, ''),
+	('2014-02-24', 500, 1, 15, 40, NULL, 208, 193, 18, ''),
+	('2014-02-24', 590, 1, 15, 40, NULL, 209, 66, 18, '450 for Drips 140 for Tablets'),
+	('2014-02-22', 60, 4, 1, 40, 64, 210, 80, 30, ''),
+	('2014-03-03', 18, 0.75, 1, 4, NULL, 211, 49, 4, ''),
+	('2014-03-03', 30, 2, 1, 4, 64, 212, 80, 30, ''),
+	('2014-03-02', 135, 1, 3, 11, NULL, 213, 197, 11, ''),
+	('2014-03-02', 40, 10, 1, 41, NULL, 214, 198, 56, ''),
+	('2014-02-21', 245, 1, 3, 42, NULL, 215, 196, 11, ''),
+	('2014-02-21', 200, 1, 3, 42, NULL, 216, 195, 11, ''),
+	('2014-02-21', 90, 1, 3, 42, NULL, 217, 199, 11, ''),
+	('2014-02-16', 235, 0.5, 1, 43, NULL, 218, 200, 57, ''),
+	('2014-02-16', 85, 1, 3, 44, NULL, 219, 202, 11, ''),
+	('2014-02-16', 60, 1, 3, 44, NULL, 220, 203, 11, ''),
+	('2014-02-16', 120, 0.5, 3, 44, NULL, 221, 204, 10, ''),
+	('2014-02-22', 50, 1, 4, 16, NULL, 222, 8, 12, 'Vessels Washing + House Cleaning'),
+	('2014-02-22', 255, 59, 4, 16, 55, 223, 73, 27, 'Jan and Feb Bill'),
+	('2014-02-22', 180, 1, 7, 45, NULL, 224, 144, 48, ''),
+	('2014-02-23', 500, 1, 15, 46, NULL, 225, 67, 19, ''),
+	('2014-02-23', 100, 1, 7, 47, NULL, 226, 144, 48, 'Vodafone Sim'),
+	('2014-02-23', 18, 5, 1, 4, NULL, 227, 43, 5, ''),
+	('2014-02-23', 400, 5, 2, 7, NULL, 228, 32, 9, ''),
+	('2014-02-23', 1000, 12.9, 2, 7, NULL, 229, 72, 8, ''),
+	('2014-02-26', 60, 2, 1, 16, NULL, 230, 156, 51, ''),
+	('2014-02-26', 26, 1, 3, 4, 82, 231, 19, 10, ''),
+	('2014-03-02', 231, 20, 10, 17, 101, 232, 34, 20, ''),
+	('2014-02-26', 200, 1, 7, 16, 102, 233, 142, 48, 'Current issue'),
+	('2014-03-05', 30, 2, 1, 4, 64, 234, 80, 30, ''),
+	('2014-03-05', 10, 2, 3, 4, 74, 235, 121, 10, ''),
+	('2014-03-05', 10, 2, 3, 4, 77, 236, 121, 10, ''),
+	('2014-03-07', 13500, 1, 4, 16, NULL, 237, 7, 12, ''),
+	('2014-03-07', 730, 2, 4, 16, NULL, 238, 205, 12, ''),
+	('2014-03-07', 100, 28, 4, 16, 68, 239, 85, 35, ''),
+	('2014-03-07', 420, 24, 4, 16, 63, 240, 79, 29, '4 days reduced'),
+	('2014-03-07', 100, 1, 4, 16, NULL, 241, 206, 12, ''),
+	('2014-03-07', 1400, 1, 2, 48, NULL, 242, 208, 8, 'For Oil'),
+	('2014-03-07', 10, 2, 3, 2, NULL, 243, 29, 10, ''),
+	('2014-03-10', 1453, 1, 7, 49, NULL, 244, 145, 34, 'Wrap for Raja\'s son'),
+	('2014-03-08', 115, 3, 3, 13, NULL, 245, 202, 11, 'Idli , Poori and Coffee'),
+	('2014-03-07', 800, 1, 2, 16, NULL, 246, 86, 8, 'To and Fro toll booth charges Mdu to Chennai  and Chennai to Madurai');
 /*!40000 ALTER TABLE `purchaseorder` ENABLE KEYS */;
 
--- Dumping data for table expensetracker.shop: ~20 rows (approximately)
+
+-- Dumping structure for table expensetracker.shop
+DROP TABLE IF EXISTS `shop`;
+CREATE TABLE IF NOT EXISTS `shop` (
+  `ShopId` int(10) NOT NULL AUTO_INCREMENT,
+  `ShopName` varchar(50) NOT NULL,
+  PRIMARY KEY (`ShopId`),
+  UNIQUE KEY `ShopName` (`ShopName`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1 COMMENT='This table holds the shop info from where the products were purchased.';
+
+-- Dumping data for table expensetracker.shop: ~47 rows (approximately)
 DELETE FROM `shop`;
 /*!40000 ALTER TABLE `shop` DISABLE KEYS */;
 INSERT INTO `shop` (`ShopId`, `ShopName`) VALUES
 	(12, 'Aavin Milk Booth'),
 	(13, 'Adyar Anandha Bhavan'),
+	(28, 'Adyar Anantha Bhavan'),
+	(38, 'Adyar Bakery'),
+	(23, 'Anantha Stores'),
+	(29, 'Archies'),
+	(45, 'Bata'),
+	(26, 'Cake Point'),
 	(2, 'Corner Shop'),
+	(35, 'Digitial Photo Shop'),
+	(41, 'Egg Shop'),
+	(34, 'Frame Repair Shop'),
 	(10, 'Hot Chips'),
+	(37, 'Hotel Saravna Bhavan'),
+	(33, 'IJS Stationery'),
+	(49, 'Just Born'),
 	(15, 'Kannan Departmental Stores'),
 	(9, 'KFC'),
+	(25, 'Laxel'),
 	(20, 'Madurai Grocery Shop'),
 	(8, 'Madurai Petrol Shop'),
 	(3, 'Main road shop'),
+	(48, 'Maruthi Service Centre'),
 	(6, 'More'),
+	(30, 'Nilgiris'),
 	(16, 'Not Applicable'),
 	(17, 'Online'),
 	(1, 'Ottanchathiram'),
 	(7, 'Palavakkam Petrol Shop'),
+	(32, 'Palvakkam Shop'),
+	(24, 'Reliance Trends'),
+	(46, 'Roshny Baby Care'),
 	(14, 'Salam Department Store'),
+	(22, 'Santhu Shop'),
+	(44, 'Saravana Bhavan'),
 	(11, 'Seena Vanna'),
+	(40, 'Shanthi Hospital'),
 	(5, 'Spencer Daily'),
+	(27, 'Sri Krishna Sweets'),
+	(21, 'test'),
 	(18, 'TestShop'),
 	(4, 'Thangam stores'),
-	(19, 'Vijayalakshmi Stores');
+	(39, 'Univercell'),
+	(43, 'Victoria Fish Shop'),
+	(19, 'Vijayalakshmi Stores'),
+	(47, 'Vodafone'),
+	(42, 'Wangs Kitchen');
 /*!40000 ALTER TABLE `shop` ENABLE KEYS */;
 
--- Dumping data for table expensetracker.subcategory: ~36 rows (approximately)
+
+-- Dumping structure for table expensetracker.subcategory
+DROP TABLE IF EXISTS `subcategory`;
+CREATE TABLE IF NOT EXISTS `subcategory` (
+  `SubcategoryId` int(10) NOT NULL AUTO_INCREMENT,
+  `SubcategoryName` varchar(50) NOT NULL,
+  `CategoryId` int(11) NOT NULL,
+  PRIMARY KEY (`SubcategoryId`),
+  KEY `FK_Subcategory_category` (`CategoryId`),
+  CONSTRAINT `FK_Subcategory_category` FOREIGN KEY (`CategoryId`) REFERENCES `category` (`CategoryId`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=latin1;
+
+-- Dumping data for table expensetracker.subcategory: ~45 rows (approximately)
 DELETE FROM `subcategory`;
 /*!40000 ALTER TABLE `subcategory` DISABLE KEYS */;
 INSERT INTO `subcategory` (`SubcategoryId`, `SubcategoryName`, `CategoryId`) VALUES
@@ -273,8 +676,6 @@ INSERT INTO `subcategory` (`SubcategoryId`, `SubcategoryName`, `CategoryId`) VAL
 	(29, 'Milk', 4),
 	(30, 'Milk', 1),
 	(31, 'Pooja Items', 9),
-	(32, 'Repair', 7),
-	(33, 'Donation and gifts', 7),
 	(34, 'Others', 7),
 	(35, 'Milk Delivery', 4),
 	(37, 'Techincal', 28),
@@ -282,7 +683,18 @@ INSERT INTO `subcategory` (`SubcategoryId`, `SubcategoryName`, `CategoryId`) VAL
 	(43, 'Kitchenware', 9),
 	(44, 'New Dress', 36),
 	(45, 'Iorning', 36),
-	(46, 'Rice', 1);
+	(46, 'Rice', 1),
+	(47, 'Eye Care', 15),
+	(48, 'Self', 7),
+	(49, 'Others', 1),
+	(50, 'Beverages', 1),
+	(51, 'Water', 1),
+	(52, 'Processed Foods', 10),
+	(53, 'Sugar', 1),
+	(54, 'Accessories', 10),
+	(55, 'Nuts', 1),
+	(56, 'Eggs', 1),
+	(57, 'Non Veg', 1);
 /*!40000 ALTER TABLE `subcategory` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

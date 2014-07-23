@@ -42,6 +42,15 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 	ReportRequest reportRequest = new ReportRequest();
 
 	GenerateReportsPanel generateReportsPanel = null;
+	
+	public GenerateReportsPanel()
+	{
+		
+	}
+	public GenerateReportsPanel(JFrame jFrame)
+	{
+		this.jFrame = jFrame;
+	}
 	public void buildGUI()
 	{
 		if (generateReportsPanel != null)
@@ -211,7 +220,7 @@ public class GenerateReportsPanel extends JPanel implements ActionListener
 		
 		else if("Category wise".equals(e.getActionCommand()))
 		{
-			categoryReportFrame = new CategoryReportFrame(this);
+			categoryReportFrame = new CategoryReportFrame(this,jFrame);
 			categoryReportFrame.setVisible(true);
 			if(monthlyFrame!=null)
 			{
