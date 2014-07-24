@@ -88,6 +88,11 @@ function EtCtrl ($http, $scope) {
         return search ("brands", brandName);
     };
 
+
+    $scope.getShops = function(shopName) {
+        return search ("shops", shopName);
+    };
+
     $scope.getRecentPurchasesOfItem = function() {
         $http.post ("/recent", 
             { "item" : $scope.item }).success (function (data) {
