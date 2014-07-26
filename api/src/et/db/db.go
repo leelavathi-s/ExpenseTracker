@@ -21,6 +21,7 @@ type OrderData struct {
     ProductId int
     Price float32
     ShopId int
+    BrandId int
     CategoryId int
     SubcategoryId int
     Comments string
@@ -79,6 +80,6 @@ func Save (order OrderData) (err error) {
         return 
     }
 
-    _, err = stmt.Exec (order.Quantity, order.ProductId, order.Price, order.ShopId, order.CategoryId, order.SubcategoryId, order.Comments, order.OrderDate)
+    _, err = stmt.Exec (order.Quantity, order.ProductId, order.Price, order.ShopId, order.BrandId, order.CategoryId, order.SubcategoryId, order.Comments, order.OrderDate)
     return
 }

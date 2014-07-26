@@ -9,8 +9,9 @@ app.directive('ngBlur', function() {
 function EtCtrl ($http, $scope) {
     $scope.navType = "tabs";
     $scope.alerts = [];
-    $scope.items_to_buy = [];
-    $scope.recent_data = [];
+    $scope.selectedProduct = undefined;
+    $scope.selectedBrand = undefined;
+    $scope.selectedShop = undefined;
     
     $scope.save_thing_to_buy = function() {
         $http.post ("/add",
@@ -23,9 +24,9 @@ function EtCtrl ($http, $scope) {
     $scope.save = function() {
         $http.post ("/save", 
             { "orderdate" : $scope.dt,
-              "productid" : $scope.productid,
-              "brandid"   : $scope.brandid,
-              "shopid"    : $scope.shopid,
+              "productid" : $scope.SelectedProduct.Id,
+              "brandid"   : $scope.SelectedBrand.Id,
+              "shopid"    : $scope.SelectedShop.Id,
               "quantity"  : $scope.quantity,
               "comments"  : $scope.comments,
               "price" : $scope.price,
