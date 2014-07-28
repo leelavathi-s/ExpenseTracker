@@ -25,6 +25,12 @@
               <select ng-model="SelectedBrand" ng-options="brand as brand.Value for brand in brandsByProduct" class="form-control" placeholder="Enter brand"> </select>
           </div>
           <div class="form-group">
+              <select ng-model="SelectedCategory" ng-options="category as category.Value for category in categoriesBySubCategory" class="form-control" placeholder="Enter category"> </select>
+          </div>
+          <div class="form-group">
+              <select ng-model="SelectedSubCategory" ng-options="subcategory as subcategory.Value for subcategory in subcategoriesByProduct" class="form-control" placeholder="Enter subcategory"> </select>
+          </div>
+          <div class="form-group">
               <input type="text" ng-model="SelectedShop" typeahead="shop as shop.Value for shop in getShops($viewValue)" class="form-control" placeholder="Enter shop">
           </div>
           <div class="form-group">

@@ -27,6 +27,8 @@ function EtCtrl ($http, $scope) {
             { "orderdate" : $scope.dt,
               "productid" : $scope.SelectedProduct.Id,
               "brandid"   : $scope.SelectedBrand.Id,
+              "categoryid": $scope.SelectedCategory.Id,
+              "subcategoryid": $scope.SelectedSubCategory.Id,
               "shopid"    : $scope.SelectedShop.Id,
               "quantity"  : $scope.quantity,
               "comments"  : $scope.comments,
@@ -70,6 +72,16 @@ function EtCtrl ($http, $scope) {
         });
     }
 
+
+    function searchCategories(subcatid, callback) {
+        return $http.get ("/cats_by_subcat?subcatid=" + subcatid).then(function (response)
+        {
+          callback(response.data);
+          return response.data;
+        });
+    }
+  
+
     $scope.getItemsToBuy = function() {
         $http.get ("/get_items_to_buy").then(function (response)
             {
@@ -109,12 +121,20 @@ function EtCtrl ($http, $scope) {
             });
     };
 
+    $scope.reloadCategories = function() {
+       function selectFirstCat(data) { $scope.SelectedCategory = data[0]; }
+       $scope.categoriesBySubCategory = searchCategories($scope.SelectedSubCategory.Id, selectFirstCat);
+    };
+
     $scope.recalculate = function() {
        if ($scope.SelectedProduct == undefined)
           return;
 
        function selectFirstBrand(data) { $scope.SelectedBrand = data[0]; }
        $scope.brandsByProduct = searchByProduct("brands", "", selectFirstBrand);
+
+       function selectFirstSubCat(data) { $scope.SelectedSubCategory = data[0]; $scope.reloadCategories(); }
+       $scope.subcategoriesByProduct = searchByProduct("subcats", "", selectFirstSubCat);
     };
 
     $scope.clear = function() {

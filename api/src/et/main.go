@@ -112,6 +112,26 @@ func getBrandsForProductHandler (w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf (w, "%s", data)
 }
 
+func getSubCategoriesForProductHandler (w http.ResponseWriter, r *http.Request) {
+    productId,_ := strconv.Atoi (r.FormValue ("pid"))
+    items, _ := db.FindSubCategoriesForProduct ("", productId);
+
+    w.Header ().Add ("Content-Type", "application/json")
+    data, _ := json.Marshal (items);
+
+    fmt.Fprintf (w, "%s", data)
+}
+
+func getCategoriesForSubCategoryHandler (w http.ResponseWriter, r *http.Request) {
+    subcatid,_ := strconv.Atoi (r.FormValue ("subcatid"))
+    items, _ := db.FindCategoriesForSubCategory ("", subcatid);
+
+    w.Header ().Add ("Content-Type", "application/json")
+    data, _ := json.Marshal (items);
+
+    fmt.Fprintf (w, "%s", data)
+}
+
 func getBrandsHandler (w http.ResponseWriter, r *http.Request) {
     searchString := r.FormValue ("name")
     items, _ := db.FindBrands (searchString);
@@ -178,6 +198,8 @@ func initWebServer() {
     http.HandleFunc ("/products", getProductsHandler)
     http.HandleFunc ("/shops", getShopsHandler)
     http.HandleFunc ("/brands_by_product", getBrandsForProductHandler)
+    http.HandleFunc ("/subcats_by_product", getSubCategoriesForProductHandler)
+    http.HandleFunc ("/cats_by_subcat", getCategoriesForSubCategoryHandler)
     http.HandleFunc ("/brands", getBrandsHandler)
     /*
     http.HandleFunc ("/add", addHandler)
