@@ -5,6 +5,7 @@ import "io/ioutil"
 import "et/db"
 import "net/http"
 import "encoding/json"
+import "strconv"
 
 /*
 
@@ -101,6 +102,16 @@ func addHandler (w http.ResponseWriter, r *http.Request) {
 }
 
 */
+func getBrandsForProductHandler (w http.ResponseWriter, r *http.Request) {
+    productId,_ := strconv.Atoi (r.FormValue ("pid"))
+    items, _ := db.FindBrandsForProduct ("", productId);
+
+    w.Header ().Add ("Content-Type", "application/json")
+    data, _ := json.Marshal (items);
+
+    fmt.Fprintf (w, "%s", data)
+}
+
 func getBrandsHandler (w http.ResponseWriter, r *http.Request) {
     searchString := r.FormValue ("name")
     items, _ := db.FindBrands (searchString);
@@ -166,6 +177,7 @@ func initWebServer() {
     http.HandleFunc ("/save", saveHandler)
     http.HandleFunc ("/products", getProductsHandler)
     http.HandleFunc ("/shops", getShopsHandler)
+    http.HandleFunc ("/brands_by_product", getBrandsForProductHandler)
     http.HandleFunc ("/brands", getBrandsHandler)
     /*
     http.HandleFunc ("/add", addHandler)

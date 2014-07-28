@@ -33,6 +33,26 @@ type FindResult struct {
     Value string
 }
 
+func find1 (query string, param string, param2 int) (results []FindResult, err error) {
+    results = []FindResult {}
+    con := getConnection()
+    defer con.Close()
+
+    rows, err := con.Query (query, "%" + param + "%", param2)
+    
+    if err != nil {
+        panic (err)
+    }
+    
+    for rows.Next() {
+        var result FindResult
+        rows.Scan (&result.Id, &result.Value)
+
+        results = append (results, result)
+    }
+
+    return
+}
 func find (query string, param string) (results []FindResult, err error) {
     results = []FindResult {}
     con := getConnection()
@@ -60,6 +80,10 @@ func FindProducts (searchString string) (products [] FindResult, err error) {
 
 func FindBrands (searchString string) (brands [] FindResult, err error) {
     return find ("SELECT BrandId, BrandName from brand where brandname LIKE ? order by brandname", searchString)
+}
+
+func FindBrandsForProduct (searchString string, productId int) (brands [] FindResult, err error) {
+    return find1 ("SELECT BrandId, BrandName from brand where brandname LIKE ? and productid=? order by brandname", searchString, productId)
 }
 
 func FindCategories (searchString string) (categories [] FindResult, err error) {

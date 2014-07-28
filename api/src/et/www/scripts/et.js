@@ -9,6 +9,7 @@ app.directive('ngBlur', function() {
 function EtCtrl ($http, $scope) {
     $scope.navType = "tabs";
     $scope.alerts = [];
+    $scope.brandsByProduct = [];
     $scope.selectedProduct = undefined;
     $scope.selectedBrand = undefined;
     $scope.selectedShop = undefined;
@@ -53,10 +54,18 @@ function EtCtrl ($http, $scope) {
 
         $scope.opened = true;
     };
-    
+
     function search(type, name) {
         return $http.get ("/" + type + "?name=" + name).then(function (response)
         {
+          return response.data;
+        });
+    }
+
+    function searchByProduct(type, name, callback) {
+        return $http.get ("/" + type + "_by_product?pid=" + $scope.SelectedProduct.Id).then(function (response)
+        {
+          callback(response.data);
           return response.data;
         });
     }
@@ -89,7 +98,6 @@ function EtCtrl ($http, $scope) {
         return search ("brands", brandName);
     };
 
-
     $scope.getShops = function(shopName) {
         return search ("shops", shopName);
     };
@@ -102,16 +110,14 @@ function EtCtrl ($http, $scope) {
     };
 
     $scope.recalculate = function() {
-       for (i = 0; i< $scope.recent_data.length; ++i)
-       {
-            $scope.recent_data[i].ComparitivePrice = $scope.quantity * $scope.recent_data[i].NormalizedPrice;
-       }
-    }
+       if ($scope.SelectedProduct == undefined)
+          return;
+
+       function selectFirstBrand(data) { $scope.SelectedBrand = data[0]; }
+       $scope.brandsByProduct = searchByProduct("brands", "", selectFirstBrand);
+    };
 
     $scope.clear = function() {
         $scope.recent_data = [];
     }
-    
-    $scope.getItemsToBuy();
-    $scope.getMonthlySpendings();
 }
