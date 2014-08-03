@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `brand` (
   PRIMARY KEY (`BrandId`),
   KEY `FK_brand_product` (`ProductId`),
   CONSTRAINT `FK_brand_product` FOREIGN KEY (`ProductId`) REFERENCES `product` (`ProductId`)
-) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=latin1 COMMENT='This table holds info about the brand tied to a particular product.';
+) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=latin1 COMMENT='This table holds info about the brand tied to a particular product.';
 
 -- Dumping data for table expensetracker.brand: ~59 rows (approximately)
 DELETE FROM `brand`;
@@ -89,7 +89,14 @@ INSERT INTO `brand` (`BrandId`, `BrandName`, `ProductId`) VALUES
 	(99, 'Hatsun', 182),
 	(100, 'Tata Salt', 184),
 	(101, 'Pampers', 34),
-	(102, 'Earth Problem', 142);
+	(102, 'Earth Problem', 142),
+	(103, 'Kurkure', 121),
+	(104, 'Sakthi', 182),
+	(105, 'Sakthi', 14),
+	(106, 'Whisper Choice with wings', 148),
+	(107, 'Listerine', 213),
+	(108, 'Wheel Lemon and Jasmine', 212),
+	(109, 'Anil', 214);
 /*!40000 ALTER TABLE `brand` ENABLE KEYS */;
 
 
@@ -100,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `category` (
   `CategoryName` varchar(50) NOT NULL,
   PRIMARY KEY (`CategoryId`),
   UNIQUE KEY `CategoryName` (`CategoryName`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1 COMMENT='This table holds the list of categories like fixed expense,Health,Child care etc.';
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1 COMMENT='This table holds the list of categories like fixed expense,Health,Child care etc.';
 
 -- Dumping data for table expensetracker.category: ~11 rows (approximately)
 DELETE FROM `category`;
@@ -156,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `product` (
   PRIMARY KEY (`ProductId`),
   KEY `FK_product_subcategory` (`SubCategoryId`),
   CONSTRAINT `FK_product_subcategory` FOREIGN KEY (`SubCategoryId`) REFERENCES `subcategory` (`SubcategoryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=latin1 COMMENT='This table  holds info about product.';
+) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=latin1 COMMENT='This table  holds info about product.';
 
 -- Dumping data for table expensetracker.product: ~152 rows (approximately)
 DELETE FROM `product`;
@@ -181,7 +188,7 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(25, 'Moisturizing Lotion', 15),
 	(26, 'Soap', 15),
 	(28, 'Kesar Halwa', 10),
-	(29, 'Milk Bikis', 10),
+	(29, 'Biscuits', 10),
 	(30, 'AA Battery', 17),
 	(31, 'AAA Battery', 17),
 	(32, 'Fuel', 9),
@@ -202,7 +209,7 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(55, 'Soya Beans', 4),
 	(56, 'Cabbage', 4),
 	(57, 'Brocolli', 4),
-	(58, 'Cauliflower', 4),
+	(58, 'Pepsi', 4),
 	(59, 'Avarai', 4),
 	(60, 'Radish', 4),
 	(61, 'Elephant Yam', 4),
@@ -313,7 +320,14 @@ INSERT INTO `product` (`ProductId`, `ProductName`, `SubCategoryId`) VALUES
 	(205, 'Electricity Bill', 12),
 	(206, 'Rent Maintence', 12),
 	(207, 'Service', 9),
-	(208, 'Service', 8);
+	(208, 'Service', 8),
+	(209, 'Pepsi', 58),
+	(210, 'Coca Cola', 58),
+	(211, 'Banana Flower', 4),
+	(212, 'Detergents', 15),
+	(213, 'Mouthwash', 15),
+	(214, 'Semiya', 49),
+	(215, 'Ginger Garlic paste', 49);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 
 
@@ -331,9 +345,9 @@ CREATE TABLE IF NOT EXISTS `purchaseorder` (
   `SubCategoryId` int(10) DEFAULT NULL,
   `Comments` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`OrderId`)
-) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=296 DEFAULT CHARSET=latin1;
 
--- Dumping data for table expensetracker.purchaseorder: ~229 rows (approximately)
+-- Dumping data for table expensetracker.purchaseorder: ~279 rows (approximately)
 DELETE FROM `purchaseorder`;
 /*!40000 ALTER TABLE `purchaseorder` DISABLE KEYS */;
 INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `ShopId`, `BrandId`, `OrderId`, `ProductId`, `SubCategoryId`, `Comments`) VALUES
@@ -568,7 +582,56 @@ INSERT INTO `purchaseorder` (`OrderDate`, `Price`, `Quantity`, `CategoryId`, `Sh
 	('2014-03-07', 10, 2, 3, 2, NULL, 243, 29, 10, ''),
 	('2014-03-10', 1453, 1, 7, 49, NULL, 244, 145, 34, 'Wrap for Raja\'s son'),
 	('2014-03-08', 115, 3, 3, 13, NULL, 245, 202, 11, 'Idli , Poori and Coffee'),
-	('2014-03-07', 800, 1, 2, 16, NULL, 246, 86, 8, 'To and Fro toll booth charges Mdu to Chennai  and Chennai to Madurai');
+	('2014-03-07', 800, 1, 2, 16, NULL, 246, 86, 8, 'To and Fro toll booth charges Mdu to Chennai  and Chennai to Madurai'),
+	('2014-07-19', 46, 2.45, 1, 1, NULL, 247, 188, 5, ''),
+	('2014-07-10', 13500, 1, 4, 16, NULL, 248, 7, 12, ''),
+	('2014-07-10', 100, 1, 4, 16, NULL, 249, 206, 12, ''),
+	('2014-07-10', 600, 1, 7, 16, 80, 250, 142, 48, ''),
+	('2014-07-10', 400, 1, 4, 16, NULL, 251, 205, 12, ''),
+	('2014-07-19', 52, 0.695, 1, 50, NULL, 252, 58, 4, ''),
+	('2014-07-19', 207, 1.01, 1, 50, NULL, 253, 189, 5, ''),
+	('2014-07-19', 18, 2, 1, 50, NULL, 254, 130, 4, ''),
+	('2014-07-19', 236.5, 1.075, 1, 50, NULL, 255, 2, 5, ''),
+	('2014-07-19', 15, 0.27, 1, 50, NULL, 256, 42, 5, ''),
+	('2014-07-19', 40, 125, 1, 1, NULL, 257, 74, 5, ''),
+	('2014-07-19', 7, 0.18, 1, 1, NULL, 258, 60, 4, ''),
+	('2014-07-19', 9.5, 0.34, 1, 1, NULL, 259, 56, 4, ''),
+	('2014-07-19', 20, 0.504, 1, 1, NULL, 260, 49, 4, ''),
+	('2014-07-19', 8, 0.142, 1, 1, NULL, 261, 64, 4, ''),
+	('2014-07-19', 16, 0.29, 1, 1, NULL, 262, 76, 4, ''),
+	('2014-07-19', 36, 0.52, 1, 1, NULL, 263, 51, 4, ''),
+	('2014-07-19', 36, 0.19, 1, 1, NULL, 264, 57, 4, ''),
+	('2014-07-19', 15, 1, 1, 1, NULL, 265, 46, 4, ''),
+	('2014-07-19', 14, 1, 1, 1, NULL, 266, 47, 4, ''),
+	('2014-07-26', 170, 3, 9, 5, 35, 267, 26, 15, ''),
+	('2014-07-19', 15, 1, 1, 50, NULL, 268, 211, 4, ''),
+	('2014-07-19', 30, 500, 3, 1, NULL, 269, 209, 58, ''),
+	('2014-07-19', 20, 1, 3, 5, 103, 270, 121, 10, ''),
+	('2014-07-19', 10, 1, 3, 5, 103, 271, 121, 10, ''),
+	('2014-07-19', 30, 600, 3, 5, NULL, 272, 210, 58, ''),
+	('2014-07-19', 100, 200, 1, 5, 104, 273, 182, 49, ''),
+	('2014-07-14', 125, 1, 1, 5, 72, 274, 117, 46, ''),
+	('2014-07-26', 84, 1, 1, 5, 60, 275, 77, 28, ''),
+	('2014-07-26', 128, 500, 1, 5, 61, 276, 78, 28, ''),
+	('2014-07-26', 40, 1, 1, 5, NULL, 277, 154, 4, ''),
+	('2014-07-26', 35, 1, 1, 5, NULL, 278, 157, 4, ''),
+	('2014-07-26', 32, 1, 9, 5, 106, 279, 148, 15, ''),
+	('2014-07-26', 180, 500, 9, 5, 107, 280, 213, 15, ''),
+	('2014-07-26', 46, 500, 9, 5, 108, 281, 212, 15, ''),
+	('2014-07-26', 10, 1, 3, 5, NULL, 282, 29, 10, ''),
+	('2014-07-26', 32.5, 450, 1, 5, 109, 283, 214, 49, ''),
+	('2014-07-26', 32, 1, 9, 5, NULL, 284, 112, 43, 'Apple cutter'),
+	('2014-07-26', 38, 200, 1, 5, NULL, 285, 215, 49, ''),
+	('2014-07-26', 10, 1, 3, 5, NULL, 286, 29, 10, ''),
+	('2014-07-29', 640, 1, 28, 17, NULL, 287, 87, 37, 'Head First Jsp and Servlets Flipkart'),
+	('2014-07-29', 374, 38, 10, 17, 40, 288, 34, 20, 'Online Flipkart'),
+	('2014-07-29', 336, 38, 10, 17, 40, 289, 34, 20, 'Flipkart Online'),
+	('2014-07-29', 321, 1, 7, 17, NULL, 290, 145, 34, 'For Naveena Spocks baby and child care book'),
+	('2014-07-29', 469, 1, 7, 17, NULL, 291, 144, 48, 'Mobile case for Senthil from Amzon '),
+	('2014-07-29', 120, 1, 10, 25, NULL, 292, 181, 21, ''),
+	('2014-07-29', 60, 1, 10, 25, NULL, 293, 181, 21, ''),
+	('2014-07-29', 40, 1, 10, 25, NULL, 294, 181, 21, 'Puzzle'),
+	('2014-07-29', 40, 12, 1, 41, NULL, 295, 198, 56, '');
 /*!40000 ALTER TABLE `purchaseorder` ENABLE KEYS */;
 
 
@@ -579,9 +642,9 @@ CREATE TABLE IF NOT EXISTS `shop` (
   `ShopName` varchar(50) NOT NULL,
   PRIMARY KEY (`ShopId`),
   UNIQUE KEY `ShopName` (`ShopName`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1 COMMENT='This table holds the shop info from where the products were purchased.';
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=latin1 COMMENT='This table holds the shop info from where the products were purchased.';
 
--- Dumping data for table expensetracker.shop: ~47 rows (approximately)
+-- Dumping data for table expensetracker.shop: ~48 rows (approximately)
 DELETE FROM `shop`;
 /*!40000 ALTER TABLE `shop` DISABLE KEYS */;
 INSERT INTO `shop` (`ShopId`, `ShopName`) VALUES
@@ -628,6 +691,7 @@ INSERT INTO `shop` (`ShopId`, `ShopName`) VALUES
 	(18, 'TestShop'),
 	(4, 'Thangam stores'),
 	(39, 'Univercell'),
+	(50, 'Uzhavar Pazhamudir Nilayam'),
 	(43, 'Victoria Fish Shop'),
 	(19, 'Vijayalakshmi Stores'),
 	(47, 'Vodafone'),
@@ -644,9 +708,9 @@ CREATE TABLE IF NOT EXISTS `subcategory` (
   PRIMARY KEY (`SubcategoryId`),
   KEY `FK_Subcategory_category` (`CategoryId`),
   CONSTRAINT `FK_Subcategory_category` FOREIGN KEY (`CategoryId`) REFERENCES `category` (`CategoryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=latin1;
 
--- Dumping data for table expensetracker.subcategory: ~45 rows (approximately)
+-- Dumping data for table expensetracker.subcategory: ~46 rows (approximately)
 DELETE FROM `subcategory`;
 /*!40000 ALTER TABLE `subcategory` DISABLE KEYS */;
 INSERT INTO `subcategory` (`SubcategoryId`, `SubcategoryName`, `CategoryId`) VALUES
@@ -694,7 +758,8 @@ INSERT INTO `subcategory` (`SubcategoryId`, `SubcategoryName`, `CategoryId`) VAL
 	(54, 'Accessories', 10),
 	(55, 'Nuts', 1),
 	(56, 'Eggs', 1),
-	(57, 'Non Veg', 1);
+	(57, 'Non Veg', 1),
+	(58, 'Drinks', 3);
 /*!40000 ALTER TABLE `subcategory` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
