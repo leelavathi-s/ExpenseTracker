@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html ng-app="track" ng-cloak>
+<html ng-app="et" ng-cloak>
   <head>
     <title> Leela's Expense Tracker </title>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-touch.min.js"></script>
-    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.5.0.min.js"></script>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.7.0.min.js"></script>
     <script src="scripts/et.js"></script>
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
   </head>
   <body ng-controller="EtCtrl">
     <div class="container">
-      <h2> Expense Tracker (Leela) </h2>
       <tabset>
         <tab heading="Record purchase">
           <div class="form-group">
               <input type="text" ng-model="dt" class="form-control" datepicker-popup="yyyy/MM/dd" is-open="opened" ng-required="true" >
           </div>
           <div class="form-group">
-              <input ng-required="true" type="text" autofocus ng-model="SelectedProduct" typeahead-on-select="recalculate()" typeahead="product as product.Value for product in getProducts($viewValue)" class="form-control" placeholder="Enter product">
+              <input ng-required="true" type="text" autofocus ng-model="SelectedProduct" typeahead-on-select="recalculate($item, $model, $label)" typeahead="product as product.Value for product in getProducts($viewValue)" class="form-control" placeholder="Enter product">
           </div>
           <div class="form-group">
               <select ng-model="SelectedBrand" ng-options="brand as brand.Value for brand in brandsByProduct" class="form-control" placeholder="Enter brand"> </select>
@@ -28,22 +27,23 @@
               <select ng-required="true" ng-model="SelectedCategory" ng-options="category as category.Value for category in categoriesBySubCategory" class="form-control" placeholder="Enter category"> </select>
           </div>
           <div class="form-group">
-              <select ng-required="true" ng-model="SelectedSubCategory" ng-options="subcategory as subcategory.Value for subcategory in subcategoriesByProduct" class="form-control" placeholder="Enter subcategory"> </select>
+              <select ng-required="true" ng-model="SelectedSubCategory" ng-options="subcategory as subcategory.Value for subcategory in subcategoriesByProduct" class="form-control" placeholder="Enter subcategory" ng-change="reloadCategories()"> </select>
           </div>
           <div class="form-group">
-              <input type="text" ng-required="true" ng-model="SelectedShop" typeahead="shop as shop.Value for shop in getShops($viewValue)" class="form-control" placeholder="Enter shop">
+              <input type="text" ng-model="SelectedShop" typeahead="shop as shop.Value for shop in getShops($viewValue)" class="form-control" placeholder="Enter shop">
           </div>
           <div class="form-group">
-              <input type="number" ng-required="true" ng-model="quantity" class="form-control" placeholder="Enter quantity" ng-change="recalculate()">
+              <input type="number" ng-required="true" ng-model="Quantity" class="form-control" placeholder="Enter quantity">
           </div>
           <div class="form-group">
-              <input type="number" ng-required="true" ng-model="price" class="form-control" placeholder="Enter price">
+              <input type="number" ng-required="true" ng-model="Price" class="form-control" placeholder="Enter price">
           </div>
           <div class="form-group">
-              <input type="text" ng-model="comments" class="form-control" placeholder="Enter comments">
+              <input type="text" ng-model="Comments" class="form-control" placeholder="Enter comments" >
+              {{ Comments }} 
           </div>
           <div class="form-group">
-              <button type="submit" ng-click="save()" class="btn btn-default btn-primary">Save</button>
+              <button type="submit" ng-click="save()" class="btn btn-default btn-primary"> {{ saveButtonText }} </button>
           </div>
           <div class="form-group">
             <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)"> {{ alert.msg }} </alert>

@@ -111,7 +111,16 @@ func Save (order OrderData) (err error) {
     if err != nil {
         return 
     }
+    var shopId interface{} = nil
+    if order.ShopId != -1 {
+	shopId = order.ShopId
+    }
 
-    _, err = stmt.Exec (order.Quantity, order.ProductId, order.Price, order.ShopId, order.BrandId, order.CategoryId, order.SubcategoryId, order.Comments, order.OrderDate)
+    var brandId interface{} = nil
+    if order.BrandId != -1 {
+	brandId = order.BrandId
+    }
+
+    _, err = stmt.Exec (order.Quantity, order.ProductId, order.Price, shopId, brandId, order.CategoryId, order.SubcategoryId, order.Comments, order.OrderDate)
     return
 }

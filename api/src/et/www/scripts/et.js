@@ -1,4 +1,4 @@
-var app = angular.module('track', ['ui.bootstrap']);
+var app = angular.module('et', ['ui.bootstrap']);
 app.directive('ngBlur', function() {
   return function( scope, elem, attrs ) {
     elem.bind('blur', function() {
@@ -9,34 +9,34 @@ app.directive('ngBlur', function() {
 function EtCtrl ($http, $scope) {
     $scope.navType = "tabs";
     $scope.alerts = [];
-    $scope.brandsByProduct = [];
-    $scope.selectedProduct = undefined;
-    $scope.selectedBrand = undefined;
-    $scope.selectedShop = undefined;
+    $scope.SelectedProduct = undefined;
+    $scope.SelectedBrand = undefined;
+    $scope.SelectedShop = undefined;
+    $scope.SelectedCateogry = undefined;
+    $scope.saveButtonText = "Save";
+    $scope.subcategoriesByProduct = [ { "Id" : -1, "Value" : "None" } ];
+    $scope.SelectedSubCategory = $scope.subcategoriesByProduct[0];
     
-    $scope.save_thing_to_buy = function() {
-        $http.post ("/add",
-                { "item" : $scope.item_to_buy }).success (function (response) {
-                  $scope.items_to_buy = response;
-                  $scope.item_to_buy = '';
-                });
-    };
-
     $scope.save = function() {
+        $scope.saveButtonText = "Saving";
         $http.post ("/save", 
             { "orderdate" : $scope.dt,
               "productid" : $scope.SelectedProduct.Id,
-              "brandid"   : $scope.SelectedBrand.Id,
+              "brandid"   : $scope.SelectedBrand ? $scope.SelectedBrand.Id : -1,
               "categoryid": $scope.SelectedCategory.Id,
               "subcategoryid": $scope.SelectedSubCategory.Id,
-              "shopid"    : $scope.SelectedShop.Id,
-              "quantity"  : $scope.quantity,
-              "comments"  : $scope.comments,
-              "price" : $scope.price,
+              "shopid"    : $scope.SelectedShop ? $scope.SelectedShop.Id : -1,
+              "quantity"  : $scope.Quantity,
+              "comments"  : $scope.Comments,
+              "price" : $scope.Price,
               }).success (function (data) {
                 $scope.alerts = [];
                 $scope.alerts.push ( {msg: data.Msg } );
+        }).then (function ()
+        {
+	    $scope.saveButtonText = "Save";
         });
+        alert ($http.pendingRequests.length);
     };
     
     $scope.closeAlert = function(index) {
@@ -57,30 +57,23 @@ function EtCtrl ($http, $scope) {
         $scope.opened = true;
     };
 
-    function search(type, name) {
-        return $http.get ("/" + type + "?name=" + name).then(function (response)
+
+    function query (q) {
+        return $http.get (q).then(function (response)
         {
           return response.data;
         });
     }
 
-    function searchByProduct(type, name, callback) {
-        return $http.get ("/" + type + "_by_product?pid=" + $scope.SelectedProduct.Id).then(function (response)
-        {
-          callback(response.data);
-          return response.data;
-        });
+    function search(type, name) { return query ("/" + type + "?name=" + name) }
+
+    function searchByProduct(product, type) {
+        return query ("/" + type + "_by_product?pid=" + product.Id)
     }
 
-
-    function searchCategories(subcatid, callback) {
-        return $http.get ("/cats_by_subcat?subcatid=" + subcatid).then(function (response)
-        {
-          callback(response.data);
-          return response.data;
-        });
+    function searchCategories(subcatid) {
+        return query ("/cats_by_subcat?subcatid=" + subcatid)
     }
-  
 
     $scope.getItemsToBuy = function() {
         $http.get ("/get_items_to_buy").then(function (response)
@@ -122,19 +115,29 @@ function EtCtrl ($http, $scope) {
     };
 
     $scope.reloadCategories = function() {
-       function selectFirstCat(data) { $scope.SelectedCategory = data[0]; }
-       $scope.categoriesBySubCategory = searchCategories($scope.SelectedSubCategory.Id, selectFirstCat);
+        searchCategories($scope.SelectedSubCategory.Id).then (function (data)
+        {
+            $scope.categoriesBySubCategory = data;
+	    $scope.SelectedCategory = $scope.categoriesBySubCategory[0];
+	});
     };
 
-    $scope.recalculate = function() {
-       if ($scope.SelectedProduct == undefined)
+    $scope.recalculate = function(item, model, label) {
+       if (model == undefined)
           return;
 
-       function selectFirstBrand(data) { $scope.SelectedBrand = data[0]; }
-       $scope.brandsByProduct = searchByProduct("brands", "", selectFirstBrand);
+       searchByProduct(model, "brands").then (function (data)
+       {
+	   $scope.brandsByProduct = data;
+           $scope.SelectedBrand = $scope.brandsByProduct[0];
+       });
 
-       function selectFirstSubCat(data) { $scope.SelectedSubCategory = data[0]; $scope.reloadCategories(); }
-       $scope.subcategoriesByProduct = searchByProduct("subcats", "", selectFirstSubCat);
+       searchByProduct(model, "subcats").then (function (data)
+       {
+           $scope.subcategoriesByProduct = data;
+           $scope.SelectedSubCategory = $scope.subcategoriesByProduct[0];
+           $scope.reloadCategories();
+       });
     };
 
     $scope.clear = function() {
