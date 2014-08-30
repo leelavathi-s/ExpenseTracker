@@ -36,7 +36,6 @@ function EtCtrl ($http, $scope) {
         {
 	    $scope.saveButtonText = "Save";
         });
-        alert ($http.pendingRequests.length);
     };
     
     $scope.closeAlert = function(index) {
@@ -114,12 +113,16 @@ function EtCtrl ($http, $scope) {
             });
     };
 
-    $scope.reloadCategories = function() {
-        searchCategories($scope.SelectedSubCategory.Id).then (function (data)
+    $scope.reloadCategories = function(subcat) {
+        searchCategories(subcat.Id).then (function (data)
         {
             $scope.categoriesBySubCategory = data;
 	    $scope.SelectedCategory = $scope.categoriesBySubCategory[0];
 	});
+    };
+
+    $scope.reloadCategoriesOnTypeAheadSelect = function(item, model, label) {
+	$scope.reloadCategories (model);
     };
 
     $scope.recalculate = function(item, model, label) {
@@ -136,7 +139,7 @@ function EtCtrl ($http, $scope) {
        {
            $scope.subcategoriesByProduct = data;
            $scope.SelectedSubCategory = $scope.subcategoriesByProduct[0];
-           $scope.reloadCategories();
+           $scope.reloadCategories($scope.SelectedSubCategory);
        });
     };
 
